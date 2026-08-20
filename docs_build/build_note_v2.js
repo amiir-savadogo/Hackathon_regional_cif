@@ -74,7 +74,7 @@ const doc = new Document({
       new Paragraph({ children: [new TextRun({ text: "Burkina Faso · Ouagadougou · 4-6 septembre 2026", size: 20, color: "555555" })], spacing: { after: 220 } }),
 
       new Paragraph({ children: [new TextRun({ text: "NOTE DE PRÉSENTATION DU PROJET", bold: true, size: 26 })], spacing: { after: 60 } }),
-      new Paragraph({ children: [new TextRun({ text: "CréditSûr WA — Système de scoring microcrédit adapté aux Coopératives financières", bold: true, size: 24, color: NAVY })], spacing: { after: 60 } }),
+      new Paragraph({ children: [new TextRun({ text: "Samdé : Système de scoring microcrédit adapté aux Coopératives financières", bold: true, size: 24, color: NAVY })], spacing: { after: 60 } }),
       new Paragraph({ children: [new TextRun({ text: "Thématique 02 — Scoring Microcrédit : Automatisation de l'évaluation du risque pour l'octroi de crédits", italics: true, size: 21 })], spacing: { after: 260 },
         border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: NAVY, space: 8 } } }),
 

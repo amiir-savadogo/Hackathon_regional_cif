@@ -64,7 +64,7 @@ explainer = get_explainer(model, background, meta["best_model_name"])
 # -----------------------------------------------------------------------
 col_logo, col_title = st.columns([1, 6])
 with col_title:
-    st.title("CréditSûr WA")
+    st.title("Samdé")
     st.caption(
         "Système de scoring automatisé du risque de microcrédit — "
         "conçu pour les Coopératives financières d'Afrique de l'Ouest · Hackathon CIF DigiCoop-WA+"

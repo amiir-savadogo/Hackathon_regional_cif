@@ -35,7 +35,7 @@ pd.set_option("display.max_columns", 40)
 
 md("## 1. Chargement des données\n\nJeu de données synthétique calibré sur le contexte des Coopératives financières d'Afrique de l'Ouest (voir `scripts/01_generate_dataset.py` pour la méthodologie de génération).")
 
-code("""df = pd.read_csv("../data/credit_wa_dataset.csv")
+code("""df = pd.read_csv("../data/samde_dataset.csv")
 print(df.shape)
 df.head()
 """)
