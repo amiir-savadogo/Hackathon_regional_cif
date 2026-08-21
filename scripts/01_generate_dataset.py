@@ -92,7 +92,7 @@ jours_retard_moyen_historique = np.where(
 ).round(0)
 
 # ---------------------------------------------------------------------
-# 3bis. Bureau d'Information sur le Crédit (BIC) — dispositif régional UEMOA
+# 3bis. Bureau d'Information sur le Crédit (BIC) - dispositif régional UEMOA
 #       (BCEAO comme interface, alimenté mensuellement par les banques,
 #       autres établissements financiers et SFD/institutions de microfinance)
 # ---------------------------------------------------------------------

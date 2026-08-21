@@ -89,16 +89,16 @@ const doc = new Document({
     children: [
       new Paragraph({ children: [new TextRun({ text: "CréditSûr WA", bold: true, size: 44, color: BLUE })], spacing: { after: 40 } }),
       new Paragraph({ children: [new TextRun({ text: "Note de présentation de l'idée / solution", size: 26, italics: true, color: "555555" })], spacing: { after: 60 } }),
-      new Paragraph({ children: [new TextRun({ text: "Hackathon National d'Innovation CIF — Projet DigiCoop-WA+ · Thématique 02 : Scoring Microcrédit", size: 20, color: "777777" })], spacing: { after: 40 } }),
+      new Paragraph({ children: [new TextRun({ text: "Hackathon National d'Innovation CIF - Projet DigiCoop-WA+ · Thématique 02 : Scoring Microcrédit", size: 20, color: "777777" })], spacing: { after: 40 } }),
       new Paragraph({ children: [new TextRun({ text: "Burkina Faso · Ouagadougou · 4-6 septembre 2026", size: 20, color: "777777" })], spacing: { after: 260 },
         border: { bottom: { style: BorderStyle.SINGLE, size: 6, color: BLUE, space: 8 } } }),
 
       heading("1. Problème adressé"),
-      p("Dans les Coopératives financières (Institutions de Microfinance) d'Afrique de l'Ouest, l'octroi de microcrédit repose encore largement sur une analyse manuelle et subjective du dossier du demandeur. Cela génère des délais de traitement longs, des décisions peu homogènes d'un agent à l'autre, un risque d'impayés mal maîtrisé et des coûts opérationnels élevés — pénalisant en premier lieu les Coopératives aux ressources informatiques et à la connectivité les plus limitées."),
+      p("Dans les Coopératives financières (Institutions de Microfinance) d'Afrique de l'Ouest, l'octroi de microcrédit repose encore largement sur une analyse manuelle et subjective du dossier du demandeur. Cela génère des délais de traitement longs, des décisions peu homogènes d'un agent à l'autre, un risque d'impayés mal maîtrisé et des coûts opérationnels élevés - pénalisant en premier lieu les Coopératives aux ressources informatiques et à la connectivité les plus limitées."),
 
       heading("2. Approche proposée"),
       p("CréditSûr WA est un prototype de scoring automatisé du risque de microcrédit, pensé dès la conception pour le contexte réel d'une Coopérative financière ouest-africaine plutôt que pour transposer un modèle bancaire occidental. Trois choix structurent l'approche :"),
-      bullet("Des variables réellement disponibles localement : épargne et ancienneté à la coopérative, participation à un groupe de caution solidaire, usage du Mobile Money, secteur d'activité (y compris informel), garantie proposée — et non des données bureau de crédit ou carte bancaire absentes du contexte local.", false),
+      bullet("Des variables réellement disponibles localement : épargne et ancienneté à la coopérative, participation à un groupe de caution solidaire, usage du Mobile Money, secteur d'activité (y compris informel), garantie proposée - et non des données bureau de crédit ou carte bancaire absentes du contexte local.", false),
       bullet("Une gestion explicite du déséquilibre des classes (SMOTE) et un seuil de décision optimisé sur le coût métier réel : refuser à tort un bon payeur coûte moins cher à la coopérative qu'accorder un crédit à un mauvais payeur.", false),
       bullet("Une décision à trois zones (favorable / à examiner / risque élevé), assortie d'une explication SHAP dossier par dossier en français, pour que l'agent de crédit garde la décision finale et comprenne le score plutôt que de le subir.", false),
 
@@ -128,11 +128,11 @@ const doc = new Document({
       bullet("Documentation technique (README) et présente note de candidature.", false),
 
       heading("8. Équipe et complémentarité des compétences"),
-      p("Équipe CréditSûr WA — 4 membres (3 profils Master Data Science, 1 profil Génie logiciel) couvrant l'ensemble de la chaîne de valeur du prototype :"),
-      bullet("Données & Feature Engineering — génération, calibration et documentation du dataset.", false),
-      bullet("Modélisation & Évaluation — comparaison des modèles, SMOTE, choix du seuil de décision.", false),
-      bullet("Explicabilité & Démo — SHAP, animation de l'application de démonstration, pitch.", false),
-      bullet("Intégration & Robustesse — packaging du modèle, API/application, tests, support démo.", false),
+      p("Équipe CréditSûr WA - 4 membres (3 profils Master Data Science, 1 profil Génie logiciel) couvrant l'ensemble de la chaîne de valeur du prototype :"),
+      bullet("Données & Feature Engineering - génération, calibration et documentation du dataset.", false),
+      bullet("Modélisation & Évaluation - comparaison des modèles, SMOTE, choix du seuil de décision.", false),
+      bullet("Explicabilité & Démo - SHAP, animation de l'application de démonstration, pitch.", false),
+      bullet("Intégration & Robustesse - packaging du modèle, API/application, tests, support démo.", false),
 
       heading("9. Feuille de route post-hackathon"),
       roadmapTable,

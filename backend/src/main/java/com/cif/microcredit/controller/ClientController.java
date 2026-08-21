@@ -14,7 +14,7 @@ import java.util.List;
 import java.util.Optional;
 
 /**
- * ClientController — expose les endpoints REST pour la gestion
+ * ClientController - expose les endpoints REST pour la gestion
  * des clients et de leurs demandes de crédit.
  *
  * Routes disponibles :

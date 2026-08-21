@@ -5,7 +5,7 @@ import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 /**
- * Entité DemandeCredit — représente une demande de prêt soumise par un client.
+ * Entité DemandeCredit - représente une demande de prêt soumise par un client.
  * Elle contient les données financières nécessaires au calcul du score
  * ainsi que la décision de l'IA et de l'agent.
  */

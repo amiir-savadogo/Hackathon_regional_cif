@@ -1,93 +1,71 @@
-# CréditSûr WA — Plateforme d'Évaluation de Microcrédit Assistée par IA
+# CréditSûr WA - Plateforme d'Évaluation de Microcrédit Assistée par IA
 
-Prototype réalisé par l'équipe **CréditSûr WA** pour le **Hackathon National d'Innovation CIF — Projet DigiCoop-WA+** (Thématique 02 : *Scoring Microcrédit*), Burkina Faso, 4-6 septembre 2026.
+Salut ! Voici le dépôt officiel de notre projet **CréditSûr WA**, réalisé dans le cadre du **Hackathon National d'Innovation CIF - Projet DigiCoop-WA+** (Thématique 02 : Scoring Microcrédit) au Burkina Faso.
 
-Ce projet n'est pas une simple "calculatrice de score", mais un **véritable CRM métier** conçu pour les Coopératives financières (Institutions de Microfinance) d'Afrique de l'Ouest. Il permet la gestion complète du cycle de vie du client, de l'enregistrement de son profil jusqu'à la prise de décision, en s'appuyant sur un moteur d'Intelligence Artificielle.
+🌐 **Lien de la plateforme en direct (Production)** : [https://creditsur-wa.vercel.app](https://creditsur-wa.vercel.app)
+
+Plutôt que de faire une simple maquette ou un script Python isolé, nous avons pris le parti de construire un **véritable outil métier de bout en bout (CRM)**. L'objectif est d'offrir aux agents de crédit des Coopératives financières ouest-africaines une plateforme moderne, robuste et directement utilisable pour la gestion de leurs dossiers de microcrédit.
+
+## 🏗️ Architecture Technique
+
+Pour garantir que la plateforme soit scalable et maintenable, nous avons opté pour une architecture microservices complète. Le projet est découpé en 3 couches indépendantes :
+
+1. **Frontend (Interface Web)** : Développé en **Angular 18** avec **TailwindCSS**. C'est le tableau de bord de l'agent de crédit (gestion des clients, formulaires, suivi).
+2. **Backend (Logique métier & BDD)** : Développé en **Java Spring Boot 3**. Il s'occupe des règles de gestion, de la sécurité (CORS, API REST) et sauvegarde les données dans une base **PostgreSQL**.
+3. **Moteur IA (Scoring)** : Développé en **Python (FastAPI + XGBoost)**. Il reçoit les données du backend et renvoie en temps réel une probabilité de défaut de paiement pour aider l'agent à prendre sa décision.
 
 ---
 
-## 🏗️ Architecture du Projet
+## 🚀 Guide de Déploiement (Cloud)
 
-Le projet a été pensé selon les standards de l'industrie (Microservices) pour garantir la robustesse et l'évolutivité. Il se divise en 3 couches distinctes :
+Nous avons packagé le code pour qu'il soit très facilement déployable sur des infrastructures cloud modernes (Render, Vercel, Supabase). Voici comment nous avons mis le projet en ligne :
 
-1. **Frontend (Interface Agent)** : Développé en **Angular 18** avec **TailwindCSS**. Il offre une interface moderne, sobre et professionnelle (CRM) adaptée au travail quotidien d'un agent de crédit.
-2. **Backend (Logique Métier & Base de Données)** : Développé en **Java Spring Boot 3**. Il expose une API REST, gère la sécurité (CORS) et orchestre la base de données relationnelle via **Hibernate/JPA**.
-3. **Moteur IA (Scoring de Risque)** : Développé en **Python (FastAPI + XGBoost)**. Il reçoit les données financières du backend et retourne instantanément une probabilité de défaut de paiement.
+### 1. Base de données (PostgreSQL)
+- Nous utilisons une base de données PostgreSQL gérée (sur **Render.com** ou **Supabase**).
+- Le lien de connexion (`DB_URL`) ainsi que les identifiants (`DB_USER`, `DB_PASSWORD`) sont passés en variables d'environnement au serveur Java pour des raisons de sécurité.
+
+### 2. Moteur IA (Python)
+- Le service Python est hébergé sur **Render.com** (Web Service).
+- **Commande de build** : `pip install -r requirements.txt`
+- **Commande de lancement** : `uvicorn main:app --host 0.0.0.0 --port $PORT`
+- Le modèle XGBoost a été pré-entraîné par notre équipe Data et est inclus au format JSON (`modele_xgboost.json`) pour des inférences ultra-rapides (< 50ms).
+
+### 3. Backend (Java Spring Boot)
+- Le backend est également hébergé sur **Render.com**.
+- Comme Render ne supporte pas nativement Java de manière simple, nous avons créé un fichier `Dockerfile` à la racine du dossier `backend`. Il compile l'application avec Maven puis la lance de manière optimisée.
+- **Variables d'environnement requises** :
+  - `DB_URL`, `DB_USER`, `DB_PASSWORD` : Pour se lier à la BDD.
+  - `AI_SERVICE_URL` : L'adresse URL publique du service Python déployé à l'étape précédente.
+
+### 4. Frontend (Angular)
+- L'interface agent est hébergée sur **Vercel.com**.
+- Lors du déploiement, nous indiquons à Vercel que le dossier racine est `frontend`.
+- Le dossier de sortie (*Output Directory*) configuré sur Vercel est `dist/frontend/browser` (standard Angular 18+).
+- L'URL de production du backend Java est renseignée dans `frontend/src/environments/environment.production.ts`.
 
 ---
 
-## 🧪 Partie Data Science (Génération et Entraînement)
+## 🧪 Partie Data Science (Pour les curieux)
 
-Avant de lancer l'application finale, vous pouvez explorer la partie Data Science du projet (génération de données synthétiques et entraînement du modèle).
+Si vous souhaitez comprendre comment nous avons entraîné le modèle IA, tout se passe dans le dossier `scripts`.
 
-1. Installez les dépendances Python générales à la racine :
+1. Installez les dépendances :
    ```bash
    pip install -r requirements.txt
    ```
-2. **Générer le dataset synthétique** (4000 dossiers calibrés sur le contexte ouest-africain) :
+2. **Génération du dataset** (4000 dossiers générés sur base de métriques réalistes de la microfinance UEMOA) :
    ```bash
    python scripts/01_generate_dataset.py
    ```
-3. **Entraîner et comparer les modèles** (Régression Logistique, Random Forest, XGBoost). Le meilleur modèle sera sauvegardé sous format JSON :
+3. **Entraînement du modèle XGBoost** :
    ```bash
    python scripts/02_train_model.py
    ```
-*Note : Le modèle final optimisé a déjà été copié dans le dossier `ai-service/modele_xgboost.json` pour la démonstration.*
+Le modèle final est ensuite copié dans `ai-service/modele_xgboost.json` pour être utilisé par l'API FastAPI.
 
 ---
 
-## 🚀 Guide d'installation et de démarrage de la plateforme
+## 👥 L'équipe DataMaster
 
-Pour lancer l'application CRM complète, vous devez allumer les trois microservices en parallèle. Ouvrez **3 terminaux différents** à la racine de ce projet.
-
-### Terminal 1 : Lancer le Moteur IA (Python)
-Ce service tourne sur le port `8000`.
-```bash
-cd ai-service
-pip install -r requirements.txt
-python -m uvicorn main:app --port 8000
-```
-*Patientez jusqu'à voir : `Application startup complete.`*
-
-### Terminal 2 : Lancer le Backend Métier (Java)
-Ce service tourne sur le port `8080`.
-```bash
-cd backend
-./mvnw spring-boot:run
-```
-*(Sur Windows, utilisez `.\mvnw spring-boot:run`)*
-*Patientez jusqu'à voir : `Started MicrocreditApplication in X seconds`*
-
-### Terminal 3 : Lancer l'Interface Utilisateur (Angular)
-Ce service tourne sur le port `4200`.
-```bash
-cd frontend
-npm install
-npm start
-```
-*Patientez jusqu'à voir : `Application bundle generation complete.`*
-
-👉 **Une fois les 3 services lancés, ouvrez votre navigateur et allez sur : [http://localhost:4200](http://localhost:4200)**
-
----
-
-## 🌟 Fonctionnalités Implémentées
-
-- **Tableau de Bord Global** : Suivi des statistiques d'octroi de crédit en temps réel (taux d'approbation, dossiers en étude, clients enregistrés).
-- **Gestion des Demandeurs (KYC)** : Création et listage des profils clients (identités, ancienneté, secteurs d'activité). Contrôle anti-doublon intégré.
-- **Formulaire de Crédit Intelligent** : Calcul instantané des indicateurs financiers locaux (Reste à vivre, Ratio d'endettement, Mensualité estimée).
-- **Décision Assistée par l'IA** : Intégration en temps réel du modèle XGBoost, affichant une probabilité précise de défaut et une recommandation catégorisée (APPROUVÉ, À L'ÉTUDE, REJETÉ).
-- **Historisation** : Traçabilité complète des demandes pour un même client.
-
----
-
-## 🧠 Le Modèle d'Intelligence Artificielle
-
-Le moteur IA repose sur un algorithme **XGBoost Classifier**, particulièrement adapté aux données tabulaires et résistant aux déséquilibres de classes.
-- Le modèle ne se base **pas** sur des variables occidentales (cartes de crédit), mais sur des données de terrain ouest-africaines (revenus informels, charges, ancienneté).
-- Le modèle a été converti au format JSON (`modele_xgboost.json`) pour garantir une inférence ultra-rapide (< 50ms) en production via FastAPI.
-
-## 👥 L'équipe
-
-**CréditSûr WA**
-Pour plus d'informations sur notre vision métier, merci de consulter notre dossier de candidature officiel (`fiche_equipe_CreditSurWA.docx`).
+Ce projet a été pensé, designé et développé avec passion par l'équipe **DataMaster** pour répondre aux vrais défis de l'inclusion financière en Afrique de l'Ouest.
+Pour plus de détails sur l'aspect métier et stratégique, n'hésitez pas à consulter notre note de présentation (`docs_build/Note_Presentation_Scoring_Microcredit.docx`).

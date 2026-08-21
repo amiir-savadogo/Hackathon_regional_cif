@@ -61,7 +61,8 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
         </nav>
 
         <div class="px-4 py-4 border-t border-slate-700">
-          <p class="text-xs text-slate-500 text-center">CIF &copy; 2026 — Prototype v1.0</p>
+          <p class="text-xs text-slate-400 text-center font-semibold mb-1">Équipe DataMaster</p>
+          <p class="text-xs text-slate-500 text-center">CIF &copy; 2026 - Prototype v1.0</p>
         </div>
       </aside>
 

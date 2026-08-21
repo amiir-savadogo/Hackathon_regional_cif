@@ -8,7 +8,7 @@ import java.util.Map;
 import java.util.HashMap;
 
 /**
- * ScoringService — fait le pont entre le backend Spring Boot et le moteur IA Python.
+ * ScoringService - fait le pont entre le backend Spring Boot et le moteur IA Python.
  * Envoie les données financières du client via HTTP et retourne la probabilité de défaut.
  */
 import org.springframework.beans.factory.annotation.Value;

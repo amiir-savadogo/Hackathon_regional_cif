@@ -7,7 +7,7 @@ import java.util.List;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 
 /**
- * Entité Client — représente le profil de base d'un demandeur de microcrédit.
+ * Entité Client - représente le profil de base d'un demandeur de microcrédit.
  * Séparé de la demande de crédit elle-même pour permettre
  * un historique de plusieurs dossiers par client.
  */

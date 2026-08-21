@@ -55,7 +55,7 @@ import { Client } from '../../models/client.model';
                 <span *ngIf="c.telephone" class="block text-xs text-gray-400">{{ c.telephone }}</span>
               </td>
               <td class="px-5 py-3.5 text-gray-700">{{ c.age }} ans</td>
-              <td class="px-5 py-3.5 text-gray-600">{{ c.secteurActivite || '—' }}</td>
+              <td class="px-5 py-3.5 text-gray-600">{{ c.secteurActivite || '-' }}</td>
               <td class="px-5 py-3.5 text-gray-600">{{ c.ancienneteActiviteAnnees }} an(s)</td>
               <td class="px-5 py-3.5 text-gray-400 text-xs">{{ c.dateCreation | date:'dd/MM/yyyy' }}</td>
               <td class="px-5 py-3.5 text-right">
