@@ -11,11 +11,15 @@ import java.util.HashMap;
  * ScoringService — fait le pont entre le backend Spring Boot et le moteur IA Python.
  * Envoie les données financières du client via HTTP et retourne la probabilité de défaut.
  */
+import org.springframework.beans.factory.annotation.Value;
+
 @Service
 public class ScoringService {
 
     private final RestTemplate restTemplate = new RestTemplate();
-    private final String AI_SERVICE_URL = "http://localhost:8000/api/score";
+    
+    @Value("${AI_SERVICE_URL:http://localhost:8000/api/score}")
+    private String aiServiceUrl;
 
     public Double calculateScore(DemandeCredit demande) {
         try {
@@ -25,7 +29,7 @@ public class ScoringService {
             request.put("charges_mensuelles_fcfa", demande.getChargesMensuellesFcfa());
             request.put("anciennete_activite_annees", demande.getClient().getAncienneteActiviteAnnees());
 
-            ResponseEntity<Map> response = restTemplate.postForEntity(AI_SERVICE_URL, request, Map.class);
+            ResponseEntity<Map> response = restTemplate.postForEntity(aiServiceUrl, request, Map.class);
 
             if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
                 Object score = response.getBody().get("score_risque");

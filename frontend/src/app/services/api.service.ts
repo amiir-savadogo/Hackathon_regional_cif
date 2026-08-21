@@ -2,11 +2,12 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { Client, DemandeCredit, DashboardStats } from '../models/client.model';
+import { environment } from '../../environments/environment';
 
 @Injectable({ providedIn: 'root' })
 export class ApiService {
   private http = inject(HttpClient);
-  private base = 'http://localhost:8080/api';
+  private base = environment.apiUrl;
 
   // --- Clients ---
   getClients(): Observable<Client[]> {
