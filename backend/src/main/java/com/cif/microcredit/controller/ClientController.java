@@ -1,0 +1,136 @@
+package com.cif.microcredit.controller;
+
+import com.cif.microcredit.model.Client;
+import com.cif.microcredit.model.DemandeCredit;
+import com.cif.microcredit.repository.ClientRepository;
+import com.cif.microcredit.repository.DemandeCreditRepository;
+import com.cif.microcredit.service.ScoringService;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.ResponseEntity;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
+import java.util.Optional;
+
+/**
+ * ClientController — expose les endpoints REST pour la gestion
+ * des clients et de leurs demandes de crédit.
+ *
+ * Routes disponibles :
+ *   GET    /api/clients              -> Liste tous les clients
+ *   POST   /api/clients              -> Crée un nouveau profil client
+ *   GET    /api/clients/{id}         -> Détail d'un client avec ses demandes
+ *   POST   /api/clients/{id}/demandes -> Soumet une nouvelle demande de crédit pour un client
+ *   GET    /api/clients/{id}/demandes -> Historique des demandes d'un client
+ *   GET    /api/dashboard/stats      -> Statistiques pour le tableau de bord
+ */
+@RestController
+@RequestMapping("/api")
+@CrossOrigin(origins = "*")
+public class ClientController {
+
+    @Autowired
+    private ClientRepository clientRepository;
+
+    @Autowired
+    private DemandeCreditRepository demandeCreditRepository;
+
+    @Autowired
+    private ScoringService scoringService;
+
+    // =====================================================================
+    // GESTION DES CLIENTS
+    // =====================================================================
+
+    @GetMapping("/clients")
+    public ResponseEntity<List<Client>> getAllClients() {
+        return ResponseEntity.ok(clientRepository.findAll());
+    }
+
+    @PostMapping("/clients")
+    public ResponseEntity<?> createClient(@RequestBody Client client) {
+        // Contrôle anti-doublon basé sur le nom et le prénom
+        boolean exists = clientRepository.findAll().stream()
+                .anyMatch(c -> c.getNom().equalsIgnoreCase(client.getNom()) && 
+                               c.getPrenom().equalsIgnoreCase(client.getPrenom()));
+                               
+        if (exists) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(java.util.Map.of("erreur", "Un client avec ce nom et prénom existe déjà dans la base."));
+        }
+
+        Client savedClient = clientRepository.save(client);
+        return ResponseEntity.status(HttpStatus.CREATED).body(savedClient);
+    }
+
+    @GetMapping("/clients/{id}")
+    public ResponseEntity<Client> getClientById(@PathVariable Long id) {
+        Optional<Client> client = clientRepository.findById(id);
+        return client.map(ResponseEntity::ok)
+                     .orElse(ResponseEntity.notFound().build());
+    }
+
+    // =====================================================================
+    // GESTION DES DEMANDES DE CRÉDIT
+    // =====================================================================
+
+    @GetMapping("/clients/{clientId}/demandes")
+    public ResponseEntity<List<DemandeCredit>> getDemandes(@PathVariable Long clientId) {
+        List<DemandeCredit> demandes = demandeCreditRepository.findByClientIdOrderByDateCreationDesc(clientId);
+        return ResponseEntity.ok(demandes);
+    }
+
+    @PostMapping("/clients/{clientId}/demandes")
+    public ResponseEntity<DemandeCredit> evaluerCredit(
+            @PathVariable Long clientId,
+            @RequestBody DemandeCredit demande) {
+
+        Optional<Client> optClient = clientRepository.findById(clientId);
+        if (optClient.isEmpty()) {
+            return ResponseEntity.notFound().build();
+        }
+
+        demande.setClient(optClient.get());
+
+        // Appel du moteur IA XGBoost pour calculer la probabilité de défaut
+        Double score = scoringService.calculateScore(demande);
+        demande.setScoreRisque(score);
+
+        // Règle de décision basée sur le score IA
+        if (score != null) {
+            if (score > 70)      demande.setStatut("REJETE");
+            else if (score < 30) demande.setStatut("APPROUVE");
+            else                 demande.setStatut("A_L_ETUDE");
+        } else {
+            demande.setStatut("ERREUR_IA");
+        }
+
+        DemandeCredit saved = demandeCreditRepository.save(demande);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    // =====================================================================
+    // STATISTIQUES TABLEAU DE BORD
+    // =====================================================================
+
+    @GetMapping("/dashboard/stats")
+    public ResponseEntity<?> getStats() {
+        long totalClients = clientRepository.count();
+        long totalDemandes = demandeCreditRepository.count();
+        long approuvees = demandeCreditRepository.findAll().stream()
+                .filter(d -> "APPROUVE".equals(d.getStatut())).count();
+        long rejetees = demandeCreditRepository.findAll().stream()
+                .filter(d -> "REJETE".equals(d.getStatut())).count();
+        long enEtude = demandeCreditRepository.findAll().stream()
+                .filter(d -> "A_L_ETUDE".equals(d.getStatut())).count();
+
+        return ResponseEntity.ok(new java.util.HashMap<>() {{
+            put("totalClients", totalClients);
+            put("totalDemandes", totalDemandes);
+            put("approuvees", approuvees);
+            put("rejetees", rejetees);
+            put("enEtude", enEtude);
+        }});
+    }
+}

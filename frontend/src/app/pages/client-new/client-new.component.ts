@@ -1,0 +1,131 @@
+import { Component, inject } from '@angular/core';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { ApiService } from '../../services/api.service';
+import { Client } from '../../models/client.model';
+
+@Component({
+  selector: 'app-client-new',
+  standalone: true,
+  imports: [CommonModule, FormsModule, RouterLink],
+  template: `
+    <div class="max-w-2xl mx-auto">
+      <!-- Fil d'Ariane -->
+      <div class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
+        <a routerLink="/clients" class="hover:text-blue-700">Clients</a>
+        <span>/</span>
+        <span class="text-gray-800 font-medium">Nouveau demandeur</span>
+      </div>
+
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
+        <h1 class="text-xl font-bold text-gray-900 mb-1">Enregistrement d'un nouveau demandeur</h1>
+        <p class="text-sm text-gray-500 mb-6">Saisissez les informations d'identité du client. Les données financières seront renseignées lors de la demande de crédit.</p>
+
+        <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+          {{ errorMessage }}
+        </div>
+
+        <form (ngSubmit)="enregistrer()" class="space-y-5">
+
+          <!-- SECTION : Identité -->
+          <div>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Identité</h2>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                <input type="text" [(ngModel)]="client.nom" name="nom" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Ex : Diop" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                <input type="text" [(ngModel)]="client.prenom" name="prenom" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Ex : Amadou" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Âge *</label>
+                <input type="number" [(ngModel)]="client.age" name="age" required min="18" max="75"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                <input type="tel" [(ngModel)]="client.telephone" name="telephone"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Ex : +225 07 00 00 00" />
+              </div>
+            </div>
+          </div>
+
+          <!-- SECTION : Activité économique -->
+          <div>
+            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Activité économique</h2>
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Secteur d'activité</label>
+                <select [(ngModel)]="client.secteurActivite" name="secteur"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">-- Sélectionner --</option>
+                  <option>Commerce informel</option>
+                  <option>Agriculture</option>
+                  <option>Élevage</option>
+                  <option>Artisanat</option>
+                  <option>Restauration/Transformation</option>
+                  <option>Transport</option>
+                  <option>Salarié secteur formel</option>
+                  <option>Fonctionnaire</option>
+                  <option>Autre service</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Ancienneté (années) *</label>
+                <input type="number" [(ngModel)]="client.ancienneteActiviteAnnees" name="anciennete" required step="0.5" min="0"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  placeholder="Ex : 3" />
+              </div>
+            </div>
+          </div>
+
+          <!-- ACTIONS -->
+          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
+            <a routerLink="/clients" class="text-sm text-gray-500 hover:text-gray-700">Annuler</a>
+            <button type="submit" [disabled]="loading"
+              class="bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors">
+              {{ loading ? 'Enregistrement...' : 'Enregistrer le client' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+  `
+})
+export class ClientNewComponent {
+  private api = inject(ApiService);
+  private router = inject(Router);
+
+  client: Client = { nom: '', prenom: '', age: 0, ancienneteActiviteAnnees: 0 };
+  loading = false;
+  errorMessage = '';
+
+  enregistrer() {
+    if (!this.client.nom || !this.client.prenom || !this.client.age) {
+      this.errorMessage = 'Les champs Nom, Prénom et Âge sont obligatoires.';
+      return;
+    }
+    this.loading = true;
+    this.api.createClient(this.client).subscribe({
+      next: (created) => {
+        this.router.navigate(['/clients', created.id, 'credit']);
+      },
+      error: (err) => {
+        this.loading = false;
+        if (err.status === 409) {
+          this.errorMessage = err.error.erreur || 'Un client avec ce nom et prénom existe déjà.';
+        } else {
+          this.errorMessage = 'Erreur lors de la connexion au serveur. Vérifiez que Spring Boot est allumé.';
+        }
+      }
+    });
+  }
+}
