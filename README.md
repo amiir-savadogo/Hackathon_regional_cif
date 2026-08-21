@@ -1,6 +1,6 @@
-# CréditSûr WA - Plateforme d'Évaluation de Microcrédit Assistée par IA
+# Samdé - Plateforme d'Évaluation de Microcrédit Assistée par IA
 
-Salut ! Voici le dépôt officiel de notre projet **CréditSûr WA**, réalisé dans le cadre du **Hackathon National d'Innovation CIF - Projet DigiCoop-WA+** (Thématique 02 : Scoring Microcrédit) au Burkina Faso.
+Salut ! Voici le dépôt officiel de notre projet **Samdé**, réalisé dans le cadre du **Hackathon National d'Innovation CIF - Projet DigiCoop-WA+** (Thématique 02 : Scoring Microcrédit) au Burkina Faso.
 
 🌐 **Lien de la plateforme en direct (Production)** : [https://creditsur-wa.vercel.app](https://creditsur-wa.vercel.app)
 
