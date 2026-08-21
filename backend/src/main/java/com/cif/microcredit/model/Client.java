@@ -27,6 +27,13 @@ public class Client {
     private String secteurActivite;
     private double ancienneteActiviteAnnees;
 
+    // Profil socio-démographique (utilisé par le moteur de scoring IA)
+    private String sexe;                       // "Femme" | "Homme"
+    private String zone;                       // "Urbaine" | "Semi-urbaine" | "Rurale"
+    private String situationMatrimoniale;       // "Marié(e)" | "Célibataire" | "Veuf(ve)" | "Divorcé(e)"
+    private String niveauEducation;             // "Aucun" | "Primaire" | "Secondaire" | "Supérieur"
+    private int nombrePersonnesACharge;
+
     private LocalDateTime dateCreation;
 
     // Un client peut avoir plusieurs demandes de crédit dans le temps
@@ -61,6 +68,21 @@ public class Client {
 
     public double getAncienneteActiviteAnnees() { return ancienneteActiviteAnnees; }
     public void setAncienneteActiviteAnnees(double ancienneteActiviteAnnees) { this.ancienneteActiviteAnnees = ancienneteActiviteAnnees; }
+
+    public String getSexe() { return sexe; }
+    public void setSexe(String sexe) { this.sexe = sexe; }
+
+    public String getZone() { return zone; }
+    public void setZone(String zone) { this.zone = zone; }
+
+    public String getSituationMatrimoniale() { return situationMatrimoniale; }
+    public void setSituationMatrimoniale(String situationMatrimoniale) { this.situationMatrimoniale = situationMatrimoniale; }
+
+    public String getNiveauEducation() { return niveauEducation; }
+    public void setNiveauEducation(String niveauEducation) { this.niveauEducation = niveauEducation; }
+
+    public int getNombrePersonnesACharge() { return nombrePersonnesACharge; }
+    public void setNombrePersonnesACharge(int nombrePersonnesACharge) { this.nombrePersonnesACharge = nombrePersonnesACharge; }
 
     public LocalDateTime getDateCreation() { return dateCreation; }
     public void setDateCreation(LocalDateTime dateCreation) { this.dateCreation = dateCreation; }

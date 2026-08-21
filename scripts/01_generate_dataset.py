@@ -92,7 +92,7 @@ jours_retard_moyen_historique = np.where(
 ).round(0)
 
 # ---------------------------------------------------------------------
-# 3bis. Bureau d'Information sur le Crédit (BIC) - dispositif régional UEMOA
+# 3bis. Bureau d'Information sur le Crédit (BIC) — dispositif régional UEMOA
 #       (BCEAO comme interface, alimenté mensuellement par les banques,
 #       autres établissements financiers et SFD/institutions de microfinance)
 # ---------------------------------------------------------------------
@@ -192,7 +192,7 @@ defaut_credit = RNG.binomial(1, proba_defaut)
 # 7. Assemblage du DataFrame final
 # ---------------------------------------------------------------------
 df = pd.DataFrame({
-    "id_client": [f"CSWA-{i:05d}" for i in range(1, N + 1)],
+    "id_client": [f"SMD-{i:05d}" for i in range(1, N + 1)],
     "age": age,
     "sexe": sexe,
     "zone": zone,
@@ -224,7 +224,7 @@ df = pd.DataFrame({
     "defaut_credit": defaut_credit,
 })
 
-out_path = "data/credit_wa_dataset.csv"
+out_path = "data/samde_dataset.csv"
 df.to_csv(out_path, index=False, encoding="utf-8-sig")
 
 print(f"Dataset généré : {df.shape[0]} lignes x {df.shape[1]} colonnes -> {out_path}")

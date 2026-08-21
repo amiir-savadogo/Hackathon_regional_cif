@@ -12,7 +12,9 @@ Pour garantir que la plateforme soit scalable et maintenable, nous avons opté p
 
 1. **Frontend (Interface Web)** : Développé en **Angular 18** avec **TailwindCSS**. C'est le tableau de bord de l'agent de crédit (gestion des clients, formulaires, suivi).
 2. **Backend (Logique métier & BDD)** : Développé en **Java Spring Boot 3**. Il s'occupe des règles de gestion, de la sécurité (CORS, API REST) et sauvegarde les données dans une base **PostgreSQL**.
-3. **Moteur IA (Scoring)** : Développé en **Python (FastAPI + XGBoost)**. Il reçoit les données du backend et renvoie en temps réel une probabilité de défaut de paiement pour aider l'agent à prendre sa décision.
+3. **Moteur IA (Scoring)** : Développé en **Python (FastAPI + scikit-learn + SHAP)**. Il reçoit les données du backend et renvoie en temps réel une probabilité de défaut de paiement, une zone de décision, un score scorecard et une explication du dossier pour aider l'agent à prendre sa décision.
+
+> **Note d'architecture** : le moteur IA de cette version « produit » est désormais rigoureusement le même modèle que notre prototype de recherche `Samdé` (Régression Logistique + préprocesseur + SHAP, entraîné sur les 30+ variables du dataset synthétique UEMOA). Les deux versions sont donc cohérentes : ce qui est présenté dans la note méthodologique (comparaison de modèles, explicabilité SHAP, scorecard bancaire) est bien ce qui tourne en production, et non plus une version simplifiée à 4 variables.
 
 ---
 
@@ -28,7 +30,7 @@ Nous avons packagé le code pour qu'il soit très facilement déployable sur des
 - Le service Python est hébergé sur **Render.com** (Web Service).
 - **Commande de build** : `pip install -r requirements.txt`
 - **Commande de lancement** : `uvicorn main:app --host 0.0.0.0 --port $PORT`
-- Le modèle XGBoost a été pré-entraîné par notre équipe Data et est inclus au format JSON (`modele_xgboost.json`) pour des inférences ultra-rapides (< 50ms).
+- Le modèle (Régression Logistique retenue après comparaison avec Random Forest et XGBoost, voir `notebooks/analyse_et_modelisation.ipynb`) a été pré-entraîné par notre équipe Data et est packagé dans `ai-service/models/` (préprocesseur, modèle, fond SHAP, métadonnées) pour des inférences rapides.
 
 ### 3. Backend (Java Spring Boot)
 - Le backend est également hébergé sur **Render.com**.
@@ -57,11 +59,11 @@ Si vous souhaitez comprendre comment nous avons entraîné le modèle IA, tout s
    ```bash
    python scripts/01_generate_dataset.py
    ```
-3. **Entraînement du modèle XGBoost** :
+3. **Entraînement et sélection du modèle** (comparaison Régression Logistique / Random Forest / XGBoost, calibration des seuils de décision, export SHAP) :
    ```bash
    python scripts/02_train_model.py
    ```
-Le modèle final est ensuite copié dans `ai-service/modele_xgboost.json` pour être utilisé par l'API FastAPI.
+Les artefacts (`preprocessor.pkl`, `best_model.pkl`, `feature_names.pkl`, `shap_background.pkl`, `metadata.json`) sont ensuite copiés dans `ai-service/models/` pour être chargés par l'API FastAPI au démarrage.
 
 ---
 
