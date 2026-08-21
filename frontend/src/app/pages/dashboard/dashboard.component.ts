@@ -60,13 +60,13 @@ import { DashboardStats } from '../../models/client.model';
       </div>
 
       <!-- Action rapide -->
-      <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 flex items-center justify-between">
+      <div class="bg-blue-50 border border-blue-200 rounded-xl p-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
         <div>
           <h3 class="font-semibold text-blue-900">Enregistrer un nouveau demandeur</h3>
           <p class="text-sm text-blue-700 mt-1">Créez d'abord le profil du client, puis soumettez sa demande de crédit.</p>
         </div>
         <a routerLink="/clients/nouveau"
-          class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap">
+          class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap self-start sm:self-auto">
           + Nouveau client
         </a>
       </div>

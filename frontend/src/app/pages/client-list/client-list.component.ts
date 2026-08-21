@@ -34,7 +34,7 @@ import { Client } from '../../models/client.model';
       </div>
 
       <!-- Table des clients -->
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-hidden">
+      <div class="bg-white rounded-xl border border-gray-200 shadow-sm overflow-x-auto">
         <table class="w-full text-left text-sm">
           <thead class="bg-gray-50 border-b border-gray-200">
             <tr>
