@@ -52,6 +52,8 @@ venv/
 # On ignore les gros CSV générés localement (pour éviter de saturer Git)
 data/*.csv
 data/*.xlsx
+Hackathon_preprod/
+
 # Sauf si vous voulez garder un petit fichier d'exemple (décommentez la ligne du dessous)
 # !data/sample.csv
 
