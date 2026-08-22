@@ -1,0 +1,21 @@
+{
+  "name": "hackathon_preprod",
+  "version": "1.0.0",
+  "description": "Salut ! Voici le dépôt officiel de notre projet **Samdé**, réalisé dans le cadre du **Hackathon National d'Innovation CIF - Projet DigiCoop-WA+** (Thématique 02 : Scoring Microcrédit) au Burkina Faso.",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/amiir-savadogo/Hackathon_regional_cif.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "bugs": {
+    "url": "https://github.com/amiir-savadogo/Hackathon_regional_cif/issues"
+  },
+  "homepage": "https://github.com/amiir-savadogo/Hackathon_regional_cif#readme"
+}

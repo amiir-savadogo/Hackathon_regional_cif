@@ -29,29 +29,29 @@ function cell(text, { header = false, width, shade, bold } = {}) {
 
 const metricsTable = new Table({
   width: { size: 9350, type: WidthType.DXA },
-  columnWidths: [3117, 1558, 1558, 1558, 1559],
+  columnWidths: [2450, 1725, 1725, 1725, 1725],
   rows: [
     new TableRow({ children: [
-      cell("Modèle", { header: true, width: 3117, shade: NAVY }),
-      cell("ROC-AUC", { header: true, width: 1558, shade: NAVY }),
-      cell("F1 (défaut, seuil 0,5)", { header: true, width: 1558, shade: NAVY }),
-      cell("Seuil optimal", { header: true, width: 1558, shade: NAVY }),
-      cell("F1 (défaut, seuil optimal)", { header: true, width: 1559, shade: NAVY }),
+      cell("Modèle", { header: true, width: 2450, shade: NAVY }),
+      cell("ROC-AUC", { header: true, width: 1725, shade: NAVY }),
+      cell("Rappel classe défaut (seuil 0,5)", { header: true, width: 1725, shade: NAVY }),
+      cell("Seuil optimal", { header: true, width: 1725, shade: NAVY }),
+      cell("F1 défaut (seuil optimal)", { header: true, width: 1725, shade: NAVY }),
     ]}),
     new TableRow({ children: [
-      cell("Régression Logistique", { width: 3117, bold: true }),
-      cell("0,710", { width: 1558 }), cell("0,32", { width: 1558 }),
-      cell("0,536", { width: 1558 }), cell("0,354", { width: 1559, bold: true }),
+      cell("Régression Logistique", { width: 2450, bold: true }),
+      cell("0,710", { width: 1725 }), cell("63,4 %", { width: 1725, bold: true }),
+      cell("0,536", { width: 1725 }), cell("0,354", { width: 1725, bold: true }),
     ]}),
     new TableRow({ children: [
-      cell("Random Forest", { width: 3117 }),
-      cell("0,702", { width: 1558 }), cell("0,11", { width: 1558 }),
-      cell("0,332", { width: 1558 }), cell("0,339", { width: 1559 }),
+      cell("Random Forest", { width: 2450 }),
+      cell("0,702", { width: 1725 }), cell("5,9 %", { width: 1725 }),
+      cell("0,332", { width: 1725 }), cell("0,339", { width: 1725 }),
     ]}),
     new TableRow({ children: [
-      cell("XGBoost", { width: 3117 }),
-      cell("0,710", { width: 1558 }), cell("0,12", { width: 1558 }),
-      cell("0,190", { width: 1558 }), cell("0,347", { width: 1559 }),
+      cell("XGBoost", { width: 2450 }),
+      cell("0,718", { width: 1725 }), cell("6,9 %", { width: 1725 }),
+      cell("0,290", { width: 1725 }), cell("0,348", { width: 1725 }),
     ]}),
   ],
 });
@@ -86,6 +86,7 @@ const doc = new Document({
       p("CréditSûr WA est un prototype de scoring automatisé du risque de microcrédit que nous avons construit et testé de bout en bout pendant la préparation du dossier, pas seulement esquissé sur papier. Concrètement, nous sommes partis d'un constat simple en regardant ce qui existait déjà sur GitHub sur ce sujet : la plupart des projets de scoring crédit trouvés reprennent des jeux de données occidentaux (crédit allemand des années 90, ou données de bureau de crédit type carte bancaire) avec des variables qui n'ont tout simplement pas d'équivalent dans une coopérative ouest-africaine. Nous avons donc choisi de repartir de zéro sur les données plutôt que de recycler un de ces jeux."),
 
       h2("2.1. Construction du jeu de données"),
+      p("Ce choix de repartir de zéro a été fait consciemment, et pas par défaut faute de mieux : plutôt que de présenter un modèle entraîné sur des variables occidentales sans équivalent local (crédit allemand, historique de carte bancaire), nous avons préféré construire un jeu de données synthétique mais documenté, ancré dans les réalités des coopératives ouest-africaines, en sachant dès le départ qu'il devrait être recalibré sur des données réelles avant toute mise en production - ce que nous détaillons au chapitre 4."),
       p("Comme nous n'avons pas accès à de vraies données de coopérative (secret bancaire oblige), nous avons écrit un générateur de données simulées en Python : 4 000 dossiers de crédit fictifs, construits variable par variable à partir d'hypothèses documentées et discutées en équipe plutôt que tirés au hasard. Le profil socio-démographique (âge, sexe, zone urbaine/rurale, niveau d'éducation, charges familiales) est croisé avec l'activité économique du demandeur (commerce informel, agriculture, élevage, artisanat, salariat...), son revenu et ses charges mensuelles estimées, sa relation avec la coopérative (ancienneté, régularité de l'épargne, solde moyen), son éventuel historique de crédits déjà remboursés, son usage du Mobile Money, et enfin les caractéristiques précises de la demande en cours (montant, durée, objet, garantie proposée)."),
       p("Nous avons aussi intégré une dimension qui manque à beaucoup de projets de ce type : la consultation du Bureau d'Information sur le Crédit (BIC), le dispositif régional de partage de données de crédit qui existe réellement dans l'UEMOA - la BCEAO sert d'interface et reçoit chaque mois les données des banques, des autres établissements financiers et des SFD/IMF. Concrètement, le score tient compte du fait qu'un client ait déjà un prêt en cours ailleurs, qu'il ait déjà soldé un prêt sans incident dans une autre institution, ou qu'un incident de paiement y ait été signalé - une information que la coopérative ne peut pas connaître seule, mais qui existe déjà dans cet écosystème régional."),
       p("Le statut de \"bon payeur\" ou \"défaut\" n'a pas été tiré au hasard non plus : nous avons codé une règle de risque qui combine ces variables (ratio d'endettement élevé - recalculé pour englober les engagements détectés via le BIC -, absence d'épargne régulière, absence de garantie, faible ancienneté, mauvais historique de remboursement quand il existe, incident signalé ailleurs) puis nous avons ajouté du bruit pour que le signal reste réaliste et pas artificiellement facile à apprendre pour un modèle. Résultat : un taux de défaut global d'environ 12,6%, ce qui correspond à peu près aux ordres de grandeur qu'on retrouve dans la littérature sur la microfinance en zone UEMOA. Ce générateur est entièrement documenté dans le code (`scripts/01_generate_dataset.py`) et pourra être ré-étalonné directement avec de vraies statistiques dès qu'une coopérative partenaire accepte de partager des données anonymisées."),
@@ -94,16 +95,40 @@ const doc = new Document({
       p("Avec seulement 12% de dossiers en défaut, un modèle entraîné tel quel aurait tendance à \"prédire bon payeur\" presque à chaque fois et afficher une belle accuracy trompeuse. Nous avons donc traité ce déséquilibre avec SMOTE, appliqué uniquement sur les données d'entraînement pour ne pas fausser l'évaluation finale. Les variables numériques sont standardisées, les variables catégorielles encodées en one-hot, et les quelques champs qui n'existent pas pour un nouveau client sans historique de crédit (taux de remboursement passé, retards moyens) sont imputés plutôt que de faire planter le modèle - ce qui permet justement de scorer les clients sans historique, un point important vu le constat du paragraphe 1."),
 
       h2("2.3. Comparaison des modèles et choix final"),
-      p("Nous avons entraîné et comparé trois modèles : une régression logistique, une forêt aléatoire et un XGBoost. Le tableau ci-dessous résume les résultats obtenus sur le jeu de test (20% des données, mis de côté avant tout entraînement)."),
+      p("Nous avons entraîné et comparé trois modèles : une régression logistique, une forêt aléatoire et un XGBoost. Le tableau ci-dessous résume les résultats obtenus sur le jeu de test (800 dossiers, 20% des données, mis de côté avant tout entraînement)."),
       metricsTable,
       new Paragraph({ text: "", spacing: { after: 160 } }),
-      p("Le choix ne s'est pas fait sur l'accuracy brute, qui dépasse 87% pour Random Forest et XGBoost mais cache le fait que ces deux modèles détectent très mal les dossiers réellement à risque (rappel de 6 à 7% seulement au seuil par défaut). Un crédit accordé à tort à un mauvais payeur coûte bien plus cher à la coopérative qu'un bon dossier refusé par excès de prudence : c'est ce déséquilibre de coût, pas la performance moyenne, qui doit guider le choix. En comparant le F1-score de la classe \"défaut\" une fois le seuil de décision optimisé pour chaque modèle, c'est la régression logistique qui ressort en tête (0,354), avec un ROC-AUC comparable aux deux autres modèles (0,710). Elle a en plus l'avantage d'être directement interprétable - un vrai atout quand il faut expliquer une décision à un agent de crédit qui n'a pas de formation en machine learning."),
+      p("Le choix ne s'est pas fait sur l'accuracy brute (87% pour Random Forest et XGBoost contre 66% pour la régression logistique), qui est ici un indicateur trompeur : avec seulement 12,6% de dossiers en défaut dans le jeu de données, un modèle qui prédit systématiquement \"bon payeur\" affiche déjà une accuracy élevée sans être utile. La preuve la plus directe de ce problème est le rappel de la classe défaut au seuil de décision par défaut (0,5) : la régression logistique détecte 63,4% des dossiers réellement en défaut, contre seulement 5,9% pour Random Forest et 6,9% pour XGBoost. Ces deux derniers modèles, dominés par la classe majoritaire, se replient presque systématiquement sur \"bon payeur\" et laissent passer l'essentiel des mauvais payeurs - or dans une coopérative, laisser passer un mauvais payeur coûte structurellement plus cher qu'examiner un bon dossier avec un peu plus de prudence."),
+      p("Une fois le seuil de décision optimisé séparément pour chaque modèle (recherche du seuil qui maximise le F1-score sur la classe défaut), l'écart se resserre : la régression logistique conserve un léger avantage (F1 = 0,354) sur XGBoost (0,348) et Random Forest (0,339), avec un ROC-AUC très proche des trois modèles (0,710 pour la régression logistique contre 0,718 pour XGBoost, un écart qui n'est pas significatif compte tenu de la taille du jeu de test). À performance quasi équivalente une fois les seuils calibrés, trois raisons ont fait pencher la balance en faveur de la régression logistique plutôt que XGBoost : premièrement, elle est directement interprétable via ses coefficients, ce qui rend l'explication SHAP plus fidèle et plus simple à restituer à un agent de crédit sans formation en machine learning ; deuxièmement, elle est mécaniquement plus stable et moins sujette au sur-apprentissage sur un jeu de données encore synthétique et de taille modeste (3 200 dossiers d'entraînement) qu'un modèle à forte capacité comme XGBoost ; troisièmement, elle sera plus simple et moins coûteuse à ré-entraîner lors du recalibrage prévu sur des données réelles de coopérative."),
 
       h2("2.4. Décision à trois niveaux et explicabilité"),
       p("Plutôt qu'une réponse binaire accordé/refusé, l'outil restitue une probabilité de défaut et la classe dans l'une de trois zones : verte (dossier plutôt sûr), orange (à examiner en comité de crédit) et rouge (risque élevé). Les seuils de ces zones sont calculés automatiquement autour du seuil de décision optimal du modèle retenu, et non fixés arbitrairement à 50%. L'agent garde la main sur la décision finale, en particulier sur les dossiers orange."),
       p("Pour chaque dossier évalué, l'application affiche également les facteurs qui ont le plus pesé sur le score, calculés avec SHAP et présentés en français plutôt que sous forme de coefficients bruts. L'objectif est qu'un agent puisse dire à un client \"votre dossier est jugé plus risqué parce que X et Y\", et pas seulement lui communiquer un chiffre."),
 
-      h2("2.5. Application de démonstration"),
+      h2("2.5. Illustration : un dossier concret"),
+      p("Pour rendre ce fonctionnement tangible, voici un exemple de dossier tel qu'il serait traité par l'application (chiffres calculés avec la formule de scorecard et la table de perte en cas de défaut réellement utilisées par le moteur IA, pas des valeurs de façade) :"),
+      new Table({
+        width: { size: 9350, type: WidthType.DXA },
+        columnWidths: [3117, 6233],
+        rows: [
+          new TableRow({ children: [
+            cell("Profil", { header: true, width: 3117, shade: NAVY }),
+            cell("Détail", { header: true, width: 6233, shade: NAVY }),
+          ]}),
+          new TableRow({ children: [cell("Demandeuse", { width: 3117, bold: true }), cell("Commerçante, secteur informel, zone urbaine, membre de la coopérative depuis 18 mois, épargne régulière, Mobile Money actif, aucun historique de crédit interne (nouvelle emprunteuse)", { width: 6233 })]}),
+          new TableRow({ children: [cell("Demande", { width: 3117, bold: true }), cell("500 000 FCFA sur 12 mois, objet \"Fonds de commerce\", garantie proposée : caution solidaire", { width: 6233 })]}),
+          new TableRow({ children: [cell("Probabilité de défaut", { width: 3117, bold: true }), cell("47 % - au-dessus du seuil vert (39%) mais en-dessous du seuil rouge (64%)", { width: 6233 })]}),
+          new TableRow({ children: [cell("Score crédit (scorecard)", { width: 3117, bold: true }), cell("603 / 900", { width: 6233 })]}),
+          new TableRow({ children: [cell("Perte attendue", { width: 3117, bold: true }), cell("94 000 FCFA (= probabilité de défaut x 40% de perte en cas de défaut pour une caution solidaire x montant demandé)", { width: 6233 })]}),
+          new TableRow({ children: [cell("Facteurs défavorables (SHAP)", { width: 3117, bold: true }), cell("Absence d'historique de crédit interne, ratio d'endettement relativement élevé compte tenu du revenu déclaré", { width: 6233 })]}),
+          new TableRow({ children: [cell("Facteurs favorables (SHAP)", { width: 3117, bold: true }), cell("Épargne régulière suivie par la coopérative, ancienneté de la relation, garantie par caution solidaire, usage actif du Mobile Money", { width: 6233 })]}),
+          new TableRow({ children: [cell("Décision affichée", { width: 3117, bold: true }), cell("Zone orange - \"À examiner en comité de crédit\" (l'agent garde la main, éclairé par les éléments ci-dessus)", { width: 6233 })]}),
+        ],
+      }),
+      new Paragraph({ text: "", spacing: { after: 160 } }),
+      p("Ce cas illustre l'apport concret de l'outil pour l'agent : au lieu d'un simple \"oui/non\", il dispose en quelques secondes d'une probabilité de défaut, d'un chiffrage du risque financier (perte attendue en FCFA) et d'une explication en langage clair des éléments qui ont pesé dans un sens ou dans l'autre - de quoi nourrir une discussion argumentée en comité de crédit plutôt qu'une décision opaque."),
+
+      h2("2.6. Application de démonstration"),
       p("Le prototype démontrable est une application Streamlit en Python, volontairement légère : elle charge le modèle une seule fois, ne fait aucun appel réseau externe et peut donc tourner sur un poste d'agence avec une connexion internet limitée ou absente. Le formulaire de saisie reprend les mêmes champs que le jeu de données d'entraînement, ce qui garantit la cohérence entre ce qui a été appris et ce qui est saisi sur le terrain."),
 
       h1("3. Valeur ajoutée attendue"),

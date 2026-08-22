@@ -126,21 +126,28 @@ public class ClientController {
 
     @GetMapping("/dashboard/stats")
     public ResponseEntity<?> getStats() {
+        // Totaux : COUNT(*) exécuté directement par PostgreSQL (via Spring Data JPA),
+        // aucune ligne n'est chargée côté application.
         long totalClients = clientRepository.count();
         long totalDemandes = demandeCreditRepository.count();
-        long approuvees = demandeCreditRepository.findAll().stream()
-                .filter(d -> "APPROUVE".equals(d.getStatut())).count();
-        long rejetees = demandeCreditRepository.findAll().stream()
-                .filter(d -> "REJETE".equals(d.getStatut())).count();
-        long enEtude = demandeCreditRepository.findAll().stream()
-                .filter(d -> "A_L_ETUDE".equals(d.getStatut())).count();
 
-        return ResponseEntity.ok(new java.util.HashMap<>() {{
-            put("totalClients", totalClients);
-            put("totalDemandes", totalDemandes);
-            put("approuvees", approuvees);
-            put("rejetees", rejetees);
-            put("enEtude", enEtude);
-        }});
+        // Répartition par statut : un seul GROUP BY côté base de données,
+        // au lieu de rapatrier toutes les demandes puis de les filtrer en mémoire.
+        long approuvees = 0, rejetees = 0, enEtude = 0;
+        for (Object[] ligne : demandeCreditRepository.countByStatutGroup()) {
+            String statut = (String) ligne[0];
+            long count = (Long) ligne[1];
+            if ("APPROUVE".equals(statut))       approuvees = count;
+            else if ("REJETE".equals(statut))    rejetees = count;
+            else if ("A_L_ETUDE".equals(statut)) enEtude = count;
+        }
+
+        java.util.Map<String, Long> stats = new java.util.HashMap<>();
+        stats.put("totalClients", totalClients);
+        stats.put("totalDemandes", totalDemandes);
+        stats.put("approuvees", approuvees);
+        stats.put("rejetees", rejetees);
+        stats.put("enEtude", enEtude);
+        return ResponseEntity.ok(stats);
     }
 }
