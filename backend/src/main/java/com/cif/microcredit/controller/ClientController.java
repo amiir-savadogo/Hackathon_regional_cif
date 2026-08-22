@@ -4,6 +4,7 @@ import com.cif.microcredit.model.Client;
 import com.cif.microcredit.model.DemandeCredit;
 import com.cif.microcredit.repository.ClientRepository;
 import com.cif.microcredit.repository.DemandeCreditRepository;
+import com.cif.microcredit.service.ScoringResult;
 import com.cif.microcredit.service.ScoringService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -93,15 +94,24 @@ public class ClientController {
 
         demande.setClient(optClient.get());
 
-        // Appel du moteur IA XGBoost pour calculer la probabilité de défaut
-        Double score = scoringService.calculateScore(demande);
-        demande.setScoreRisque(score);
+        // Appel du moteur IA (Régression Logistique + SHAP) pour évaluer le dossier
+        ScoringResult resultat = scoringService.calculerScore(demande);
 
-        // Règle de décision basée sur le score IA
-        if (score != null) {
-            if (score > 70)      demande.setStatut("REJETE");
-            else if (score < 30) demande.setStatut("APPROUVE");
-            else                 demande.setStatut("A_L_ETUDE");
+        if (resultat != null) {
+            demande.setScoreRisque(resultat.getScoreRisque());
+            demande.setProbaDefaut(resultat.getProbaDefaut());
+            demande.setZoneDecision(resultat.getZoneDecision());
+            demande.setScoreCredit(resultat.getScoreCredit());
+            demande.setPerteAttendueFcfa(resultat.getPerteAttendueFcfa());
+            demande.setRatioEndettement(resultat.getRatioEndettement());
+            demande.setExplicationJson(resultat.getExplicationJson());
+
+            // La décision finale suit la zone à 3 niveaux calculée par l'IA
+            // (le dossier reste toujours sous la responsabilité finale du comité de crédit)
+            String zone = resultat.getZoneDecision();
+            if ("ACCORD_FAVORABLE".equals(zone))      demande.setStatut("APPROUVE");
+            else if ("RISQUE_ELEVE".equals(zone))     demande.setStatut("REJETE");
+            else                                       demande.setStatut("A_L_ETUDE");
         } else {
             demande.setStatut("ERREUR_IA");
         }

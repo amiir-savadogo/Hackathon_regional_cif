@@ -55,6 +55,52 @@ import { Client } from '../../models/client.model';
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
                   placeholder="Ex : +225 07 00 00 00" />
               </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Sexe *</label>
+                <select [(ngModel)]="client.sexe" name="sexe" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">-- Sélectionner --</option>
+                  <option>Femme</option>
+                  <option>Homme</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Zone *</label>
+                <select [(ngModel)]="client.zone" name="zone" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">-- Sélectionner --</option>
+                  <option>Urbaine</option>
+                  <option>Semi-urbaine</option>
+                  <option>Rurale</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Situation matrimoniale *</label>
+                <select [(ngModel)]="client.situationMatrimoniale" name="situationMatrimoniale" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">-- Sélectionner --</option>
+                  <option>Marié(e)</option>
+                  <option>Célibataire</option>
+                  <option>Veuf(ve)</option>
+                  <option>Divorcé(e)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Niveau d'éducation *</label>
+                <select [(ngModel)]="client.niveauEducation" name="niveauEducation" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  <option value="">-- Sélectionner --</option>
+                  <option>Aucun</option>
+                  <option>Primaire</option>
+                  <option>Secondaire</option>
+                  <option>Supérieur</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-sm font-medium text-gray-700 mb-1">Personnes à charge *</label>
+                <input type="number" [(ngModel)]="client.nombrePersonnesACharge" name="nombrePersonnesACharge" required min="0" max="15"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+              </div>
             </div>
           </div>
 
@@ -104,13 +150,20 @@ export class ClientNewComponent {
   private api = inject(ApiService);
   private router = inject(Router);
 
-  client: Client = { nom: '', prenom: '', age: 0, ancienneteActiviteAnnees: 0 };
+  client: Client = {
+    nom: '', prenom: '', age: 0, ancienneteActiviteAnnees: 0,
+    sexe: '', zone: '', situationMatrimoniale: '', niveauEducation: '', nombrePersonnesACharge: 0
+  };
   loading = false;
   errorMessage = '';
 
   enregistrer() {
     if (!this.client.nom || !this.client.prenom || !this.client.age) {
       this.errorMessage = 'Les champs Nom, Prénom et Âge sont obligatoires.';
+      return;
+    }
+    if (!this.client.sexe || !this.client.zone || !this.client.situationMatrimoniale || !this.client.niveauEducation) {
+      this.errorMessage = 'Veuillez compléter le profil (sexe, zone, situation matrimoniale, niveau d\'éducation) : ces informations sont utilisées par le moteur de scoring IA.';
       return;
     }
     this.loading = true;

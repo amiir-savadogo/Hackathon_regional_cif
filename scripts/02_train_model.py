@@ -40,7 +40,7 @@ RNG = 42
 # ---------------------------------------------------------------------
 # 1. Chargement des données
 # ---------------------------------------------------------------------
-df = pd.read_csv("data/credit_wa_dataset.csv")
+df = pd.read_csv("data/samde_dataset.csv")
 TARGET = "defaut_credit"
 
 drop_cols = ["id_client", TARGET]

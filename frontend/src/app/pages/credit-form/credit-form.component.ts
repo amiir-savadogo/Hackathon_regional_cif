@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { Client, DemandeCredit } from '../../models/client.model';
+import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.model';
 
 @Component({
   selector: 'app-credit-form',
@@ -36,49 +36,200 @@ import { Client, DemandeCredit } from '../../models/client.model';
               <div class="flex-1 grid grid-cols-2 gap-x-6 gap-y-1 text-sm">
                 <div><span class="text-gray-500">Nom complet :</span> <span class="font-semibold text-gray-900">{{ client.prenom }} {{ client.nom }}</span></div>
                 <div><span class="text-gray-500">Âge :</span> <span class="font-semibold text-gray-900">{{ client.age }} ans</span></div>
+                <div><span class="text-gray-500">Sexe / Zone :</span> <span class="font-semibold text-gray-900">{{ client.sexe || '—' }} · {{ client.zone || '—' }}</span></div>
                 <div><span class="text-gray-500">Secteur :</span> <span class="font-semibold text-gray-900">{{ client.secteurActivite || 'Non renseigné' }}</span></div>
-                <div><span class="text-gray-500">Ancienneté :</span> <span class="font-semibold text-gray-900">{{ client.ancienneteActiviteAnnees }} an(s)</span></div>
+                <div><span class="text-gray-500">Ancienneté activité :</span> <span class="font-semibold text-gray-900">{{ client.ancienneteActiviteAnnees }} an(s)</span></div>
+                <div><span class="text-gray-500">Personnes à charge :</span> <span class="font-semibold text-gray-900">{{ client.nombrePersonnesACharge ?? 0 }}</span></div>
               </div>
             </div>
           </div>
 
           <!-- Formulaire de la demande -->
           <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6">
-            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-4 pb-2 border-b border-gray-100">Informations financières de la demande</h2>
-
             <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
               {{ errorMessage }}
             </div>
 
-            <form (ngSubmit)="soumettre()" class="space-y-4">
-              <div class="grid grid-cols-2 gap-4">
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Revenu mensuel (FCFA) *</label>
-                  <input type="number" [(ngModel)]="demande.revenuMensuelFcfa" name="revenu" required step="5000" min="0"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+            <form (ngSubmit)="soumettre()" class="space-y-6">
+
+              <!-- SECTION : Finances -->
+              <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Informations financières</h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Revenu mensuel (FCFA) *</label>
+                    <input type="number" [(ngModel)]="demande.revenuMensuelFcfa" name="revenu" required step="5000" min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Charges mensuelles (FCFA) *</label>
+                    <input type="number" [(ngModel)]="demande.chargesMensuellesFcfa" name="charges" required step="5000" min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Charges mensuelles (FCFA) *</label>
-                  <input type="number" [(ngModel)]="demande.chargesMensuellesFcfa" name="charges" required step="5000" min="0"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+
+              <!-- SECTION : Relation coopérative -->
+              <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Relation avec la coopérative</h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Ancienneté coopérative (mois)</label>
+                    <input type="number" [(ngModel)]="demande.ancienneteCooperativeMois" name="ancienneteCooperativeMois" min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div class="flex items-center pt-6">
+                    <label class="flex items-center space-x-2 text-sm text-gray-700">
+                      <input type="checkbox" [(ngModel)]="demande.membreGroupeSolidaire" name="membreGroupeSolidaire"
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                      <span>Membre d'un groupe de caution solidaire</span>
+                    </label>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Solde moyen d'épargne (FCFA)</label>
+                    <input type="number" [(ngModel)]="demande.epargneSoldeMoyenFcfa" name="epargneSoldeMoyenFcfa" min="0" step="1000"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Régularité de l'épargne</label>
+                    <select [(ngModel)]="demande.regulariteEpargne" name="regulariteEpargne"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <option>Aucune épargne</option>
+                      <option>Irrégulière</option>
+                      <option>Régulière</option>
+                    </select>
+                  </div>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Montant demandé (FCFA) *</label>
-                  <input type="number" [(ngModel)]="demande.montantDemandeFcfa" name="montant" required step="10000" min="0"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+              </div>
+
+              <!-- SECTION : Historique de crédit -->
+              <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Historique de crédit interne</h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de crédits antérieurs</label>
+                    <input type="number" [(ngModel)]="demande.nombreCreditsAnterieurs" name="nombreCreditsAnterieurs" min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div></div>
+                  <div *ngIf="(demande.nombreCreditsAnterieurs || 0) > 0">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Taux de remboursement historique (%)</label>
+                    <input type="number" [(ngModel)]="demande.tauxRemboursementHistoriquePct" name="tauxRemboursementHistoriquePct" min="0" max="100"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div *ngIf="(demande.nombreCreditsAnterieurs || 0) > 0">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Jours de retard moyen</label>
+                    <input type="number" [(ngModel)]="demande.joursRetardMoyenHistorique" name="joursRetardMoyenHistorique" min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <p *ngIf="(demande.nombreCreditsAnterieurs || 0) === 0" class="text-xs text-gray-400 col-span-2">
+                    Nouveau client dans la coopérative : aucun historique de remboursement à saisir.
+                  </p>
                 </div>
-                <div>
-                  <label class="block text-sm font-medium text-gray-700 mb-1">Durée souhaitée (mois) *</label>
-                  <select [(ngModel)]="demande.dureeMois" name="duree"
-                    class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
-                    <option [value]="3">3 mois</option>
-                    <option [value]="6">6 mois</option>
-                    <option [value]="9">9 mois</option>
-                    <option [value]="12">12 mois</option>
-                    <option [value]="18">18 mois</option>
-                    <option [value]="24">24 mois</option>
-                    <option [value]="36">36 mois</option>
-                  </select>
+              </div>
+
+              <!-- SECTION : Mobile Money -->
+              <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Mobile Money</h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex items-center">
+                    <label class="flex items-center space-x-2 text-sm text-gray-700">
+                      <input type="checkbox" [(ngModel)]="demande.possedeMobileMoney" name="possedeMobileMoney"
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                      <span>Possède un compte Mobile Money</span>
+                    </label>
+                  </div>
+                  <div *ngIf="demande.possedeMobileMoney">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Transactions Mobile Money / mois</label>
+                    <input type="number" [(ngModel)]="demande.frequenceTransactionsMmMois" name="frequenceTransactionsMmMois" min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECTION : Bureau d'Information sur le Crédit (BIC) -->
+              <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">
+                  Bureau d'Information sur le Crédit (BIC — dispositif régional UEMOA)
+                </h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div class="flex items-center">
+                    <label class="flex items-center space-x-2 text-sm text-gray-700">
+                      <input type="checkbox" [(ngModel)]="demande.interrogeBic" name="interrogeBic"
+                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                      <span>Dossier interrogé au BIC</span>
+                    </label>
+                  </div>
+                  <div *ngIf="demande.interrogeBic">
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Statut BIC</label>
+                    <select [(ngModel)]="demande.statutBic" name="statutBic"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <option>Non consulté</option>
+                      <option>Bon payeur ailleurs (solde sans incident)</option>
+                      <option>Incident de paiement signalé</option>
+                      <option>Aucun antécédent trouvé</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Prêts actifs dans d'autres institutions</label>
+                    <input type="number" [(ngModel)]="demande.nombrePretsActifsAutresInstitutions" name="nombrePretsActifsAutresInstitutions" min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Encours crédit autres institutions (FCFA)</label>
+                    <input type="number" [(ngModel)]="demande.encoursCreditAutresInstitutionsFcfa" name="encoursCreditAutresInstitutionsFcfa" min="0" step="1000"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                </div>
+              </div>
+
+              <!-- SECTION : Demande de crédit -->
+              <div>
+                <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Caractéristiques de la demande</h2>
+                <div class="grid grid-cols-2 gap-4">
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Objet du crédit *</label>
+                    <select [(ngModel)]="demande.objetCredit" name="objetCredit" required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <option value="">-- Sélectionner --</option>
+                      <option>Fonds de commerce</option>
+                      <option>Achat d'équipement</option>
+                      <option>Intrants agricoles</option>
+                      <option>Élevage</option>
+                      <option>Besoin de trésorerie</option>
+                      <option>Événement familial</option>
+                      <option>Autre</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Montant demandé (FCFA) *</label>
+                    <input type="number" [(ngModel)]="demande.montantDemandeFcfa" name="montant" required step="10000" min="0"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Durée souhaitée (mois) *</label>
+                    <select [(ngModel)]="demande.dureeMois" name="duree"
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <option [value]="3">3 mois</option>
+                      <option [value]="6">6 mois</option>
+                      <option [value]="9">9 mois</option>
+                      <option [value]="12">12 mois</option>
+                      <option [value]="18">18 mois</option>
+                      <option [value]="24">24 mois</option>
+                      <option [value]="36">36 mois</option>
+                    </select>
+                  </div>
+                  <div>
+                    <label class="block text-sm font-medium text-gray-700 mb-1">Garantie proposée *</label>
+                    <select [(ngModel)]="demande.garantie" name="garantie" required
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      <option value="">-- Sélectionner --</option>
+                      <option>Caution solidaire</option>
+                      <option>Bien matériel</option>
+                      <option>Aval d'un tiers</option>
+                      <option>Aucune</option>
+                    </select>
+                  </div>
                 </div>
               </div>
 
@@ -91,7 +242,7 @@ import { Client, DemandeCredit } from '../../models/client.model';
                   </span>
                 </div>
                 <div class="flex justify-between">
-                  <span class="text-gray-600">Ratio d'endettement actuel</span>
+                  <span class="text-gray-600">Ratio d'endettement estimé</span>
                   <span class="font-semibold" [ngClass]="ratio <= 40 ? 'text-green-700' : ratio <= 65 ? 'text-orange-600' : 'text-red-600'">
                     {{ ratio }}%
                   </span>
@@ -157,10 +308,10 @@ import { Client, DemandeCredit } from '../../models/client.model';
                   }">
                   {{ resultat.scoreRisque | number:'1.2-2' }}%
                 </p>
-                <p class="text-xs text-gray-500 mt-1">Calculé par XGBoost (88.6% de précision)</p>
+                <p class="text-xs text-gray-500 mt-1">Régression Logistique — modèle Samdé</p>
               </div>
 
-              <!-- Badge de décision -->
+              <!-- Badge de zone de décision (3 niveaux) -->
               <div class="flex justify-center">
                 <span class="px-4 py-1.5 text-sm font-bold rounded-full uppercase tracking-wider"
                   [ngClass]="{
@@ -168,9 +319,35 @@ import { Client, DemandeCredit } from '../../models/client.model';
                     'bg-orange-100 text-orange-800': resultat.statut === 'A_L_ETUDE',
                     'bg-red-100 text-red-800': resultat.statut === 'REJETE'
                   }">
-                  {{ resultat.statut === 'APPROUVE' ? '✓ Crédit Approuvé' :
-                     resultat.statut === 'REJETE' ? '✕ Crédit Rejeté' : "⏳ Dossier À l'Étude" }}
+                  {{ resultat.statut === 'APPROUVE' ? '✓ Accord favorable' :
+                     resultat.statut === 'REJETE' ? '✕ Risque élevé' : "⏳ À examiner" }}
                 </span>
+              </div>
+
+              <!-- Scorecard 300-900 -->
+              <div class="grid grid-cols-2 gap-3 text-center" *ngIf="resultat.scoreCredit">
+                <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+                  <p class="text-[10px] text-gray-500 uppercase font-medium">Score crédit</p>
+                  <p class="text-lg font-bold text-gray-900">{{ resultat.scoreCredit }}<span class="text-xs text-gray-400 font-normal"> /900</span></p>
+                </div>
+                <div class="p-2.5 bg-gray-50 rounded-lg border border-gray-100">
+                  <p class="text-[10px] text-gray-500 uppercase font-medium">Perte attendue</p>
+                  <p class="text-lg font-bold text-gray-900">{{ resultat.perteAttendueFcfa | number:'1.0-0' }}</p>
+                  <p class="text-[10px] text-gray-400">FCFA</p>
+                </div>
+              </div>
+
+              <!-- Facteurs explicatifs SHAP -->
+              <div *ngIf="explication.length > 0">
+                <p class="text-[10px] font-semibold text-gray-500 uppercase tracking-widest mb-2">Facteurs les plus influents</p>
+                <div class="space-y-1.5">
+                  <div *ngFor="let f of explication" class="flex items-center justify-between text-xs">
+                    <span class="text-gray-600 truncate pr-2">{{ formatFacteur(f.variable) }}</span>
+                    <span class="font-semibold flex-shrink-0" [ngClass]="f.sens === 'AUGMENTE_RISQUE' ? 'text-red-600' : 'text-green-700'">
+                      {{ f.sens === 'AUGMENTE_RISQUE' ? '▲ Augmente' : '▼ Réduit' }}
+                    </span>
+                  </div>
+                </div>
               </div>
 
               <p class="text-xs text-gray-500 text-center">
@@ -212,7 +389,27 @@ export class CreditFormComponent implements OnInit {
 
   clientId!: number;
   client: Client | null = null;
-  demande: DemandeCredit = { revenuMensuelFcfa: 0, chargesMensuellesFcfa: 0, montantDemandeFcfa: 0, dureeMois: 12 };
+  demande: DemandeCredit = {
+    revenuMensuelFcfa: 0,
+    chargesMensuellesFcfa: 0,
+    ancienneteCooperativeMois: 0,
+    membreGroupeSolidaire: false,
+    epargneSoldeMoyenFcfa: 0,
+    regulariteEpargne: 'Aucune épargne',
+    nombreCreditsAnterieurs: 0,
+    tauxRemboursementHistoriquePct: null,
+    joursRetardMoyenHistorique: null,
+    possedeMobileMoney: false,
+    frequenceTransactionsMmMois: 0,
+    interrogeBic: false,
+    statutBic: 'Non consulté',
+    nombrePretsActifsAutresInstitutions: 0,
+    encoursCreditAutresInstitutionsFcfa: 0,
+    objetCredit: '',
+    montantDemandeFcfa: 0,
+    dureeMois: 12,
+    garantie: ''
+  };
   resultat: DemandeCredit | null = null;
   historique: DemandeCredit[] = [];
   loading = false;
@@ -232,6 +429,23 @@ export class CreditFormComponent implements OnInit {
     return Math.round((this.demande.montantDemandeFcfa * 1.12) / this.demande.dureeMois);
   }
 
+  get explication(): FacteurExplicatif[] {
+    if (!this.resultat?.explicationJson) return [];
+    try {
+      return JSON.parse(this.resultat.explicationJson) as FacteurExplicatif[];
+    } catch {
+      return [];
+    }
+  }
+
+  // Traduit les noms techniques de variables (encodées one-hot côté modèle) en libellés lisibles
+  formatFacteur(variable: string): string {
+    return variable
+      .replace(/_/g, ' ')
+      .replace(/^(statut bic|regularite epargne|secteur activite|garantie|objet credit|zone|sexe|situation matrimoniale|niveau education)\s+/i, '')
+      .trim();
+  }
+
   ngOnInit() {
     this.clientId = Number(this.route.snapshot.paramMap.get('id'));
     this.api.getClient(this.clientId).subscribe({ next: (c: Client) => this.client = c });
@@ -245,6 +459,10 @@ export class CreditFormComponent implements OnInit {
   soumettre() {
     if (!this.demande.revenuMensuelFcfa || !this.demande.montantDemandeFcfa) {
       this.errorMessage = 'Veuillez renseigner le revenu et le montant demandé.';
+      return;
+    }
+    if (!this.demande.objetCredit || !this.demande.garantie) {
+      this.errorMessage = "Veuillez préciser l'objet du crédit et la garantie proposée.";
       return;
     }
     this.loading = true;
