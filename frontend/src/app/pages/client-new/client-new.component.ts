@@ -46,7 +46,7 @@ import { Client } from '../../models/client.model';
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Âge *</label>
-                <input type="number" [(ngModel)]="client.age" name="age" required min="18" max="75"
+                <input type="number" [(ngModel)]="client.age" name="age" required min="18" max="100"
                   class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
               </div>
               <div>
@@ -162,6 +162,13 @@ export class ClientNewComponent {
       this.errorMessage = 'Les champs Nom, Prénom et Âge sont obligatoires.';
       return;
     }
+    // Le client doit être majeur pour contracter un crédit - même contrainte
+    // que côté backend (Client.java) et moteur IA (ai-service/main.py) :
+    // vérifiée ici aussi pour donner un retour immédiat, sans aller-retour serveur.
+    if (this.client.age < 18 || this.client.age > 100) {
+      this.errorMessage = 'Le client doit être majeur (18 à 100 ans).';
+      return;
+    }
     if (!this.client.sexe || !this.client.zone || !this.client.situationMatrimoniale || !this.client.niveauEducation) {
       this.errorMessage = 'Veuillez compléter le profil (sexe, zone, situation matrimoniale, niveau d\'éducation) : ces informations sont utilisées par le moteur de scoring IA.';
       return;
@@ -175,6 +182,10 @@ export class ClientNewComponent {
         this.loading = false;
         if (err.status === 409) {
           this.errorMessage = err.error.erreur || 'Un client avec ce nom et prénom existe déjà.';
+        } else if (err.status === 400 && err.error?.champs) {
+          // Erreurs de validation renvoyées par le backend (GlobalExceptionHandler) :
+          // filet de sécurité si les contrôles ci-dessus ont été contournés.
+          this.errorMessage = Object.values(err.error.champs).join(' ');
         } else {
           this.errorMessage = 'Erreur lors de la connexion au serveur. Vérifiez que Spring Boot est allumé.';
         }

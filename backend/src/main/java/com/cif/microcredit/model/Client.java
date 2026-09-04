@@ -1,6 +1,7 @@
 package com.cif.microcredit.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -20,18 +21,42 @@ public class Client {
     private Long id;
 
     // Informations d'identité du demandeur
+    @NotBlank(message = "Le nom est obligatoire")
     private String nom;
+
+    @NotBlank(message = "Le prénom est obligatoire")
     private String prenom;
+
+    // Contrôle correspondant au retour d'audit : sans cette borne, un mineur
+    // pouvait être enregistré comme demandeur de crédit. La majorité légale
+    // (18 ans) est la même contrainte que celle déjà appliquée côté moteur IA
+    // (ai-service/main.py) - dupliquée ici pour que le refus arrive dès la
+    // couche backend, avant même l'appel au moteur de scoring.
+    @Min(value = 18, message = "Le client doit être majeur (18 ans minimum)")
+    @Max(value = 100, message = "Âge invraisemblable (maximum 100 ans)")
     private int age;
+
     private String telephone;
+
+    @NotBlank(message = "Le secteur d'activité est obligatoire")
     private String secteurActivite;
+
+    @PositiveOrZero(message = "L'ancienneté d'activité ne peut pas être négative")
+    @DecimalMax(value = "80.0", message = "Ancienneté d'activité invraisemblable")
     private double ancienneteActiviteAnnees;
 
     // Profil socio-démographique (utilisé par le moteur de scoring IA)
+    @NotBlank
     private String sexe;                       // "Femme" | "Homme"
+    @NotBlank
     private String zone;                       // "Urbaine" | "Semi-urbaine" | "Rurale"
+    @NotBlank
     private String situationMatrimoniale;       // "Marié(e)" | "Célibataire" | "Veuf(ve)" | "Divorcé(e)"
+    @NotBlank
     private String niveauEducation;             // "Aucun" | "Primaire" | "Secondaire" | "Supérieur"
+
+    @PositiveOrZero(message = "Le nombre de personnes à charge ne peut pas être négatif")
+    @Max(value = 30, message = "Nombre de personnes à charge invraisemblable")
     private int nombrePersonnesACharge;
 
     private LocalDateTime dateCreation;

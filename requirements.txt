@@ -1,10 +1,18 @@
-pandas
-numpy
-scikit-learn
-imbalanced-learn
-xgboost
-shap
+# Dépendances pour scripts/01_generate_dataset.py et scripts/02_train_model.py
+# (entraînement uniquement - voir ai-service/requirements.txt pour l'inférence,
+# qui n'a besoin que d'un sous-ensemble). Versions épinglées = celles réellement
+# utilisées pour produire les artefacts dans models/ (cf. metadata.json ->
+# environnement_entrainement) ; à mettre à jour ensemble si vous changez d'environnement.
+pandas==3.0.2
+numpy==2.4.4
+scikit-learn==1.8.0
+imbalanced-learn==0.14.2
+xgboost==3.4.1
+lightgbm==4.7.0
+catboost==1.2.10
+optuna==4.9.0
+shap==0.52.0
+joblib==1.5.3
 matplotlib
 seaborn
 streamlit
-joblib

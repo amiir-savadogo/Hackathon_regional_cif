@@ -1,8 +1,19 @@
 fastapi==0.110.0
 uvicorn==0.27.1
 pydantic==2.6.3
-pandas==2.3.3
-numpy==1.26.4
-scikit-learn==1.5.2
-shap==0.45.0
-joblib==1.4.2
+# Versions ci-dessous alignées EXACTEMENT sur l'environnement d'entraînement
+# (cf. models/metadata.json -> environnement_entrainement), pour éviter les
+# InconsistentVersionWarning / erreurs de désérialisation au chargement des
+# .pkl. Si vous ré-entraînez avec un autre environnement, régénérez ce fichier
+# à partir de metadata.json plutôt que de le modifier à la main.
+pandas==3.0.2
+numpy==2.4.4
+scikit-learn==1.8.0
+shap==0.52.0
+joblib==1.5.3
+# NB : le modèle actuellement déployé est une Régression Logistique -
+# xgboost/lightgbm/catboost/optuna/imbalanced-learn ne sont nécessaires qu'à
+# l'ENTRAÎNEMENT (scripts/02_train_model.py), pas à l'inférence FastAPI. Si un
+# futur ré-entraînement retient un modèle à base d'arbres (Random Forest,
+# XGBoost, LightGBM, CatBoost), ajoutez la librairie correspondante ici avant
+# de déployer - sinon le chargement du .pkl échouera au démarrage de l'API.

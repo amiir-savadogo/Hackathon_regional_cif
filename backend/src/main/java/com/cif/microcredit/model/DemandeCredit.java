@@ -1,6 +1,7 @@
 package com.cif.microcredit.model;
 
 import jakarta.persistence.*;
+import jakarta.validation.constraints.*;
 import java.time.LocalDateTime;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
@@ -30,34 +31,54 @@ public class DemandeCredit {
     private Client client;
 
     // --- Données financières de base ---
+    @Positive(message = "Le revenu mensuel doit être strictement positif")
     private double revenuMensuelFcfa;
+
+    @PositiveOrZero(message = "Les charges mensuelles ne peuvent pas être négatives")
     private double chargesMensuellesFcfa;
 
     // --- Relation avec la coopérative ---
+    @PositiveOrZero
     private int ancienneteCooperativeMois;
     private boolean membreGroupeSolidaire;
+    @PositiveOrZero(message = "Le solde d'épargne ne peut pas être négatif")
     private double epargneSoldeMoyenFcfa;
     private String regulariteEpargne;              // "Régulière" | "Irrégulière" | "Aucune épargne"
 
     // --- Historique de crédit interne ---
+    @PositiveOrZero
     private int nombreCreditsAnterieurs;
+    @DecimalMin(value = "0.0", message = "Taux de remboursement invalide")
+    @DecimalMax(value = "100.0", message = "Taux de remboursement invalide")
     private Double tauxRemboursementHistoriquePct;  // null si nouveau client
+    @PositiveOrZero(message = "Le retard moyen ne peut pas être négatif")
     private Double joursRetardMoyenHistorique;      // null si nouveau client
 
     // --- Mobile Money ---
     private boolean possedeMobileMoney;
+    @PositiveOrZero
     private int frequenceTransactionsMmMois;
 
     // --- Bureau d'Information sur le Crédit (BIC - dispositif régional UEMOA) ---
     private boolean interrogeBic;
     private String statutBic;                       // "Non consulté" par défaut
+    @PositiveOrZero
     private int nombrePretsActifsAutresInstitutions;
+    @PositiveOrZero(message = "L'encours chez d'autres institutions ne peut pas être négatif")
     private double encoursCreditAutresInstitutionsFcfa;
 
     // --- Demande de crédit proprement dite ---
+    @NotBlank(message = "L'objet du crédit est obligatoire")
     private String objetCredit;
+
+    @Positive(message = "Le montant demandé doit être strictement positif")
     private double montantDemandeFcfa;
+
+    @Min(value = 1, message = "La durée doit être d'au moins 1 mois")
+    @Max(value = 60, message = "La durée ne peut pas dépasser 60 mois")
     private int dureeMois;
+
+    @NotBlank(message = "Le type de garantie est obligatoire")
     private String garantie;                         // "Caution solidaire" | "Bien matériel" | "Aval d'un tiers" | "Aucune"
 
     // --- Résultat du moteur IA (Régression Logistique + SHAP) ---

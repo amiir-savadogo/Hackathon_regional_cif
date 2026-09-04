@@ -72,7 +72,7 @@ import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 
           <div class="flex items-center space-x-2 px-3 py-2 text-xs text-slate-400">
             <span class="w-2 h-2 rounded-full bg-green-400"></span>
-            <span>Moteur IA actif (88.6%)</span>
+            <span>Moteur IA actif</span>
           </div>
           <div class="flex items-center space-x-2 px-3 py-2 text-xs text-slate-400">
             <span class="w-2 h-2 rounded-full bg-green-400"></span>

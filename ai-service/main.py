@@ -10,6 +10,7 @@ pour être appelé en production par le backend Spring Boot.
 """
 
 import json
+import logging
 import os
 from contextlib import asynccontextmanager
 from typing import List, Optional
@@ -19,7 +20,10 @@ import numpy as np
 import pandas as pd
 import shap
 from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
+from pydantic import BaseModel, Field
+from sklearn.linear_model import LogisticRegression
+
+logger = logging.getLogger("scoring_api")
 
 MODELS_DIR = os.path.join(os.path.dirname(__file__), "models")
 
@@ -47,7 +51,14 @@ async def lifespan(app: FastAPI):
         with open(os.path.join(MODELS_DIR, "metadata.json"), encoding="utf-8") as f:
             meta = json.load(f)
 
-        if "Logistique" in meta.get("best_model_name", ""):
+        # Choix de l'explainer basé sur le TYPE réel du modèle chargé, pas sur une
+        # correspondance de texte dans best_model_name (fragile : cassait déjà
+        # silencieusement quand le nom est passé de "Regression_Logistique" à
+        # "LogisticRegression (F1)" lors du passage à la V3 du pipeline — le mot
+        # "Logistique" n'y apparaît plus, l'explainer tombait sur TreeExplainer, qui
+        # lève une exception sur une LogisticRegression, avalée par le except large
+        # du lifespan : l'API démarrait quand même mais sans aucune explication SHAP).
+        if isinstance(model, LogisticRegression):
             explainer = shap.LinearExplainer(model, background)
         else:
             explainer = shap.TreeExplainer(model)
@@ -76,49 +87,49 @@ LGD_PAR_GARANTIE = {
 
 class ClientData(BaseModel):
     # --- Profil socio-démographique ---
-    age: int
+    age: int = Field(..., ge=18, le=100, description="Âge en années, 18-100 (majorité requise pour contracter un crédit)")
     sexe: str
     zone: str
     situation_matrimoniale: str
     niveau_education: str
-    nombre_personnes_a_charge: int = 0
+    nombre_personnes_a_charge: int = Field(default=0, ge=0, le=30)
 
     # --- Activité économique ---
     secteur_activite: str
-    anciennete_activite_annees: float
-    revenu_mensuel_fcfa: float
-    charges_mensuelles_fcfa: float
+    anciennete_activite_annees: float = Field(..., ge=0, le=80)
+    revenu_mensuel_fcfa: float = Field(..., gt=0)
+    charges_mensuelles_fcfa: float = Field(..., ge=0)
 
     # --- Relation avec la coopérative ---
-    anciennete_cooperative_mois: int = 0
+    anciennete_cooperative_mois: int = Field(default=0, ge=0)
     membre_groupe_solidaire: bool = False
-    epargne_solde_moyen_fcfa: float = 0
+    epargne_solde_moyen_fcfa: float = Field(default=0, ge=0)
     regularite_epargne: str = "Aucune épargne"
 
     # --- Historique de crédit interne ---
-    nombre_credits_anterieurs: int = 0
-    taux_remboursement_historique_pct: Optional[float] = None
-    jours_retard_moyen_historique: Optional[float] = None
+    nombre_credits_anterieurs: int = Field(default=0, ge=0)
+    taux_remboursement_historique_pct: Optional[float] = Field(default=None, ge=0, le=100)
+    jours_retard_moyen_historique: Optional[float] = Field(default=None, ge=0)
 
     # --- Mobile Money ---
     possede_mobile_money: bool = False
-    frequence_transactions_mm_mois: int = 0
+    frequence_transactions_mm_mois: int = Field(default=0, ge=0)
 
     # --- Bureau d'Information sur le Crédit (BIC, dispositif régional UEMOA) ---
     interroge_bic: bool = False
     statut_bic: str = "Non consulté"
-    nombre_prets_actifs_autres_institutions: int = 0
-    encours_credit_autres_institutions_fcfa: float = 0
+    nombre_prets_actifs_autres_institutions: int = Field(default=0, ge=0)
+    encours_credit_autres_institutions_fcfa: float = Field(default=0, ge=0)
 
     # --- Demande de crédit ---
     objet_credit: str
-    montant_credit_demande_fcfa: float
-    duree_credit_mois: int
+    montant_credit_demande_fcfa: float = Field(..., gt=0)
+    duree_credit_mois: int = Field(..., ge=1, le=60)
     garantie: str
 
     # Ratio d'endettement : si non fourni, calculé côté service (comme dans
     # le prototype Streamlit) à partir des charges + mensualités estimées.
-    ratio_endettement: Optional[float] = None
+    ratio_endettement: Optional[float] = Field(default=None, ge=0)
 
 
 class FacteurExplicatif(BaseModel):
@@ -177,12 +188,15 @@ def health():
 @app.post("/api/score", response_model=ScoringResponse)
 def calculer_score(data: ClientData):
     if model is None or preprocessor is None:
-        # Mode dégradé : le modèle n'a pas pu être chargé (ex. artefacts absents du déploiement)
-        return ScoringResponse(
-            statut="MODE_TEST_SANS_MODELE",
-            score_risque=45.0,
-            proba_defaut=0.45,
-            zone_decision="A_EXAMINER",
+        # Correction sécurité : renvoyer une probabilité de défaut inventée (45%) sous
+        # statut "MODE_TEST_SANS_MODELE" est dangereux - un agent pressé peut la
+        # confondre avec une vraie prédiction et prendre une décision de crédit dessus.
+        # Si le modèle n'est pas chargé, l'API doit refuser explicitement plutôt que
+        # renvoyer une décision fictive : aucune évaluation de crédit ne doit reposer
+        # sur un scoring qui n'a pas réellement eu lieu.
+        raise HTTPException(
+            status_code=503,
+            detail="Moteur de scoring indisponible (modèle non chargé) - aucune évaluation de crédit ne peut être produite pour le moment.",
         )
 
     try:
@@ -250,4 +264,9 @@ def calculer_score(data: ClientData):
         )
 
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        # Correction sécurité : ne pas renvoyer str(e) au client (peut exposer des
+        # détails internes - chemins, noms de colonnes, structure du modèle). Le
+        # détail complet part dans les logs serveur ; le client reçoit un message
+        # générique.
+        logger.exception("Erreur lors du calcul du score de crédit")
+        raise HTTPException(status_code=500, detail="Erreur interne du moteur de scoring.")

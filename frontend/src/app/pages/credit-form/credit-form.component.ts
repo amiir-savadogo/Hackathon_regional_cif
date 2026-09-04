@@ -461,6 +461,17 @@ export class CreditFormComponent implements OnInit {
       this.errorMessage = 'Veuillez renseigner le revenu et le montant demandé.';
       return;
     }
+    // !value ne détecte pas les montants négatifs (un nombre négatif est
+    // "truthy" en JavaScript) : vérification explicite du signe, cohérente
+    // avec les contraintes @Positive/@PositiveOrZero côté backend (DemandeCredit.java).
+    if (this.demande.revenuMensuelFcfa <= 0 || this.demande.montantDemandeFcfa <= 0) {
+      this.errorMessage = 'Le revenu et le montant demandé doivent être des valeurs positives.';
+      return;
+    }
+    if (this.demande.chargesMensuellesFcfa != null && this.demande.chargesMensuellesFcfa < 0) {
+      this.errorMessage = 'Les charges mensuelles ne peuvent pas être négatives.';
+      return;
+    }
     if (!this.demande.objetCredit || !this.demande.garantie) {
       this.errorMessage = "Veuillez préciser l'objet du crédit et la garantie proposée.";
       return;
@@ -473,9 +484,15 @@ export class CreditFormComponent implements OnInit {
         this.loading = false;
         this.chargerHistorique();
       },
-      error: () => {
+      error: (err) => {
         this.loading = false;
-        this.errorMessage = 'Erreur de communication. Vérifiez que Spring Boot et le moteur IA sont allumés.';
+        if (err.status === 400 && err.error?.champs) {
+          // Erreurs de validation renvoyées par le backend (GlobalExceptionHandler) :
+          // filet de sécurité si les contrôles ci-dessus ont été contournés.
+          this.errorMessage = Object.values(err.error.champs).join(' ');
+        } else {
+          this.errorMessage = 'Erreur de communication. Vérifiez que Spring Boot et le moteur IA sont allumés.';
+        }
       }
     });
   }
