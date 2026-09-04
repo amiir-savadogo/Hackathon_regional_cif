@@ -1,35 +1,264 @@
 {
-  "best_model_name": "Regression_Logistique",
-  "results": {
-    "Regression_Logistique": {
-      "accuracy_seuil_0.5": 0.6637,
-      "recall_classe1_seuil_0.5": 0.6337,
-      "f1_classe1_seuil_0.5": 0.3224,
-      "roc_auc": 0.7095,
-      "seuil_optimal_f1": 0.536,
-      "f1_classe1_seuil_optimal": 0.3536
+  "best_model_name": "LogisticRegression (F1)",
+  "best_model_family": "LogisticRegression",
+  "hyperparameter_search_method": "Optuna TPESampler, 6 essais x 2 objectifs (F1 / coût métier) x 3 folds CV, sur TRAIN uniquement",
+  "hyperparameters_f1_objective": {
+    "LogisticRegression": {
+      "penalty": "l2",
+      "C": 0.4205156450913872,
+      "solver": "liblinear",
+      "max_iter": 2000,
+      "random_state": 42
     },
-    "Random_Forest": {
-      "accuracy_seuil_0.5": 0.8738,
-      "recall_classe1_seuil_0.5": 0.0594,
-      "f1_classe1_seuil_0.5": 0.1062,
-      "roc_auc": 0.7023,
-      "seuil_optimal_f1": 0.332,
-      "f1_classe1_seuil_optimal": 0.3385
+    "RandomForest": {
+      "n_estimators": 357,
+      "max_depth": 5,
+      "min_samples_leaf": 13,
+      "max_features": "sqrt",
+      "random_state": 42,
+      "n_jobs": -1
     },
     "XGBoost": {
-      "accuracy_seuil_0.5": 0.87,
-      "recall_classe1_seuil_0.5": 0.0693,
-      "f1_classe1_seuil_0.5": 0.1186,
-      "roc_auc": 0.7176,
-      "seuil_optimal_f1": 0.29,
-      "f1_classe1_seuil_optimal": 0.3478
+      "n_estimators": 255,
+      "max_depth": 4,
+      "learning_rate": 0.048164145309070844,
+      "subsample": 0.7727780074568463,
+      "colsample_bytree": 0.7164916560792167,
+      "eval_metric": "logloss",
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "LightGBM": {
+      "n_estimators": 450,
+      "max_depth": 3,
+      "learning_rate": 0.017240892195821537,
+      "class_weight": "balanced",
+      "random_state": 42,
+      "n_jobs": -1,
+      "verbosity": -1
+    },
+    "CatBoost": {
+      "iterations": 270,
+      "depth": 3,
+      "learning_rate": 0.01432169828911152,
+      "random_state": 42,
+      "verbose": 0
     }
   },
-  "best_threshold_f1": 0.536,
-  "seuil_vert_max": 0.39,
-  "seuil_rouge_min": 0.64,
-  "n_train": 3200,
-  "n_test": 800,
-  "taux_defaut_global": 0.1265
+  "hyperparameters_financial_objective": {
+    "LogisticRegression": {
+      "penalty": "l2",
+      "C": 0.4205156450913872,
+      "solver": "liblinear",
+      "max_iter": 2000,
+      "random_state": 42
+    },
+    "RandomForest": {
+      "n_estimators": 231,
+      "max_depth": 4,
+      "min_samples_leaf": 18,
+      "max_features": "log2",
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "XGBoost": {
+      "n_estimators": 436,
+      "max_depth": 3,
+      "learning_rate": 0.04666963767236924,
+      "subsample": 0.836965827544817,
+      "colsample_bytree": 0.6185801650879991,
+      "eval_metric": "logloss",
+      "random_state": 42,
+      "n_jobs": -1
+    },
+    "LightGBM": {
+      "n_estimators": 450,
+      "max_depth": 3,
+      "learning_rate": 0.017240892195821537,
+      "class_weight": "balanced",
+      "random_state": 42,
+      "n_jobs": -1,
+      "verbosity": -1
+    },
+    "CatBoost": {
+      "iterations": 270,
+      "depth": 3,
+      "learning_rate": 0.01432169828911152,
+      "random_state": 42,
+      "verbose": 0
+    }
+  },
+  "business_cost_assumptions": {
+    "LGD_par_garantie": {
+      "Bien matériel": 0.35,
+      "Aval d'un tiers": 0.45,
+      "Caution solidaire": 0.4,
+      "Aucune": 0.65
+    },
+    "LGD_defaut_si_garantie_inconnue": 0.55,
+    "marge_interet_faux_positif": 0.12,
+    "note": "Table LGD identique à ai-service/main.py (LGD_PAR_GARANTIE) — à recalibrer avec les données réelles de recouvrement de la coopérative partenaire."
+  },
+  "results_comparatif_validation": {
+    "LogisticRegression (F1)": {
+      "AUC-ROC": 0.6932,
+      "Gini": 0.3865,
+      "Accuracy@0.5": 0.6667,
+      "Recall_classe1@0.5": 0.5395,
+      "Seuil_F1_optimal": 0.616,
+      "F1_classe1@Seuil_F1": 0.3592,
+      "Seuil_Financier_optimal": 0.74,
+      "Cout_total_FCFA@Seuil_Financier": 8116400,
+      "Gain_vs_seuil_0.5_FCFA": 2884220,
+      "Recall_Defaut@Seuil_Financier": 0.3289
+    },
+    "LogisticRegression (Financier)": {
+      "AUC-ROC": 0.6932,
+      "Gini": 0.3865,
+      "Accuracy@0.5": 0.6667,
+      "Recall_classe1@0.5": 0.5395,
+      "Seuil_F1_optimal": 0.616,
+      "F1_classe1@Seuil_F1": 0.3592,
+      "Seuil_Financier_optimal": 0.74,
+      "Cout_total_FCFA@Seuil_Financier": 8116400,
+      "Gain_vs_seuil_0.5_FCFA": 2884220,
+      "Recall_Defaut@Seuil_Financier": 0.3289
+    },
+    "RandomForest (F1)": {
+      "AUC-ROC": 0.6872,
+      "Gini": 0.3745,
+      "Accuracy@0.5": 0.8483,
+      "Recall_classe1@0.5": 0.2763,
+      "Seuil_F1_optimal": 0.408,
+      "F1_classe1@Seuil_F1": 0.3347,
+      "Seuil_Financier_optimal": 0.5,
+      "Cout_total_FCFA@Seuil_Financier": 8894760,
+      "Gain_vs_seuil_0.5_FCFA": 0,
+      "Recall_Defaut@Seuil_Financier": 0.2763
+    },
+    "RandomForest (Financier)": {
+      "AUC-ROC": 0.6803,
+      "Gini": 0.3606,
+      "Accuracy@0.5": 0.8267,
+      "Recall_classe1@0.5": 0.2895,
+      "Seuil_F1_optimal": 0.446,
+      "F1_classe1@Seuil_F1": 0.3436,
+      "Seuil_Financier_optimal": 0.5,
+      "Cout_total_FCFA@Seuil_Financier": 9294160,
+      "Gain_vs_seuil_0.5_FCFA": 0,
+      "Recall_Defaut@Seuil_Financier": 0.2895
+    },
+    "XGBoost (F1)": {
+      "AUC-ROC": 0.7162,
+      "Gini": 0.4324,
+      "Accuracy@0.5": 0.865,
+      "Recall_classe1@0.5": 0.0526,
+      "Seuil_F1_optimal": 0.344,
+      "F1_classe1@Seuil_F1": 0.3529,
+      "Seuil_Financier_optimal": 0.34,
+      "Cout_total_FCFA@Seuil_Financier": 8861610,
+      "Gain_vs_seuil_0.5_FCFA": 2663450,
+      "Recall_Defaut@Seuil_Financier": 0.3158
+    },
+    "XGBoost (Financier)": {
+      "AUC-ROC": 0.7274,
+      "Gini": 0.4548,
+      "Accuracy@0.5": 0.8667,
+      "Recall_classe1@0.5": 0.0395,
+      "Seuil_F1_optimal": 0.106,
+      "F1_classe1@Seuil_F1": 0.3416,
+      "Seuil_Financier_optimal": 0.3,
+      "Cout_total_FCFA@Seuil_Financier": 9128420,
+      "Gain_vs_seuil_0.5_FCFA": 2645650,
+      "Recall_Defaut@Seuil_Financier": 0.3026
+    },
+    "LightGBM (F1)": {
+      "AUC-ROC": 0.7086,
+      "Gini": 0.4172,
+      "Accuracy@0.5": 0.8733,
+      "Recall_classe1@0.5": 0.0526,
+      "Seuil_F1_optimal": 0.358,
+      "F1_classe1@Seuil_F1": 0.3433,
+      "Seuil_Financier_optimal": 0.36,
+      "Cout_total_FCFA@Seuil_Financier": 8852590,
+      "Gain_vs_seuil_0.5_FCFA": 2118970,
+      "Recall_Defaut@Seuil_Financier": 0.2895
+    },
+    "LightGBM (Financier)": {
+      "AUC-ROC": 0.7086,
+      "Gini": 0.4172,
+      "Accuracy@0.5": 0.8733,
+      "Recall_classe1@0.5": 0.0526,
+      "Seuil_F1_optimal": 0.358,
+      "F1_classe1@Seuil_F1": 0.3433,
+      "Seuil_Financier_optimal": 0.36,
+      "Cout_total_FCFA@Seuil_Financier": 8852590,
+      "Gain_vs_seuil_0.5_FCFA": 2118970,
+      "Recall_Defaut@Seuil_Financier": 0.2895
+    },
+    "CatBoost (F1)": {
+      "AUC-ROC": 0.7175,
+      "Gini": 0.435,
+      "Accuracy@0.5": 0.8733,
+      "Recall_classe1@0.5": 0.0263,
+      "Seuil_F1_optimal": 0.292,
+      "F1_classe1@Seuil_F1": 0.3385,
+      "Seuil_Financier_optimal": 0.39,
+      "Cout_total_FCFA@Seuil_Financier": 9034940,
+      "Gain_vs_seuil_0.5_FCFA": 2440880,
+      "Recall_Defaut@Seuil_Financier": 0.2368
+    },
+    "CatBoost (Financier)": {
+      "AUC-ROC": 0.7175,
+      "Gini": 0.435,
+      "Accuracy@0.5": 0.8733,
+      "Recall_classe1@0.5": 0.0263,
+      "Seuil_F1_optimal": 0.292,
+      "F1_classe1@Seuil_F1": 0.3385,
+      "Seuil_Financier_optimal": 0.39,
+      "Cout_total_FCFA@Seuil_Financier": 9034940,
+      "Gain_vs_seuil_0.5_FCFA": 2440880,
+      "Recall_Defaut@Seuil_Financier": 0.2368
+    },
+    "Stacking": {
+      "AUC-ROC": 0.7122,
+      "Gini": 0.4244,
+      "Accuracy@0.5": 0.8717,
+      "Recall_classe1@0.5": 0.0,
+      "Seuil_F1_optimal": 0.144,
+      "F1_classe1@Seuil_F1": 0.3424,
+      "Seuil_Financier_optimal": 0.3,
+      "Cout_total_FCFA@Seuil_Financier": 8773260,
+      "Gain_vs_seuil_0.5_FCFA": 3047760,
+      "Recall_Defaut@Seuil_Financier": 0.2632
+    }
+  },
+  "results_test_final_honnete": {
+    "AUC-ROC": 0.752,
+    "Gini": 0.504,
+    "Accuracy@0.5": 0.6617,
+    "Recall_classe1@0.5": 0.75,
+    "Seuil_deploye": 0.74,
+    "F1_classe1@Seuil_deploye": 0.2933,
+    "Recall_Defaut@Seuil_deploye": 0.2895,
+    "Cout_total_FCFA@Seuil_deploye": 9127510,
+    "Gain_vs_seuil_0.5_FCFA": -538480
+  },
+  "seuil_deploye": 0.74,
+  "seuil_vert_max": 0.59,
+  "seuil_rouge_min": 0.84,
+  "n_train": 2800,
+  "n_val": 600,
+  "n_test": 600,
+  "taux_defaut_global": 0.1265,
+  "environnement_entrainement": {
+    "python_version": "3.12.3",
+    "scikit_learn": "1.8.0",
+    "numpy": "2.4.4",
+    "pandas": "3.0.2",
+    "joblib": "1.5.3",
+    "shap": "0.52.0",
+    "optuna": "4.9.0",
+    "note": "ai-service/requirements.txt doit épingler exactement ces versions pour éviter un InconsistentVersionWarning au chargement des .pkl."
+  }
 }

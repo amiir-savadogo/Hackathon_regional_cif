@@ -1,3 +1,11 @@
+# Lance les 4 briques du projet ensemble : base de données, moteur IA, backend
+# et frontend. Usage : `docker compose up --build` depuis la racine du dépôt,
+# puis http://localhost:4200 (frontend), http://localhost:8080/api (backend),
+# http://localhost:8000/docs (documentation FastAPI auto-générée).
+#
+# NB déploiement réel (Render/Vercel) : ce fichier est un outil de démo/dev
+# local. Il ne remplace pas les déploiements séparés décrits dans le README
+# (chaque service a ses propres variables d'environnement en production).
 services:
   # 1. Base de données PostgreSQL
   db:
@@ -11,6 +19,63 @@ services:
       - "5434:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U cif_user -d cif_microcredit"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  # 2. Moteur de scoring IA (FastAPI + scikit-learn + SHAP)
+  #    Artefacts chargés depuis ai-service/models/ (généré par
+  #    scripts/02_train_model.py à la racine du dépôt, synchronisé
+  #    automatiquement par ce script - voir sa section 9).
+  ai-service:
+    build:
+      context: ./ai-service
+    container_name: cif_ai_service
+    ports:
+      - "8000:8000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    restart: unless-stopped
+
+  # 3. Backend Spring Boot (règles métier, validation, persistance)
+  backend:
+    build:
+      context: ./backend
+    container_name: cif_backend
+    environment:
+      DB_URL: jdbc:postgresql://db:5432/cif_microcredit
+      DB_USER: cif_user
+      DB_PASSWORD: cif_password
+      # Nom de service Docker (résolu par le réseau interne de Compose),
+      # pas localhost : localhost, dans ce conteneur, ne désignerait que
+      # lui-même, jamais le conteneur ai-service.
+      AI_SERVICE_URL: http://ai-service:8000/api/score
+    ports:
+      - "8080:8080"
+    depends_on:
+      db:
+        condition: service_healthy
+      ai-service:
+        condition: service_healthy
+    restart: unless-stopped
+
+  # 4. Frontend Angular (ng serve - voir frontend/Dockerfile pour le choix
+  #    de ne pas utiliser le mode SSR ici)
+  frontend:
+    build:
+      context: ./frontend
+    container_name: cif_frontend
+    ports:
+      - "4200:4200"
+    depends_on:
+      - backend
     restart: unless-stopped
 
 volumes:

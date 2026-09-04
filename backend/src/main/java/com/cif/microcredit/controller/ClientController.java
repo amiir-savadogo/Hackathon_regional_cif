@@ -6,7 +6,11 @@ import com.cif.microcredit.repository.ClientRepository;
 import com.cif.microcredit.repository.DemandeCreditRepository;
 import com.cif.microcredit.service.ScoringResult;
 import com.cif.microcredit.service.ScoringService;
+import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
 import org.springframework.http.HttpStatus;
 import org.springframework.web.bind.annotation.*;
@@ -19,12 +23,17 @@ import java.util.Optional;
  * des clients et de leurs demandes de crédit.
  *
  * Routes disponibles :
- *   GET    /api/clients              -> Liste tous les clients
+ *   GET    /api/clients              -> Liste tous les clients (optionnellement paginée via ?page=&size=)
  *   POST   /api/clients              -> Crée un nouveau profil client
  *   GET    /api/clients/{id}         -> Détail d'un client avec ses demandes
  *   POST   /api/clients/{id}/demandes -> Soumet une nouvelle demande de crédit pour un client
  *   GET    /api/clients/{id}/demandes -> Historique des demandes d'un client
  *   GET    /api/dashboard/stats      -> Statistiques pour le tableau de bord
+ *
+ * Validation : les contraintes Bean Validation posées sur Client et
+ * DemandeCredit (jakarta.validation, cf. ces classes) sont appliquées via
+ * @Valid sur les endpoints POST ci-dessous ; une requête qui les viole reçoit
+ * un 400 avec le détail des champs en erreur (cf. GlobalExceptionHandler).
  */
 @RestController
 @RequestMapping("/api")
@@ -45,17 +54,29 @@ public class ClientController {
     // =====================================================================
 
     @GetMapping("/clients")
-    public ResponseEntity<List<Client>> getAllClients() {
+    public ResponseEntity<List<Client>> getAllClients(
+            @RequestParam(required = false) Integer page,
+            @RequestParam(required = false) Integer size) {
+        // Pagination optionnelle : sans paramètres, comportement inchangé (liste
+        // complète) pour ne pas casser le frontend actuel. Avec ?page=&size=,
+        // évite de charger l'intégralité de la table en mémoire - utile le jour
+        // où la coopérative aura des milliers de clients plutôt qu'une poignée
+        // de dossiers de démonstration.
+        if (page != null && size != null) {
+            Pageable pageable = PageRequest.of(page, size, Sort.by(Sort.Direction.DESC, "dateCreation"));
+            return ResponseEntity.ok(clientRepository.findAll(pageable).getContent());
+        }
         return ResponseEntity.ok(clientRepository.findAll());
     }
 
     @PostMapping("/clients")
-    public ResponseEntity<?> createClient(@RequestBody Client client) {
-        // Contrôle anti-doublon basé sur le nom et le prénom
-        boolean exists = clientRepository.findAll().stream()
-                .anyMatch(c -> c.getNom().equalsIgnoreCase(client.getNom()) && 
-                               c.getPrenom().equalsIgnoreCase(client.getPrenom()));
-                               
+    public ResponseEntity<?> createClient(@Valid @RequestBody Client client) {
+        // Contrôle anti-doublon : requête SQL indexable côté PostgreSQL plutôt
+        // que findAll().stream() (qui rapatriait toute la table en mémoire à
+        // chaque création de client).
+        boolean exists = clientRepository.existsByNomIgnoreCaseAndPrenomIgnoreCase(
+                client.getNom(), client.getPrenom());
+
         if (exists) {
             return ResponseEntity.status(HttpStatus.CONFLICT)
                     .body(java.util.Map.of("erreur", "Un client avec ce nom et prénom existe déjà dans la base."));
@@ -85,7 +106,7 @@ public class ClientController {
     @PostMapping("/clients/{clientId}/demandes")
     public ResponseEntity<DemandeCredit> evaluerCredit(
             @PathVariable Long clientId,
-            @RequestBody DemandeCredit demande) {
+            @Valid @RequestBody DemandeCredit demande) {
 
         Optional<Client> optClient = clientRepository.findById(clientId);
         if (optClient.isEmpty()) {
