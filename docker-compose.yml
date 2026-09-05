@@ -36,6 +36,9 @@ services:
     container_name: cif_ai_service
     ports:
       - "8000:8000"
+    volumes:
+      - ./ai-service:/app
+    command: uvicorn main:app --host 0.0.0.0 --port 8000 --reload
     healthcheck:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
       interval: 10s
@@ -66,14 +69,16 @@ services:
         condition: service_healthy
     restart: unless-stopped
 
-  # 4. Frontend Angular (ng serve - voir frontend/Dockerfile pour le choix
-  #    de ne pas utiliser le mode SSR ici)
+  # 4. Frontend Angular (ng serve avec live reload)
   frontend:
     build:
       context: ./frontend
     container_name: cif_frontend
     ports:
       - "4200:4200"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
     depends_on:
       - backend
     restart: unless-stopped
