@@ -49,11 +49,15 @@ venv/
 # =========================================================================
 # FICHIERS LOURDS ET DONNEES GENEREES
 # =========================================================================
-data/
+/data/
 *.xlsx
 *.csv
 frontend/src/assets/data/
 Hackathon_preprod/
+
+# Autoriser les données TypeScript pour le Frontend
+!frontend/src/app/data/
+!frontend/src/app/data/**
 
 # =========================================================================
 # SYSTEME D'EXPLOITATION ET EDITEURS
