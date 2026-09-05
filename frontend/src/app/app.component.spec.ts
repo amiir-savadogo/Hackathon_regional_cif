@@ -16,11 +16,11 @@ describe('AppComponent', () => {
     expect(app).toBeTruthy();
   });
 
-  it('should render the "CréditSûr WA" brand name in the header', () => {
+  it('should render the "SAMDE" brand name in the header', () => {
     const fixture = TestBed.createComponent(AppComponent);
     fixture.detectChanges();
     const compiled = fixture.nativeElement as HTMLElement;
-    expect(compiled.textContent).toContain('CréditSûr WA');
+    expect(compiled.textContent).toContain('SAMDE');
   });
 
   it('should no longer reference the stale "Moteur IA actif" percentage label', () => {

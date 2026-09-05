@@ -4,7 +4,7 @@
 ==================
 Prétraitement, gestion du déséquilibre des classes (SMOTE), optimisation
 des hyperparamètres par recherche bayésienne (Optuna) et comparaison de
-5 modèles + un stacking pour le scoring microcrédit CréditSûr WA :
+5 modèles + un stacking pour le scoring microcrédit SAMDE :
     - Régression Logistique (baseline interprétable)
     - Random Forest
     - XGBoost
