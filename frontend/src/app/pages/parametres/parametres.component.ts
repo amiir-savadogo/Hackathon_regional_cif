@@ -49,12 +49,12 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
           </button>
 
           <button (click)="goToSection('ROLES')"
-            [ngClass]="currentSection === 'ROLES' ? 'bg-blue-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
+            [ngClass]="currentSection === 'ROLES' ? 'bg-[#147c76] text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
             class="px-3.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap">
             <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             <span>Rôles</span>
             <span class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold"
-              [ngClass]="currentSection === 'ROLES' ? 'bg-blue-800 text-blue-100' : 'bg-gray-200 text-gray-600'">
+              [ngClass]="currentSection === 'ROLES' ? 'bg-[#0e625e] text-emerald-100' : 'bg-gray-200 text-gray-600'">
               {{ roles.length }}
             </span>
           </button>
@@ -331,7 +331,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
               {{ roles.length }} rôle(s)
             </span>
             <button (click)="openCreateRoleModal()"
-              class="bg-blue-600 hover:bg-blue-700 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-blue-600/20 hover:shadow-lg transition-all flex items-center space-x-2">
+              class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-[#147c76]/20 hover:shadow-lg transition-all flex items-center space-x-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
               <span>Nouveau rôle</span>
             </button>
@@ -342,7 +342,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
 
           <!-- ÉTAT VIDE RÔLES -->
           <div *ngIf="roles.length === 0" class="text-center py-16 px-4 max-w-md mx-auto">
-            <div class="w-20 h-20 bg-blue-50 text-blue-600 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
+            <div class="w-20 h-20 bg-emerald-50 text-[#147c76] rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
               <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
               </svg>
@@ -352,7 +352,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
               Définissez les rôles de votre coopérative pour habiliter vos collaborateurs.
             </p>
             <button (click)="openCreateRoleModal()"
-              class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-md transition-all inline-flex items-center space-x-2">
+              class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold px-6 py-3 rounded-xl shadow-md transition-all inline-flex items-center space-x-2">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
               <span>Créer le premier rôle</span>
             </button>
@@ -643,7 +643,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
                 Annuler
               </button>
               <button type="submit" [disabled]="!roleForm.form.valid"
-                class="px-6 py-2.5 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 disabled:opacity-40 text-white text-sm font-bold rounded-xl shadow-md shadow-blue-500/20 hover:shadow-lg transition-all">
+                class="px-6 py-2.5 bg-[#147c76] hover:bg-[#0e625e] disabled:opacity-40 text-white text-sm font-bold rounded-xl shadow-md shadow-[#147c76]/20 hover:shadow-lg transition-all">
                 <span *ngIf="isEditingRole">Mettre à jour</span>
                 <span *ngIf="!isEditingRole">Enregistrer le rôle</span>
               </button>

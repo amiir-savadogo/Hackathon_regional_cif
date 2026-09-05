@@ -3,31 +3,21 @@ import { DashboardComponent } from './pages/dashboard/dashboard.component';
 import { ClientListComponent } from './pages/client-list/client-list.component';
 import { ClientNewComponent } from './pages/client-new/client-new.component';
 import { CreditFormComponent } from './pages/credit-form/credit-form.component';
-<<<<<<< HEAD
 import { LoginComponent } from './pages/login/login.component';
+import { AgentsComponent } from './pages/agents/agents.component';
+import { ParametresComponent } from './pages/parametres/parametres.component';
 import { authGuard } from './guards/auth.guard';
 
 export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
+  { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'clients', component: ClientListComponent, canActivate: [authGuard] },
   { path: 'clients/nouveau', component: ClientNewComponent, canActivate: [authGuard] },
   { path: 'clients/:id/credit', component: CreditFormComponent, canActivate: [authGuard] },
-  { path: '**', redirectTo: 'dashboard' },
-=======
-import { AgentsComponent } from './pages/agents/agents.component';
-import { ParametresComponent } from './pages/parametres/parametres.component';
-
-export const routes: Routes = [
-  { path: '', redirectTo: 'dashboard', pathMatch: 'full' },
-  { path: 'dashboard', component: DashboardComponent },
-  { path: 'clients', component: ClientListComponent },
-  { path: 'clients/nouveau', component: ClientNewComponent },
-  { path: 'clients/:id/credit', component: CreditFormComponent },
-  { path: 'agents', component: AgentsComponent },
-  { path: 'parametres', component: ParametresComponent },
->>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
+  { path: 'agents', component: AgentsComponent, canActivate: [authGuard] },
+  { path: 'parametres', component: ParametresComponent, canActivate: [authGuard] },
+  { path: '**', redirectTo: 'login' },
 ];
 
 

@@ -29,7 +29,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
         </div>
         <div>
           <button (click)="openModal()"
-            class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-all flex items-center space-x-2">
+            class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-all flex items-center space-x-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
             </svg>
@@ -100,7 +100,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
           Enregistrez les membres de votre équipe (agents de crédit, chef d'agence, membres du comité) pour leur attribuer leurs accès officiels.
         </p>
         <button (click)="openModal()"
-          class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow transition-all inline-flex items-center space-x-2">
+          class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-semibold px-5 py-2.5 rounded-xl shadow-sm hover:shadow transition-all inline-flex items-center space-x-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -118,7 +118,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
             <!-- En-tête carte : Avatar + Rôle -->
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr {{ agent.avatarColor || 'from-blue-600 to-indigo-600' }} flex items-center justify-center text-white font-bold text-base shadow-sm">
+                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr flex items-center justify-center text-white font-bold text-base shadow-sm" [ngClass]="agent.avatarColor || 'from-blue-600 to-indigo-600'">
                   {{ getInitials(agent) }}
                 </div>
                 <div>
@@ -284,7 +284,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
                 Annuler
               </button>
               <button type="submit" [disabled]="!agentForm.form.valid"
-                class="px-5 py-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
+                class="px-5 py-2 bg-[#147c76] hover:bg-[#0e625e] disabled:opacity-50 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
                 Enregistrer l'agent
               </button>
             </div>
@@ -333,7 +333,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
                 Annuler
               </button>
               <button type="submit" [disabled]="!authPasswordInput"
-                class="px-4 py-2 bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-colors">
+                class="px-4 py-2 bg-[#147c76] hover:bg-[#0e625e] disabled:opacity-50 text-white text-xs font-bold rounded-xl shadow-sm transition-colors">
                 Se connecter
               </button>
             </div>
@@ -452,12 +452,28 @@ export class AgentsComponent implements OnInit {
   }
 
   generateRandomPassword() {
-    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789';
-    let pass = 'Cif@';
-    for (let i = 0; i < 4; i++) {
-      pass += chars.charAt(Math.floor(Math.random() * chars.length));
-    }
-    this.newAgent.motDePasse = pass;
+    const uppers = 'ABCDEFGHJKLMNPQRSTUVWXYZ';
+    const lowers = 'abcdefghijkmnpqrstuvwxyz';
+    const digits = '23456789';
+    const symbols = '@#$*!?%';
+
+    const getRandom = (charset: string) => charset.charAt(Math.floor(Math.random() * charset.length));
+
+    const pool = [
+      getRandom(uppers),
+      getRandom(uppers),
+      getRandom(lowers),
+      getRandom(lowers),
+      getRandom(digits),
+      getRandom(digits),
+      getRandom(symbols),
+      getRandom(symbols),
+      getRandom(uppers + lowers),
+      getRandom(digits + symbols)
+    ];
+
+    const shuffled = pool.sort(() => Math.random() - 0.5).join('');
+    this.newAgent.motDePasse = 'CIF-' + shuffled;
     this.showPassword = true;
   }
 

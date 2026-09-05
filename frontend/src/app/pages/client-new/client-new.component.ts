@@ -148,7 +148,7 @@ import { Client } from '../../models/client.model';
           <div class="flex items-center justify-between pt-4 border-t border-gray-100">
             <a routerLink="/clients" class="text-sm text-gray-500 hover:text-gray-700">Annuler</a>
             <button type="submit" [disabled]="loading"
-              class="bg-blue-700 hover:bg-blue-800 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors">
+              class="bg-[#147c76] hover:bg-[#0e625e] disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors">
               {{ loading ? 'Enregistrement...' : 'Enregistrer le client' }}
             </button>
           </div>

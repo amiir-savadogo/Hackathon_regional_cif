@@ -1,34 +1,5 @@
-<<<<<<< HEAD
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-
-const SESSION_KEY = 'samde_agent_session';
-
-@Injectable({ providedIn: 'root' })
-export class AuthService {
-  private readonly platformId = inject(PLATFORM_ID);
-
-  isAuthenticated(): boolean {
-    return isPlatformBrowser(this.platformId) && localStorage.getItem(SESSION_KEY) === 'authenticated';
-  }
-
-  login(email: string, password: string): boolean {
-    const normalizedEmail = email.trim();
-    const isValidEmail = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(normalizedEmail);
-    const isValid = isValidEmail && password.trim().length > 0;
-
-    if (isValid && isPlatformBrowser(this.platformId)) {
-      localStorage.setItem(SESSION_KEY, 'authenticated');
-    }
-
-    return isValid;
-  }
-
-  logout(): void {
-    if (isPlatformBrowser(this.platformId)) {
-      localStorage.removeItem(SESSION_KEY);
-=======
-import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { AgentUser, AgentRole, AgenceCIF, CorbeilleItem } from '../models/user.model';
 
@@ -37,11 +8,14 @@ const STORAGE_CURRENT_USER_KEY = 'samde_current_agent_id';
 const STORAGE_ROLES_KEY = 'samde_custom_roles_list';
 const STORAGE_AGENCES_KEY = 'samde_custom_agences_list';
 const STORAGE_TRASH_KEY = 'samde_trash_items';
+const SESSION_KEY = 'samde_agent_session';
 
 @Injectable({
   providedIn: 'root'
 })
 export class AuthService {
+  private readonly platformId = inject(PLATFORM_ID);
+
   private rolesSubject = new BehaviorSubject<AgentRole[]>(this.loadRoles());
   public roles$: Observable<AgentRole[]> = this.rolesSubject.asObservable();
 
@@ -56,6 +30,80 @@ export class AuthService {
 
   private trashSubject = new BehaviorSubject<CorbeilleItem[]>(this.loadTrash());
   public trash$: Observable<CorbeilleItem[]> = this.trashSubject.asObservable();
+
+  isAuthenticated(): boolean {
+    if (!isPlatformBrowser(this.platformId)) return false;
+    return localStorage.getItem(SESSION_KEY) === 'authenticated';
+  }
+
+  login(emailOrMatricule: string, password: string): boolean {
+    const query = (emailOrMatricule || '').trim().toLowerCase();
+    const pass = (password || '').trim();
+
+    if (!query || !pass) {
+      return false;
+    }
+
+    const agents = this.getAgents();
+
+    // Recherche de l'agent par email OU matricule (insensible à la casse)
+    const agent = agents.find(a => 
+      (a.email && a.email.toLowerCase() === query) || 
+      (a.matricule && a.matricule.toLowerCase() === query)
+    );
+
+    // Si aucun agent ne correspond dans la base
+    if (!agent) {
+      // Compte Administrateur initial de secours
+      if ((query === 'admin@cif.bf' || query === 'adm-001' || query === 'admin') && pass === 'admin123') {
+        const defaultAdmin = this.addAgent({
+          matricule: 'ADM-001',
+          nom: 'Diallo',
+          prenom: 'Amadou',
+          email: 'admin@cif.bf',
+          motDePasse: 'admin123',
+          roleCode: 'ADMIN_SYSTEME',
+          agence: 'Siège Principal CIF',
+          telephone: '+226 25 30 00 00'
+        });
+        this.setCurrentUser(defaultAdmin.id);
+        if (isPlatformBrowser(this.platformId)) {
+          localStorage.setItem(SESSION_KEY, 'authenticated');
+        }
+        return true;
+      }
+      return false; // Accès refusé
+    }
+
+    // Vérifier si le compte est actif
+    if (agent.actif === false) {
+      return false;
+    }
+
+    // Vérification stricte du mot de passe
+    if (agent.motDePasse) {
+      if (agent.motDePasse !== pass) {
+        return false; // Mot de passe incorrect : accès refusé
+      }
+    } else {
+      // Si l'agent n'avait pas encore de mot de passe, enregistrer le mot de passe saisi
+      this.updateAgentPassword(agent.id, pass);
+    }
+
+    this.setCurrentUser(agent.id);
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.setItem(SESSION_KEY, 'authenticated');
+    }
+    return true;
+  }
+
+  logout(): void {
+    if (isPlatformBrowser(this.platformId)) {
+      localStorage.removeItem(SESSION_KEY);
+      localStorage.removeItem(STORAGE_CURRENT_USER_KEY);
+    }
+    this.currentUserSubject.next(null);
+  }
 
   // =========================================================================
   // GESTION DES RÔLES
@@ -329,14 +377,35 @@ export class AuthService {
       return [];
     }
     const saved = localStorage.getItem(STORAGE_AGENTS_KEY);
+    const defaultAdmin: AgentUser = {
+      id: 'agt-admin-01',
+      matricule: 'ADM-001',
+      nom: 'Diallo',
+      prenom: 'Amadou',
+      email: 'admin@cif.bf',
+      motDePasse: 'admin123',
+      roleCode: 'ADMIN_SYSTEME',
+      roleLabel: 'Administrateur Système',
+      agence: 'Siège Principal CIF',
+      dateCreation: '2026-01-15',
+      telephone: '+226 25 30 00 00',
+      avatarColor: 'from-blue-600 to-indigo-600',
+      actif: true
+    };
+
     if (!saved) {
-      return [];
+      localStorage.setItem(STORAGE_AGENTS_KEY, JSON.stringify([defaultAdmin]));
+      return [defaultAdmin];
     }
     try {
       const parsed = JSON.parse(saved);
-      return Array.isArray(parsed) ? parsed : [];
+      if (Array.isArray(parsed) && parsed.length > 0) {
+        return parsed;
+      }
+      localStorage.setItem(STORAGE_AGENTS_KEY, JSON.stringify([defaultAdmin]));
+      return [defaultAdmin];
     } catch {
-      return [];
+      return [defaultAdmin];
     }
   }
 
@@ -385,7 +454,7 @@ export class AuthService {
   }): AgentUser {
     const roles = this.getRoles();
     const role = roles.find(r => r.code === data.roleCode);
-    const roleLabel = role ? role.label : data.roleCode;
+    const roleLabel = role ? role.label : (data.roleCode === 'ADMIN_SYSTEME' ? 'Administrateur Système' : data.roleCode);
 
     const gradients = [
       'from-blue-600 to-indigo-600',
@@ -580,7 +649,6 @@ export class AuthService {
     this.trashSubject.next([]);
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem(STORAGE_TRASH_KEY);
->>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
     }
   }
 }

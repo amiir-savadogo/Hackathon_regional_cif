@@ -1,14 +1,10 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-<<<<<<< HEAD
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from './services/auth.service';
-=======
-import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
-import { AuthService } from './services/auth.service';
 import { AgentUser } from './models/user.model';
->>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
 
+// SAMDE - CIF Microcrédit v1.0 (Sidebar mise à jour)
 @Component({
   selector: 'app-root',
   standalone: true,
@@ -57,15 +53,6 @@ import { AgentUser } from './models/user.model';
               <p class="text-xs text-[#9cb4b4]">Portail Agent</p>
             </div>
           </div>
-
-          <!-- Bouton réduction flèche dans la sidebar -->
-          <button (click)="toggleDesktopSidebar()" 
-            class="p-1.5 rounded-lg text-[#9cb4b4] hover:text-white hover:bg-[#1b5558] transition-colors focus:outline-none"
-            [title]="isDesktopCollapsed ? 'Agrandir le menu (Ctrl+B)' : 'Réduire le menu (Ctrl+B)'">
-            <svg class="w-4 h-4 transition-transform duration-300" [class.rotate-180]="isDesktopCollapsed" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 19l-7-7 7-7m8 14l-7-7 7-7"/>
-            </svg>
-          </button>
         </div>
 
         <!-- Bouton fermer sur mobile -->
@@ -111,28 +98,6 @@ import { AgentUser } from './models/user.model';
             <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
             <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">Paramètres</span>
           </a>
-
-          <!--
-          <div *ngIf="!isDesktopCollapsed" class="pt-6 pb-2">
-            <p class="px-3 text-[10px] uppercase tracking-widest text-[#7fa3a2] font-semibold">Système</p>
-          </div>
-<<<<<<< HEAD
-
-          <div class="flex items-center space-x-2 px-3 py-2 text-xs text-[#9cb4b4]"
-            [class.justify-center]="isDesktopCollapsed"
-            [title]="isDesktopCollapsed ? 'Moteur IA actif' : ''">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0 animate-pulse"></span>
-            <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">Moteur IA actif</span>
-          </div>
-          <div class="flex items-center space-x-2 px-3 py-2 text-xs text-[#9cb4b4]"
-            [class.justify-center]="isDesktopCollapsed"
-            [title]="isDesktopCollapsed ? 'PostgreSQL connecté' : ''">
-            <span class="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"></span>
-            <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">PostgreSQL connecté</span>
-          </div>
-=======
-          -->
->>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
         </nav>
 
         <div class="px-4 py-4 border-t border-[#28565a] mt-auto" *ngIf="!isDesktopCollapsed">
@@ -164,25 +129,19 @@ import { AgentUser } from './models/user.model';
             <span class="text-xs text-gray-500 font-medium">Devise : <strong class="text-gray-700">FCFA (XOF)</strong></span>
           </div>
 
-          <!-- Profil Agent Dynamique -->
-          <div class="flex items-center space-x-4">
-<<<<<<< HEAD
+          <!-- Profil Agent Dynamique + Actions Header -->
+          <div class="flex items-center space-x-3">
             <a routerLink="/clients/nouveau" 
-              class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-[#147c76] hover:bg-[#0e625e] text-white rounded-lg text-xs font-semibold shadow-sm transition-all">
+              class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#147c76] hover:bg-[#0e625e] text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
               <span>+ Nouveau client</span>
             </a>
 
             <div class="h-6 w-px bg-gray-200"></div>
 
-            <div class="flex items-center space-x-2.5">
-              <div class="w-8 h-8 rounded-full bg-[#e6ad50] flex items-center justify-center text-[#123b41] text-xs font-bold shadow-sm">
-                AG
-=======
             <a routerLink="/agents" class="flex items-center space-x-2.5 p-1.5 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer" title="Gérer les agents / Affecter un collaborateur">
-              <div class="w-8 h-8 rounded-full bg-gradient-to-tr {{ currentAgent?.avatarColor || 'from-slate-600 to-slate-700' }} flex items-center justify-center text-white text-xs font-bold shadow-sm">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-tr flex items-center justify-center text-white text-xs font-bold shadow-sm" [ngClass]="currentAgent?.avatarColor || 'from-slate-600 to-slate-700'">
                 {{ getInitials(currentAgent) }}
->>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
               </div>
               <div class="text-left">
                 <p class="text-xs font-bold text-gray-800 group-hover:text-blue-700 leading-tight transition-colors">
@@ -192,14 +151,11 @@ import { AgentUser } from './models/user.model';
                   {{ currentAgent ? currentAgent.roleLabel : 'Gérer les agents' }}
                 </p>
               </div>
-<<<<<<< HEAD
-              <button (click)="logout()" class="ml-2 p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Se déconnecter" aria-label="Se déconnecter">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 17l5-5-5-5m5 5H3m10-9h5a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-5"/></svg>
-              </button>
-            </div>
-=======
             </a>
->>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
+
+            <button (click)="logout()" class="p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Se déconnecter" aria-label="Se déconnecter">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 17l5-5-5-5m5 5H3m10-9h5a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-5"/></svg>
+            </button>
           </div>
         </header>
 
@@ -214,13 +170,8 @@ import { AgentUser } from './models/user.model';
   styles: []
 })
 export class AppComponent {
-<<<<<<< HEAD
   private readonly router = inject(Router);
-  private readonly auth = inject(AuthService);
-=======
-  private authService = inject(AuthService);
-
->>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
+  private readonly authService = inject(AuthService);
   isSidebarOpen = false;       // État du tiroir sur mobile
   isDesktopCollapsed = false;  // État réduit/étendu sur bureau
   currentAgent: AgentUser | null = null;
@@ -239,7 +190,9 @@ export class AppComponent {
   }
 
   get isAuthPage(): boolean {
-    return this.router.url.startsWith('/login');
+    const url = this.router.url || '';
+    const path = (typeof window !== 'undefined' && window.location) ? window.location.pathname : '';
+    return url.includes('/login') || path.includes('/login') || (!this.authService.isAuthenticated() && (url === '/' || path === '/'));
   }
 
   toggleSidebar() {
@@ -255,7 +208,7 @@ export class AppComponent {
   }
 
   logout() {
-    this.auth.logout();
+    this.authService.logout();
     this.router.navigate(['/login']);
   }
 }
