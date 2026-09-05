@@ -11,15 +11,27 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="max-w-4xl mx-auto">
-
       <!-- Fil d'Ariane -->
-      <div class="flex items-center space-x-2 text-sm text-gray-500 mb-6">
-        <a routerLink="/clients" class="hover:text-blue-700">Clients</a>
-        <span>/</span>
-        <span *ngIf="client" class="hover:text-blue-700 cursor-pointer">{{ client.prenom }} {{ client.nom }}</span>
-        <span>/</span>
-        <span class="text-gray-800 font-medium">Demande de crédit</span>
-      </div>
+      <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 mb-6 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm overflow-x-auto" aria-label="Breadcrumb">
+        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-blue-700 transition-colors whitespace-nowrap">
+          <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+          Accueil
+        </a>
+        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <a routerLink="/clients" class="inline-flex items-center text-gray-500 hover:text-blue-700 transition-colors whitespace-nowrap">
+          <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+          Clients
+        </a>
+        <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <a *ngIf="client" routerLink="/clients" class="inline-flex items-center text-gray-700 hover:text-blue-700 transition-colors font-semibold whitespace-nowrap">
+          {{ client.prenom }} {{ client.nom }}
+        </a>
+        <svg *ngIf="client" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-emerald-50 text-emerald-700 border border-emerald-200 whitespace-nowrap">
+          <svg class="w-3 h-3 mr-1 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          Demande de crédit
+        </span>
+      </nav>
 
       <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
 
