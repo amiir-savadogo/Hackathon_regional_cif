@@ -1,7 +1,6 @@
 import { Routes } from '@angular/router';
 import { DashboardComponent } from './pages/dashboard/dashboard.component';
-import { ClientListComponent } from './pages/client-list/client-list.component';
-import { ClientNewComponent } from './pages/client-new/client-new.component';
+import { CreditsComponent } from './pages/credits/credits.component';
 import { CreditFormComponent } from './pages/credit-form/credit-form.component';
 import { LoginComponent } from './pages/login/login.component';
 import { AgentsComponent } from './pages/agents/agents.component';
@@ -12,8 +11,8 @@ export const routes: Routes = [
   { path: '', redirectTo: 'login', pathMatch: 'full' },
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
-  { path: 'clients', component: ClientListComponent, canActivate: [authGuard] },
-  { path: 'clients/nouveau', component: ClientNewComponent, canActivate: [authGuard] },
+  { path: 'credits', component: CreditsComponent, canActivate: [authGuard] },
+  { path: 'clients', redirectTo: 'credits', pathMatch: 'full' },
   { path: 'clients/:id/credit', component: CreditFormComponent, canActivate: [authGuard] },
   { path: 'agents', component: AgentsComponent, canActivate: [authGuard] },
   { path: 'parametres', component: ParametresComponent, canActivate: [authGuard] },
