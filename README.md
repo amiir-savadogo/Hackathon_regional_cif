@@ -47,23 +47,35 @@ Nous avons packagé le code pour qu'il soit très facilement déployable sur des
 
 ---
 
-## 🧪 Partie Data Science (Pour les curieux)
+## 🧪 Générateur de Base de Données Relationnelle CIF & Data Science
 
-Si vous souhaitez comprendre comment nous avons entraîné le modèle IA, tout se passe dans le dossier `scripts`.
+### 1. Générateur de Base de Données Bancaire CIF (Format CSV)
+Pour générer les 4 fichiers CSV relationnels complets des sociétaires CIF (données bancaires, flux de transactions, historique crédits et vue consolidée scoring) :
+```bash
+py scripts/generer_base_csv.py
+```
+> **Fichiers produits dans `data/`** :
+> - `societaires.csv` *(Identité, N° CNIB, Expiration, Type Compte, Logement, Statut, Parts Sociales, Épargne)*
+> - `transactions.csv` *(Historique complet Dépôts, Retraits, Mobile Money)*
+> - `historique_credits.csv` *(Prêts passés, Taux de remboursement interne, Jours de retard)*
+> - `base_complete_scoring.csv` *(Table consolidée pour le moteur de scoring IA)*
 
+---
+
+### 2. Entraînement et Sélection du Modèle IA
 1. Installez les dépendances :
    ```bash
    pip install -r requirements.txt
    ```
-2. **Génération du dataset** (4000 dossiers générés sur base de métriques réalistes de la microfinance UEMOA) :
+2. **Génération du dataset d'entraînement** (métriques de la microfinance UEMOA) :
    ```bash
    python scripts/01_generate_dataset.py
    ```
-3. **Entraînement et sélection du modèle** (comparaison Régression Logistique / Random Forest / XGBoost / LightGBM / CatBoost / Stacking, recherche d'hyperparamètres Optuna, protocole train/validation/test, calibration du seuil de décision, export SHAP) :
+3. **Entraînement et sélection du modèle** (Régression Logistique, Random Forest, XGBoost, LightGBM, CatBoost, Stacking avec Optuna et SHAP) :
    ```bash
    python scripts/02_train_model.py
    ```
-Les artefacts (`preprocessor.pkl`, `best_model.pkl`, `feature_names.pkl`, `shap_background.pkl`, `metadata.json`) sont automatiquement sauvegardés à la fois dans `models/` et `ai-service/models/` par le script lui-même (aucune copie manuelle nécessaire).
+Les artefacts (`preprocessor.pkl`, `best_model.pkl`, `feature_names.pkl`, `shap_background.pkl`, `metadata.json`) sont automatiquement sauvegardés à la fois dans `models/` et `ai-service/models/`.
 
 ---
 

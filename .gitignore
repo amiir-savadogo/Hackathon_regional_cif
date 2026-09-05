@@ -49,13 +49,11 @@ venv/
 # =========================================================================
 # FICHIERS LOURDS ET DONNEES GENEREES
 # =========================================================================
-# On ignore les gros CSV générés localement (pour éviter de saturer Git)
-data/*.csv
-data/*.xlsx
+data/
+*.xlsx
+*.csv
+frontend/src/assets/data/
 Hackathon_preprod/
-
-# Sauf si vous voulez garder un petit fichier d'exemple (décommentez la ligne du dessous)
-# !data/sample.csv
 
 # =========================================================================
 # SYSTEME D'EXPLOITATION ET EDITEURS

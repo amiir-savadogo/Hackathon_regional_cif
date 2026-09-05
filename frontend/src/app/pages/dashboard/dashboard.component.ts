@@ -108,7 +108,7 @@ import { DashboardStats } from '../../models/client.model';
           <h3 class="font-semibold text-[#123b41]">Évaluer une nouvelle demande de crédit</h3>
           <p class="text-sm text-[#147c76] mt-1">Sélectionnez un sociétaire de la coopérative et lancez l'évaluation du score de risque par l'IA.</p>
         </div>
-        <a routerLink="/credits"
+        <a routerLink="/credits/nouveau"
           class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-semibold px-5 py-2.5 rounded-lg transition-colors whitespace-nowrap self-start sm:self-auto flex items-center space-x-2">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           <span>Nouveau Crédit</span>

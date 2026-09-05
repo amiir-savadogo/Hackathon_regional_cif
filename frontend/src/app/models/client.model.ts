@@ -1,11 +1,31 @@
 export interface Client {
   id?: number;
+  numeroCompte?: string;
+  typeCompte?: string;
+  statutCompte?: 'Actif' | 'Dormant' | 'Bloqué' | string;
+  partsSocialesFcfa?: number;
   nom: string;
   prenom: string;
   age: number;
+  dateNaissance?: string;
+  numeroCnib?: string;
+  dateExpirationCnib?: string;
   telephone?: string;
+  email?: string;
+  pays?: string;
+  region?: string;
+  ville?: string;
+  adresse?: string;
+  typeLogement?: 'Propriétaire' | 'Locataire' | 'Logement familial / Hébergé' | string;
+  agence?: string;
   secteurActivite?: string;
+  activite?: string;
   ancienneteActiviteAnnees: number;
+  dateCreation?: string;
+  ancienneteCooperativeMois?: number;
+  revenuMensuelFcfa?: number;
+  chargesMensuellesFcfa?: number;
+  soldeEpargneActuelFcfa?: number;
 
   // Profil socio-démographique (utilisé par le moteur de scoring IA)
   sexe?: 'Femme' | 'Homme' | string;
@@ -14,7 +34,6 @@ export interface Client {
   niveauEducation?: 'Aucun' | 'Primaire' | 'Secondaire' | 'Supérieur' | string;
   nombrePersonnesACharge?: number;
 
-  dateCreation?: string;
   demandes?: DemandeCredit[];
 }
 

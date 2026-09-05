@@ -12,6 +12,7 @@ export const routes: Routes = [
   { path: 'login', component: LoginComponent },
   { path: 'dashboard', component: DashboardComponent, canActivate: [authGuard] },
   { path: 'credits', component: CreditsComponent, canActivate: [authGuard] },
+  { path: 'credits/nouveau', component: CreditFormComponent, canActivate: [authGuard] },
   { path: 'clients', redirectTo: 'credits', pathMatch: 'full' },
   { path: 'clients/:id/credit', component: CreditFormComponent, canActivate: [authGuard] },
   { path: 'agents', component: AgentsComponent, canActivate: [authGuard] },
