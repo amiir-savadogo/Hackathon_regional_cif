@@ -20,8 +20,8 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
       <div class="bg-white rounded-2xl border border-gray-200/80 p-3 shadow-sm flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
         <!-- Fil d'Ariane -->
         <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 px-2" aria-label="Breadcrumb">
-          <a routerLink="/dashboard" class="inline-flex items-center text-blue-700 hover:text-blue-800 font-semibold transition-colors">
-            <svg class="w-3.5 h-3.5 mr-1 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+          <a routerLink="/dashboard" class="inline-flex items-center text-[#147c76] hover:text-[#0e625e] font-semibold transition-colors">
+            <svg class="w-3.5 h-3.5 mr-1 text-[#147c76]" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
             Accueil
           </a>
           <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -86,10 +86,10 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
       <!-- ========================================================================= -->
       <div *ngIf="currentSection === 'HUB'" class="space-y-6 animate-fade-in">
         
-        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-indigo-950 text-white rounded-3xl p-7 md:p-9 shadow-lg relative overflow-hidden">
-          <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-blue-500/10 rounded-full blur-3xl pointer-events-none"></div>
+        <div class="bg-gradient-to-r from-slate-900 via-slate-800 to-[#123b41] text-white rounded-3xl p-7 md:p-9 shadow-lg relative overflow-hidden">
+          <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-[#e5f3f1]0/10 rounded-full blur-3xl pointer-events-none"></div>
           <div class="relative z-10 max-w-2xl">
-            <span class="px-3 py-1 bg-white/10 text-blue-200 text-xs font-semibold rounded-full uppercase tracking-wider backdrop-blur-sm inline-block mb-3">
+            <span class="px-3 py-1 bg-white/10 text-[#b9ded9] text-xs font-semibold rounded-full uppercase tracking-wider backdrop-blur-sm inline-block mb-3">
               Configuration Système
             </span>
             <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">Centre de Paramétrage SAMDE</h1>
@@ -136,19 +136,19 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
 
           <!-- CARTE RÔLES DES AGENTS -->
           <div (click)="goToSection('ROLES')"
-            class="bg-white rounded-3xl border-2 border-blue-100 hover:border-blue-500 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-28 h-28 bg-blue-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
+            class="bg-white rounded-3xl border-2 border-[#cce9e5] hover:border-[#e5f3f1]0 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-28 h-28 bg-[#e5f3f1]/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
 
             <div class="relative z-10">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-blue-600 to-indigo-600 text-white flex items-center justify-center mb-4 shadow-lg shadow-blue-500/30 group-hover:scale-105 transition-transform">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#147c76] to-[#147c76] text-white flex items-center justify-center mb-4 shadow-lg shadow-[#e5f3f1]0/30 group-hover:scale-105 transition-transform">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
                 </svg>
               </div>
 
               <div class="flex items-center space-x-2 mb-1.5">
-                <h2 class="text-lg font-bold text-gray-900 group-hover:text-blue-700 transition-colors">Rôles Agents</h2>
-                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-[#147c76] transition-colors">Rôles Agents</h2>
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
                   {{ roles.length }}
                 </span>
               </div>
@@ -159,7 +159,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
             </div>
 
             <div class="pt-5 mt-4 border-t border-gray-100 flex items-center justify-between relative z-10">
-              <span class="text-xs font-bold text-blue-700 group-hover:translate-x-1 transition-transform inline-flex items-center">
+              <span class="text-xs font-bold text-[#147c76] group-hover:translate-x-1 transition-transform inline-flex items-center">
                 Configurer
                 <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
               </span>
@@ -317,7 +317,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
         
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center font-bold">
+            <div class="w-10 h-10 rounded-2xl bg-[#e5f3f1] text-[#147c76] flex items-center justify-center font-bold">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             </div>
             <div>
@@ -327,7 +327,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
           </div>
 
           <div class="flex items-center space-x-3">
-            <span class="px-3 py-1 bg-blue-50 text-blue-700 border border-blue-200 rounded-full text-xs font-bold font-mono">
+            <span class="px-3 py-1 bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9] rounded-full text-xs font-bold font-mono">
               {{ roles.length }} rôle(s)
             </span>
             <button (click)="openCreateRoleModal()"
@@ -361,7 +361,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
           <!-- GRILLE DES RÔLES -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" *ngIf="roles.length > 0">
             <div *ngFor="let role of roles"
-              class="bg-white rounded-2xl border border-gray-200/90 hover:border-blue-500 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+              class="bg-white rounded-2xl border border-gray-200/90 hover:border-[#e5f3f1]0 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
                 <div class="flex items-start justify-between mb-3">
                   <span class="px-3 py-1 rounded-xl text-xs font-bold border" [ngClass]="role.badgeColor">
@@ -381,7 +381,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
                 <span class="text-[11px] text-gray-400">Créé le {{ role.dateCreation | date:'dd/MM/yyyy' }}</span>
                 <div class="flex items-center space-x-1">
                   <button (click)="openEditRoleModal(role)" title="Modifier ce rôle"
-                    class="text-gray-400 hover:text-blue-700 p-1.5 rounded-lg hover:bg-blue-50 transition-all">
+                    class="text-gray-400 hover:text-[#147c76] p-1.5 rounded-lg hover:bg-[#e5f3f1] transition-all">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                   </button>
                   <button (click)="confirmDeleteRole(role)" title="Déplacer vers la corbeille"
@@ -442,14 +442,14 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
             <div *ngFor="let item of trashItems" class="py-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 hover:bg-slate-50/70 p-3 rounded-2xl transition-colors">
               <div class="flex items-start space-x-3.5">
                 <div class="w-11 h-11 rounded-xl flex items-center justify-center font-bold text-sm flex-shrink-0"
-                  [ngClass]="item.type === 'ROLE' ? 'bg-blue-100 text-blue-700' : (item.type === 'AGENCE' ? 'bg-emerald-100 text-emerald-700' : 'bg-purple-100 text-purple-700')">
+                  [ngClass]="item.type === 'ROLE' ? 'bg-[#cce9e5] text-[#147c76]' : (item.type === 'AGENCE' ? 'bg-emerald-100 text-emerald-700' : 'bg-[#e5f3f1] text-[#147c76]')">
                   {{ item.type === 'ROLE' ? 'Rôle' : (item.type === 'AGENCE' ? 'Agence' : 'Agent') }}
                 </div>
                 <div>
                   <div class="flex items-center space-x-2">
                     <h3 class="text-base font-bold text-gray-900">{{ item.title }}</h3>
                     <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md"
-                      [ngClass]="item.type === 'ROLE' ? 'bg-blue-50 text-blue-700 border border-blue-200' : (item.type === 'AGENCE' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-purple-50 text-purple-700 border border-purple-200')">
+                      [ngClass]="item.type === 'ROLE' ? 'bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]' : (item.type === 'AGENCE' ? 'bg-emerald-50 text-emerald-700 border border-emerald-200' : 'bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]')">
                       {{ item.typeLabel }}
                     </span>
                   </div>
@@ -588,7 +588,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
           
           <div class="flex items-center justify-between pb-5 border-b border-gray-100 mb-6">
             <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-blue-50 text-blue-600 flex items-center justify-center font-bold">
+              <div class="w-10 h-10 rounded-xl bg-[#e5f3f1] text-[#147c76] flex items-center justify-center font-bold">
                 <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
               </div>
               <div>
@@ -612,7 +612,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
               </label>
               <input type="text" [(ngModel)]="roleFormData.label" name="label" (input)="autoGenerateCode()" required
                 placeholder="Intitulé du rôle"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all shadow-2xs" />
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all shadow-2xs" />
             </div>
 
             <div>
@@ -621,7 +621,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
               </label>
               <input type="text" [(ngModel)]="roleFormData.code" name="code" required
                 placeholder="Code technique"
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm uppercase font-mono font-semibold bg-gray-50/70 focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all" />
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm uppercase font-mono font-semibold bg-gray-50/70 focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all" />
               <p class="text-[11px] text-gray-400 mt-1">Identifiant unique du rôle dans le système.</p>
             </div>
 
@@ -634,7 +634,7 @@ type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'CORBEILLE';
               </div>
               <textarea [(ngModel)]="roleFormData.description" name="description" rows="3"
                 placeholder="Précisez les attributions de ce rôle si vous le souhaitez..."
-                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600 focus:border-transparent transition-all resize-none"></textarea>
+                class="w-full px-4 py-3 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all resize-none"></textarea>
             </div>
 
             <div class="pt-5 border-t border-gray-100 flex items-center justify-end space-x-3">

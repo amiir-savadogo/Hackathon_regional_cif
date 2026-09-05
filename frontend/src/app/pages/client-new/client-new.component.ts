@@ -13,17 +13,17 @@ import { Client } from '../../models/client.model';
     <div class="max-w-2xl mx-auto">
       <!-- Fil d'Ariane -->
       <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 mb-6 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm" aria-label="Breadcrumb">
-        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-blue-700 transition-colors">
+        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors">
           <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
           Accueil
         </a>
         <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a routerLink="/clients" class="inline-flex items-center text-gray-500 hover:text-blue-700 transition-colors">
+        <a routerLink="/clients" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors">
           <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           Clients
         </a>
         <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-blue-50 text-blue-700 border border-blue-100">
+        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-[#e5f3f1] text-[#147c76] border border-[#cce9e5]">
           <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
           Nouveau demandeur
         </span>
@@ -46,30 +46,30 @@ import { Client } from '../../models/client.model';
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
                 <input type="text" [(ngModel)]="client.nom" name="nom" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 focus:border-[#e5f3f1]0"
                   placeholder="Ex : Diop" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
                 <input type="text" [(ngModel)]="client.prenom" name="prenom" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 focus:border-[#e5f3f1]0"
                   placeholder="Ex : Amadou" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Âge *</label>
                 <input type="number" [(ngModel)]="client.age" name="age" required min="18" max="100"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 focus:border-[#e5f3f1]0" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
                 <input type="tel" [(ngModel)]="client.telephone" name="telephone"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 focus:border-[#e5f3f1]0"
                   placeholder="Ex : +225 07 00 00 00" />
               </div>
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Sexe *</label>
                 <select [(ngModel)]="client.sexe" name="sexe" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                   <option value="">-- Sélectionner --</option>
                   <option>Femme</option>
                   <option>Homme</option>
@@ -78,7 +78,7 @@ import { Client } from '../../models/client.model';
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Zone *</label>
                 <select [(ngModel)]="client.zone" name="zone" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                   <option value="">-- Sélectionner --</option>
                   <option>Urbaine</option>
                   <option>Semi-urbaine</option>
@@ -88,7 +88,7 @@ import { Client } from '../../models/client.model';
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Situation matrimoniale *</label>
                 <select [(ngModel)]="client.situationMatrimoniale" name="situationMatrimoniale" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                   <option value="">-- Sélectionner --</option>
                   <option>Marié(e)</option>
                   <option>Célibataire</option>
@@ -99,7 +99,7 @@ import { Client } from '../../models/client.model';
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Niveau d'éducation *</label>
                 <select [(ngModel)]="client.niveauEducation" name="niveauEducation" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                   <option value="">-- Sélectionner --</option>
                   <option>Aucun</option>
                   <option>Primaire</option>
@@ -110,7 +110,7 @@ import { Client } from '../../models/client.model';
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Personnes à charge *</label>
                 <input type="number" [(ngModel)]="client.nombrePersonnesACharge" name="nombrePersonnesACharge" required min="0" max="15"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 focus:border-[#e5f3f1]0" />
               </div>
             </div>
           </div>
@@ -122,7 +122,7 @@ import { Client } from '../../models/client.model';
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Secteur d'activité</label>
                 <select [(ngModel)]="client.secteurActivite" name="secteur"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                   <option value="">-- Sélectionner --</option>
                   <option>Commerce informel</option>
                   <option>Agriculture</option>
@@ -138,7 +138,7 @@ import { Client } from '../../models/client.model';
               <div>
                 <label class="block text-sm font-medium text-gray-700 mb-1">Ancienneté (années) *</label>
                 <input type="number" [(ngModel)]="client.ancienneteActiviteAnnees" name="anciennete" required step="0.5" min="0"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 focus:border-[#e5f3f1]0"
                   placeholder="Ex : 3" />
               </div>
             </div>

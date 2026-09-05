@@ -136,9 +136,9 @@ export class AuthService {
     const codeClean = data.code.trim().toUpperCase().replace(/\s+/g, '_');
 
     const palettes = [
-      'bg-blue-50 text-blue-700 border-blue-200',
-      'bg-indigo-50 text-indigo-700 border-indigo-200',
-      'bg-purple-50 text-purple-700 border-purple-200',
+      'bg-[#e5f3f1] text-[#147c76] border-[#b9ded9]',
+      'bg-[#e5f3f1] text-[#147c76] border-[#b9ded9]',
+      'bg-[#e5f3f1] text-[#147c76] border-[#b9ded9]',
       'bg-emerald-50 text-emerald-700 border-emerald-200',
       'bg-amber-50 text-amber-700 border-amber-200',
       'bg-teal-50 text-teal-700 border-teal-200'
@@ -389,7 +389,7 @@ export class AuthService {
       agence: 'Siège Principal CIF',
       dateCreation: '2026-01-15',
       telephone: '+226 25 30 00 00',
-      avatarColor: 'from-blue-600 to-indigo-600',
+      avatarColor: 'from-[#147c76] to-[#147c76]',
       actif: true
     };
 
@@ -457,11 +457,11 @@ export class AuthService {
     const roleLabel = role ? role.label : (data.roleCode === 'ADMIN_SYSTEME' ? 'Administrateur Système' : data.roleCode);
 
     const gradients = [
-      'from-blue-600 to-indigo-600',
+      'from-[#147c76] to-[#147c76]',
       'from-emerald-600 to-teal-600',
-      'from-purple-600 to-pink-600',
+      'from-[#147c76] to-[#0e625e]',
       'from-amber-500 to-orange-600',
-      'from-cyan-600 to-blue-600'
+      'from-[#147c76] to-[#147c76]'
     ];
     const autoAvatar = gradients[this.getAgents().length % gradients.length];
 

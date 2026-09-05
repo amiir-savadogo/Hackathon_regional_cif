@@ -140,11 +140,11 @@ import { AgentUser } from './models/user.model';
             <div class="h-6 w-px bg-gray-200"></div>
 
             <a routerLink="/agents" class="flex items-center space-x-2.5 p-1.5 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer" title="Gérer les agents / Affecter un collaborateur">
-              <div class="w-8 h-8 rounded-full bg-gradient-to-tr flex items-center justify-center text-white text-xs font-bold shadow-sm" [ngClass]="currentAgent?.avatarColor || 'from-slate-600 to-slate-700'">
+              <div class="w-8 h-8 rounded-full bg-[#147c76] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                 {{ getInitials(currentAgent) }}
               </div>
               <div class="text-left">
-                <p class="text-xs font-bold text-gray-800 group-hover:text-blue-700 leading-tight transition-colors">
+                <p class="text-xs font-bold text-gray-800 group-hover:text-[#147c76] leading-tight transition-colors">
                   {{ currentAgent ? (currentAgent.prenom + ' ' + currentAgent.nom) : 'Portail CIF' }}
                 </p>
                 <p class="text-[11px] text-gray-400 leading-tight truncate max-w-[140px]">

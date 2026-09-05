@@ -84,23 +84,6 @@ import { AuthService } from '../../services/auth.service';
             </button>
           </form>
 
-          <div class="demo-box">
-            <div class="demo-box-header">
-              <span class="demo-badge">Compte Administrateur Initial</span>
-            </div>
-            <p class="demo-box-text">
-              Compte sécurisé pour gérer la plateforme :<br/>
-              Identifiant : <strong>admin@cif.bf</strong> · Mot de passe : <strong>admin123</strong>
-            </p>
-            <button type="button" class="demo-btn" (click)="quickDemoLogin()">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
-              </svg>
-              <span>Connexion Administrateur Démo</span>
-            </button>
-            <span class="demo-subtext">Accès sécurisé : seuls les comptes existants avec leur mot de passe exact sont acceptés.</span>
-          </div>
-
         </div>
       </section>
 
@@ -156,14 +139,6 @@ import { AuthService } from '../../services/auth.service';
     .security-note svg { flex: 0 0 auto; width: 16px; height: 16px; color: #147c76; }
     .demo-hint { margin: 26px 0 0; color: #adb9ba; font-size: 10px; text-align: center; }
     .demo-hint strong { color: #718486; font-weight: 700; }
-    .demo-box { margin-top: 22px; padding: 14px 16px; border-radius: 12px; background: #f0f7f6; border: 1px dashed #7ebcb7; text-align: center; }
-    .demo-box-header { display: flex; align-items: center; justify-content: center; margin-bottom: 6px; }
-    .demo-badge { display: inline-flex; align-items: center; gap: 4px; font-size: 11px; font-weight: 800; color: #147c76; text-transform: uppercase; letter-spacing: .05em; }
-    .demo-box-text { margin: 0 0 10px; font-size: 11px; line-height: 1.4; color: #4b666a; }
-    .demo-btn { display: inline-flex; align-items: center; justify-content: center; gap: 7px; width: 100%; min-height: 40px; padding: 8px 14px; background: #ffffff; color: #147c76; border: 1.5px solid #147c76; border-radius: 8px; font-size: 12px; font-weight: 800; cursor: pointer; transition: all .2s ease; }
-    .demo-btn:hover { background: #147c76; color: #ffffff; box-shadow: 0 4px 14px rgba(20, 124, 118, .22); transform: translateY(-1px); }
-    .demo-btn svg { width: 15px; height: 15px; }
-    .demo-subtext { display: block; margin-top: 8px; font-size: 10px; color: #7b9395; }
     .login-footer { position: absolute; z-index: 1; bottom: 20px; margin: 0; color: #8a9b9d; font-size: 10px; letter-spacing: .04em; }
     @keyframes rise-in { from { opacity: 0; transform: translateY(14px); } to { opacity: 1; transform: translateY(0); } }
     @keyframes spin { to { transform: rotate(360deg); } }
@@ -192,12 +167,6 @@ export class LoginComponent {
       }
       this.loading = false;
     }, 350);
-  }
-
-  quickDemoLogin(): void {
-    this.email = 'admin@cif.bf';
-    this.password = 'admin123';
-    this.submit();
   }
 
   showForgotMessage(): void {

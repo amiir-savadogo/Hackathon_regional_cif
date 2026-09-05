@@ -13,8 +13,8 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
     <div>
       <!-- Fil d'Ariane -->
       <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 mb-5 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm" aria-label="Breadcrumb">
-        <a routerLink="/dashboard" class="inline-flex items-center text-blue-700 hover:text-blue-800 font-semibold transition-colors">
-          <svg class="w-3.5 h-3.5 mr-1.5 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+        <a routerLink="/dashboard" class="inline-flex items-center text-[#147c76] hover:text-[#0e625e] font-semibold transition-colors">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-[#147c76]" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
           Accueil
         </a>
         <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -45,15 +45,15 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
           <p class="text-2xl font-bold text-gray-900 mt-1">{{ agents.length }}</p>
           <p class="text-xs text-gray-400 mt-0.5">Collaborateurs habilités</p>
         </div>
-        <div class="bg-white rounded-xl border border-blue-200/80 p-4 shadow-sm">
-          <p class="text-xs text-blue-700 font-semibold uppercase">Agents Actifs</p>
-          <p class="text-2xl font-bold text-blue-700 mt-1">{{ countActiveAgents() }}</p>
-          <p class="text-xs text-blue-600/70 mt-0.5">Comptes opérationnels</p>
+        <div class="bg-white rounded-xl border border-[#b9ded9]/80 p-4 shadow-sm">
+          <p class="text-xs text-[#147c76] font-semibold uppercase">Agents Actifs</p>
+          <p class="text-2xl font-bold text-[#147c76] mt-1">{{ countActiveAgents() }}</p>
+          <p class="text-xs text-[#147c76]/70 mt-0.5">Comptes opérationnels</p>
         </div>
-        <div class="bg-white rounded-xl border border-purple-200/80 p-4 shadow-sm">
-          <p class="text-xs text-purple-700 font-semibold uppercase">Comité de crédit</p>
-          <p class="text-2xl font-bold text-purple-700 mt-1">{{ countRole('COMITE_CREDIT') }}</p>
-          <p class="text-xs text-purple-600/70 mt-0.5">Membres habilités</p>
+        <div class="bg-white rounded-xl border border-[#b9ded9] p-4 shadow-sm">
+          <p class="text-xs text-[#147c76] font-semibold uppercase">Comité de crédit</p>
+          <p class="text-2xl font-bold text-[#147c76] mt-1">{{ countRole('COMITE_CREDIT') }}</p>
+          <p class="text-xs text-[#147c76]/70 mt-0.5">Membres habilités</p>
         </div>
         <div class="bg-white rounded-xl border border-emerald-200/80 p-4 shadow-sm">
           <p class="text-xs text-emerald-700 font-semibold uppercase">Agences couvertes</p>
@@ -70,10 +70,10 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
           </div>
           <input type="text" [(ngModel)]="searchQuery"
             placeholder="Rechercher par nom, matricule ou agence..."
-            class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-gray-50/50" />
+            class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-gray-50/50" />
         </div>
         <select [(ngModel)]="selectedRoleFilter"
-          class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-gray-700">
+          class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 text-gray-700">
           <option value="ALL">Tous les rôles</option>
           <option *ngFor="let r of roles" [value]="r.code">{{ r.label }}</option>
         </select>
@@ -90,7 +90,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
 
       <!-- ÉTAT VIDE : Aucun agent enregistré -->
       <div *ngIf="agents.length === 0" class="bg-white rounded-2xl border border-gray-200/90 p-12 text-center shadow-sm max-w-xl mx-auto my-8">
-        <div class="w-16 h-16 bg-blue-50 text-blue-600 rounded-2xl flex items-center justify-center mx-auto mb-4">
+        <div class="w-16 h-16 bg-[#e5f3f1] text-[#147c76] rounded-2xl flex items-center justify-center mx-auto mb-4">
           <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/>
           </svg>
@@ -111,14 +111,14 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
       <!-- Grille des Agents -->
       <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-5" *ngIf="agents.length > 0">
         <div *ngFor="let agent of filteredAgents"
-          [ngClass]="{'ring-2 ring-blue-600 shadow-md': isCurrentAgent(agent)}"
+          [ngClass]="{'ring-2 ring-[#147c76] shadow-md': isCurrentAgent(agent)}"
           class="bg-white rounded-2xl border border-gray-200/90 p-5 shadow-sm hover:shadow transition-all relative flex flex-col justify-between">
           
           <div>
             <!-- En-tête carte : Avatar + Rôle -->
             <div class="flex items-start justify-between mb-4">
               <div class="flex items-center space-x-3">
-                <div class="w-12 h-12 rounded-xl bg-gradient-to-tr flex items-center justify-center text-white font-bold text-base shadow-sm" [ngClass]="agent.avatarColor || 'from-blue-600 to-indigo-600'">
+                <div class="w-12 h-12 rounded-xl bg-[#147c76] flex items-center justify-center text-white font-bold text-base shadow-sm">
                   {{ getInitials(agent) }}
                 </div>
                 <div>
@@ -129,8 +129,8 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
 
               <!-- Badge connecté / bouton supprimer -->
               <div class="flex items-center space-x-2">
-                <span *ngIf="isCurrentAgent(agent)" class="px-2 py-0.5 bg-blue-50 text-blue-700 text-[10px] font-bold rounded-full border border-blue-200 uppercase tracking-wider flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full bg-blue-600 animate-pulse"></span>
+                <span *ngIf="isCurrentAgent(agent)" class="px-2 py-0.5 bg-[#e5f3f1] text-[#147c76] text-[10px] font-bold rounded-full border border-[#b9ded9] uppercase tracking-wider flex items-center gap-1">
+                  <span class="w-1.5 h-1.5 rounded-full bg-[#147c76] animate-pulse"></span>
                   Actif
                 </span>
                 <button (click)="deleteAgent(agent)" title="Supprimer cet agent"
@@ -164,12 +164,12 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
           <div class="pt-3 border-t border-gray-100 flex items-center justify-between">
             <span class="text-[11px] text-gray-400">Ajouté le {{ agent.dateCreation | date:'dd/MM/yyyy' }}</span>
             <button *ngIf="!isCurrentAgent(agent)" (click)="requestActivateAgent(agent)"
-              class="px-3 py-1.5 bg-gray-100 hover:bg-blue-50 text-gray-700 hover:text-blue-700 text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1.5">
-              <svg class="w-3.5 h-3.5 text-blue-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
+              class="px-3 py-1.5 bg-gray-100 hover:bg-[#e5f3f1] text-gray-700 hover:text-[#147c76] text-xs font-semibold rounded-lg transition-colors flex items-center space-x-1.5">
+              <svg class="w-3.5 h-3.5 text-[#147c76]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 7a2 2 0 012 2m4 0a6 6 0 01-7.743 5.743L11 17H9v2H7v2H4a1 1 0 01-1-1v-2.586a1 1 0 01.293-.707l5.964-5.964A6 6 0 1121 9z"/></svg>
               <span>Se connecter</span>
             </button>
-            <span *ngIf="isCurrentAgent(agent)" class="text-xs font-semibold text-blue-600 flex items-center space-x-1">
-              <svg class="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
+            <span *ngIf="isCurrentAgent(agent)" class="text-xs font-semibold text-[#147c76] flex items-center space-x-1">
+              <svg class="w-4 h-4 text-[#147c76]" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path></svg>
               <span>Profil actif</span>
             </span>
           </div>
@@ -201,13 +201,13 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Prénom *</label>
                 <input type="text" [(ngModel)]="newAgent.prenom" name="prenom" required
                   placeholder="Prénom"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
               </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Nom *</label>
                 <input type="text" [(ngModel)]="newAgent.nom" name="nom" required
                   placeholder="Nom de famille"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
               </div>
             </div>
 
@@ -216,13 +216,13 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Matricule CIF *</label>
                 <input type="text" [(ngModel)]="newAgent.matricule" name="matricule" required
                   placeholder="Matricule"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm uppercase font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm uppercase font-mono focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
               </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Téléphone</label>
                 <input type="text" [(ngModel)]="newAgent.telephone" name="telephone"
                   placeholder="Numéro de téléphone"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
               </div>
             </div>
 
@@ -230,13 +230,13 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <label class="block text-xs font-semibold text-gray-700 mb-1">Email professionnel</label>
               <input type="email" [(ngModel)]="newAgent.email" name="email"
                 placeholder="Email professionnel"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
             </div>
 
             <div>
               <div class="flex items-center justify-between mb-1">
                 <label class="block text-xs font-semibold text-gray-700">Mot de passe de connexion *</label>
-                <button type="button" (click)="generateRandomPassword()" class="text-[11px] font-semibold text-blue-600 hover:text-blue-800 transition-colors flex items-center gap-1">
+                <button type="button" (click)="generateRandomPassword()" class="text-[11px] font-semibold text-[#147c76] hover:text-[#0e625e] transition-colors flex items-center gap-1">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                   <span>Générer un mot de passe</span>
                 </button>
@@ -244,7 +244,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <div class="relative">
                 <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="newAgent.motDePasse" name="motDePasse" required minlength="4"
                   placeholder="Définir un mot de passe (min. 4 car.)"
-                  class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                  class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                 <button type="button" (click)="showPassword = !showPassword"
                   class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                   <svg *ngIf="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -258,7 +258,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Rôle d'habilitation *</label>
                 <select *ngIf="roles.length > 0" [(ngModel)]="newAgent.roleCode" name="roleCode" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                   <option *ngFor="let r of roles" [value]="r.code">{{ r.label }}</option>
                 </select>
                 <div *ngIf="roles.length === 0" class="p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
@@ -269,7 +269,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Agence CIF *</label>
                 <select *ngIf="agences.length > 0" [(ngModel)]="newAgent.agence" name="agence" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                   <option *ngFor="let ag of agences" [value]="ag.nom">{{ ag.nom }} ({{ ag.ville }}{{ ag.pays ? ' · ' + ag.pays : '' }})</option>
                 </select>
                 <div *ngIf="agences.length === 0" class="p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
@@ -296,7 +296,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
       <div *ngIf="isAuthModalOpen && agentToAuth" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-sm w-full p-6 shadow-2xl relative animate-fade-in text-center border border-gray-100">
           
-          <div class="w-12 h-12 rounded-2xl bg-blue-50 text-blue-700 flex items-center justify-center mx-auto mb-3">
+          <div class="w-12 h-12 rounded-2xl bg-[#e5f3f1] text-[#147c76] flex items-center justify-center mx-auto mb-3">
             <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg>
           </div>
 
@@ -304,7 +304,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
           <p class="text-xs text-gray-500 mt-1">
             Session de <strong>{{ agentToAuth.prenom }} {{ agentToAuth.nom }}</strong>
           </p>
-          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-blue-50 text-blue-700 border border-blue-200">
+          <span class="inline-block mt-1 px-2.5 py-0.5 rounded-full text-[10px] font-mono font-bold bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
             Matricule : {{ agentToAuth.matricule }}
           </span>
 
@@ -314,7 +314,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <div class="relative">
                 <input [type]="showAuthPassword ? 'text' : 'password'" [(ngModel)]="authPasswordInput" name="authPass" required autofocus
                   placeholder="Entrez le mot de passe"
-                  class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-blue-600" />
+                  class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]" />
                 <button type="button" (click)="showAuthPassword = !showAuthPassword"
                   class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                   <svg *ngIf="!showAuthPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>

@@ -13,17 +13,17 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
     <div class="max-w-4xl mx-auto">
       <!-- Fil d'Ariane -->
       <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 mb-6 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm overflow-x-auto" aria-label="Breadcrumb">
-        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-blue-700 transition-colors whitespace-nowrap">
+        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors whitespace-nowrap">
           <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
           Accueil
         </a>
         <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a routerLink="/clients" class="inline-flex items-center text-gray-500 hover:text-blue-700 transition-colors whitespace-nowrap">
+        <a routerLink="/clients" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors whitespace-nowrap">
           <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
           Clients
         </a>
         <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a *ngIf="client" routerLink="/clients" class="inline-flex items-center text-gray-700 hover:text-blue-700 transition-colors font-semibold whitespace-nowrap">
+        <a *ngIf="client" routerLink="/clients" class="inline-flex items-center text-gray-700 hover:text-[#147c76] transition-colors font-semibold whitespace-nowrap">
           {{ client.prenom }} {{ client.nom }}
         </a>
         <svg *ngIf="client" class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
@@ -71,12 +71,12 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Revenu mensuel (FCFA) *</label>
                     <input type="number" [(ngModel)]="demande.revenuMensuelFcfa" name="revenu" required step="5000" min="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Charges mensuelles (FCFA) *</label>
                     <input type="number" [(ngModel)]="demande.chargesMensuellesFcfa" name="charges" required step="5000" min="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                 </div>
               </div>
@@ -88,24 +88,24 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Ancienneté coopérative (mois)</label>
                     <input type="number" [(ngModel)]="demande.ancienneteCooperativeMois" name="ancienneteCooperativeMois" min="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                   <div class="flex items-center pt-6">
                     <label class="flex items-center space-x-2 text-sm text-gray-700">
                       <input type="checkbox" [(ngModel)]="demande.membreGroupeSolidaire" name="membreGroupeSolidaire"
-                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        class="rounded border-gray-300 text-[#147c76] focus:ring-[#e5f3f1]0" />
                       <span>Membre d'un groupe de caution solidaire</span>
                     </label>
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Solde moyen d'épargne (FCFA)</label>
                     <input type="number" [(ngModel)]="demande.epargneSoldeMoyenFcfa" name="epargneSoldeMoyenFcfa" min="0" step="1000"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Régularité de l'épargne</label>
                     <select [(ngModel)]="demande.regulariteEpargne" name="regulariteEpargne"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                       <option>Aucune épargne</option>
                       <option>Irrégulière</option>
                       <option>Régulière</option>
@@ -121,18 +121,18 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Nombre de crédits antérieurs</label>
                     <input type="number" [(ngModel)]="demande.nombreCreditsAnterieurs" name="nombreCreditsAnterieurs" min="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                   <div></div>
                   <div *ngIf="(demande.nombreCreditsAnterieurs || 0) > 0">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Taux de remboursement historique (%)</label>
                     <input type="number" [(ngModel)]="demande.tauxRemboursementHistoriquePct" name="tauxRemboursementHistoriquePct" min="0" max="100"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                   <div *ngIf="(demande.nombreCreditsAnterieurs || 0) > 0">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Jours de retard moyen</label>
                     <input type="number" [(ngModel)]="demande.joursRetardMoyenHistorique" name="joursRetardMoyenHistorique" min="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                   <p *ngIf="(demande.nombreCreditsAnterieurs || 0) === 0" class="text-xs text-gray-400 col-span-2">
                     Nouveau client dans la coopérative : aucun historique de remboursement à saisir.
@@ -147,14 +147,14 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div class="flex items-center">
                     <label class="flex items-center space-x-2 text-sm text-gray-700">
                       <input type="checkbox" [(ngModel)]="demande.possedeMobileMoney" name="possedeMobileMoney"
-                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        class="rounded border-gray-300 text-[#147c76] focus:ring-[#e5f3f1]0" />
                       <span>Possède un compte Mobile Money</span>
                     </label>
                   </div>
                   <div *ngIf="demande.possedeMobileMoney">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Transactions Mobile Money / mois</label>
                     <input type="number" [(ngModel)]="demande.frequenceTransactionsMmMois" name="frequenceTransactionsMmMois" min="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                 </div>
               </div>
@@ -168,14 +168,14 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div class="flex items-center">
                     <label class="flex items-center space-x-2 text-sm text-gray-700">
                       <input type="checkbox" [(ngModel)]="demande.interrogeBic" name="interrogeBic"
-                        class="rounded border-gray-300 text-blue-600 focus:ring-blue-500" />
+                        class="rounded border-gray-300 text-[#147c76] focus:ring-[#e5f3f1]0" />
                       <span>Dossier interrogé au BIC</span>
                     </label>
                   </div>
                   <div *ngIf="demande.interrogeBic">
                     <label class="block text-sm font-medium text-gray-700 mb-1">Statut BIC</label>
                     <select [(ngModel)]="demande.statutBic" name="statutBic"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                       <option>Non consulté</option>
                       <option>Bon payeur ailleurs (solde sans incident)</option>
                       <option>Incident de paiement signalé</option>
@@ -185,12 +185,12 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Prêts actifs dans d'autres institutions</label>
                     <input type="number" [(ngModel)]="demande.nombrePretsActifsAutresInstitutions" name="nombrePretsActifsAutresInstitutions" min="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Encours crédit autres institutions (FCFA)</label>
                     <input type="number" [(ngModel)]="demande.encoursCreditAutresInstitutionsFcfa" name="encoursCreditAutresInstitutionsFcfa" min="0" step="1000"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                 </div>
               </div>
@@ -202,7 +202,7 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Objet du crédit *</label>
                     <select [(ngModel)]="demande.objetCredit" name="objetCredit" required
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                       <option value="">-- Sélectionner --</option>
                       <option>Fonds de commerce</option>
                       <option>Achat d'équipement</option>
@@ -216,12 +216,12 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Montant demandé (FCFA) *</label>
                     <input type="number" [(ngModel)]="demande.montantDemandeFcfa" name="montant" required step="10000" min="0"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" />
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                   </div>
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Durée souhaitée (mois) *</label>
                     <select [(ngModel)]="demande.dureeMois" name="duree"
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                       <option [value]="3">3 mois</option>
                       <option [value]="6">6 mois</option>
                       <option [value]="9">9 mois</option>
@@ -234,7 +234,7 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                   <div>
                     <label class="block text-sm font-medium text-gray-700 mb-1">Garantie proposée *</label>
                     <select [(ngModel)]="demande.garantie" name="garantie" required
-                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 bg-white">
+                      class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
                       <option value="">-- Sélectionner --</option>
                       <option>Caution solidaire</option>
                       <option>Bien matériel</option>
@@ -296,7 +296,7 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
             </div>
 
             <div *ngIf="loading" class="text-center py-6">
-              <svg class="animate-spin w-8 h-8 text-blue-600 mx-auto mb-2" fill="none" viewBox="0 0 24 24">
+              <svg class="animate-spin w-8 h-8 text-[#147c76] mx-auto mb-2" fill="none" viewBox="0 0 24 24">
                 <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
                 <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"/>
               </svg>
