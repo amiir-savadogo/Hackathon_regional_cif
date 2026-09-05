@@ -13,13 +13,13 @@ import { Client } from '../../models/client.model';
     <div>
       <!-- Fil d'Ariane -->
       <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 mb-5 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm" aria-label="Breadcrumb">
-        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-blue-700 transition-colors">
-          <svg class="w-3.5 h-3.5 mr-1.5 text-gray-400 hover:text-blue-600" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors">
+          <svg class="w-3.5 h-3.5 mr-1.5 text-gray-400 hover:text-[#147c76]" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
           Accueil
         </a>
         <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
         <span class="text-gray-800 font-semibold">Répertoire Clients</span>
-        <span *ngIf="clients.length > 0" class="ml-2 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-blue-50 text-blue-700 border border-blue-200">
+        <span *ngIf="clients.length > 0" class="ml-2 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
           {{ clients.length }} adhérent{{ clients.length > 1 ? 's' : '' }}
         </span>
       </nav>
@@ -31,7 +31,7 @@ import { Client } from '../../models/client.model';
           <p class="text-sm text-gray-500 mt-0.5">Base de données des emprunteurs et adhérents de la coopérative</p>
         </div>
         <a routerLink="/clients/nouveau"
-          class="bg-blue-700 hover:bg-blue-800 text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-all flex items-center space-x-2 self-start sm:self-auto">
+          class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-all flex items-center space-x-2 self-start sm:self-auto">
           <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
           </svg>
@@ -47,7 +47,7 @@ import { Client } from '../../models/client.model';
           </div>
           <input type="text" [(ngModel)]="searchQuery"
             placeholder="Rechercher par nom, prénom ou téléphone..."
-            class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 bg-gray-50/50" />
+            class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-[#147c76] bg-gray-50/50" />
         </div>
       </div>
 
@@ -66,11 +66,11 @@ import { Client } from '../../models/client.model';
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <tr *ngFor="let c of filteredClients" class="hover:bg-blue-50/30 transition-colors">
+            <tr *ngFor="let c of filteredClients" class="hover:bg-[#e5f3f1]/50 transition-colors">
               <td class="px-5 py-3.5 text-gray-400 font-mono text-xs">#{{ c.id }}</td>
               <td class="px-5 py-3.5">
                 <div class="flex items-center space-x-3">
-                  <div class="w-8 h-8 rounded-full bg-slate-100 border border-slate-200 text-slate-700 flex items-center justify-center text-xs font-bold flex-shrink-0">
+                  <div class="w-8 h-8 rounded-full bg-[#e5f3f1] border border-[#b9ded9] text-[#147c76] flex items-center justify-center text-xs font-bold flex-shrink-0">
                     {{ (c.prenom && c.prenom[0]) || '' }}{{ (c.nom && c.nom[0]) || '' }}
                   </div>
                   <div>
@@ -89,7 +89,7 @@ import { Client } from '../../models/client.model';
               <td class="px-5 py-3.5 text-gray-400 text-xs">{{ c.dateCreation | date:'dd/MM/yyyy' }}</td>
               <td class="px-5 py-3.5 text-right">
                 <a [routerLink]="['/clients', c.id, 'credit']"
-                  class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-blue-50 hover:bg-blue-100 text-blue-700 text-xs font-semibold transition-all border border-blue-200/60">
+                  class="inline-flex items-center space-x-1.5 px-3 py-1.5 rounded-lg bg-[#e5f3f1] hover:bg-[#cce9e5] text-[#147c76] text-xs font-semibold transition-all border border-[#b9ded9]">
                   <span>Évaluer crédit</span>
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
                 </a>
