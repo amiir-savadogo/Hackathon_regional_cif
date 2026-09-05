@@ -1,7 +1,13 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
+<<<<<<< HEAD
 import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from './services/auth.service';
+=======
+import { RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { AuthService } from './services/auth.service';
+import { AgentUser } from './models/user.model';
+>>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
 
 @Component({
   selector: 'app-root',
@@ -88,9 +94,29 @@ import { AuthService } from './services/auth.service';
             <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">Clients</span>
           </a>
 
+          <!-- NOUVEAU LIEN AGENTS & ÉQUIPE -->
+          <a routerLink="/agents" routerLinkActive="bg-slate-700 text-white" (click)="closeSidebar()"
+            [title]="isDesktopCollapsed ? 'Agents & Équipe' : ''"
+            [class.justify-center]="isDesktopCollapsed"
+            class="flex items-center space-x-3 px-3 py-3 md:py-2.5 rounded-xl text-slate-300 hover:bg-slate-700 hover:text-white transition-all text-sm font-medium">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">Agents & Équipe</span>
+          </a>
+
+          <!-- LIEN PARAMÈTRES & CONFIGURATION DES RÔLES -->
+          <a routerLink="/parametres" routerLinkActive="bg-slate-700 text-white" (click)="closeSidebar()"
+            [title]="isDesktopCollapsed ? 'Paramètres' : ''"
+            [class.justify-center]="isDesktopCollapsed"
+            class="flex items-center space-x-3 px-3 py-3 md:py-2.5 rounded-xl text-slate-300 hover:bg-slate-700 hover:text-white transition-all text-sm font-medium">
+            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">Paramètres</span>
+          </a>
+
+          <!--
           <div *ngIf="!isDesktopCollapsed" class="pt-6 pb-2">
             <p class="px-3 text-[10px] uppercase tracking-widest text-[#7fa3a2] font-semibold">Système</p>
           </div>
+<<<<<<< HEAD
 
           <div class="flex items-center space-x-2 px-3 py-2 text-xs text-[#9cb4b4]"
             [class.justify-center]="isDesktopCollapsed"
@@ -104,6 +130,9 @@ import { AuthService } from './services/auth.service';
             <span class="w-2 h-2 rounded-full bg-emerald-400 flex-shrink-0"></span>
             <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">PostgreSQL connecté</span>
           </div>
+=======
+          -->
+>>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
         </nav>
 
         <div class="px-4 py-4 border-t border-[#28565a] mt-auto" *ngIf="!isDesktopCollapsed">
@@ -135,8 +164,9 @@ import { AuthService } from './services/auth.service';
             <span class="text-xs text-gray-500 font-medium">Devise : <strong class="text-gray-700">FCFA (XOF)</strong></span>
           </div>
 
-          <!-- Actions & Profil Agent -->
+          <!-- Profil Agent Dynamique -->
           <div class="flex items-center space-x-4">
+<<<<<<< HEAD
             <a routerLink="/clients/nouveau" 
               class="inline-flex items-center space-x-1.5 px-3.5 py-2 bg-[#147c76] hover:bg-[#0e625e] text-white rounded-lg text-xs font-semibold shadow-sm transition-all">
               <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
@@ -148,15 +178,28 @@ import { AuthService } from './services/auth.service';
             <div class="flex items-center space-x-2.5">
               <div class="w-8 h-8 rounded-full bg-[#e6ad50] flex items-center justify-center text-[#123b41] text-xs font-bold shadow-sm">
                 AG
+=======
+            <a routerLink="/agents" class="flex items-center space-x-2.5 p-1.5 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer" title="Gérer les agents / Affecter un collaborateur">
+              <div class="w-8 h-8 rounded-full bg-gradient-to-tr {{ currentAgent?.avatarColor || 'from-slate-600 to-slate-700' }} flex items-center justify-center text-white text-xs font-bold shadow-sm">
+                {{ getInitials(currentAgent) }}
+>>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
               </div>
               <div class="text-left">
-                <p class="text-xs font-bold text-gray-800 leading-tight">Agent Crédit</p>
-                <p class="text-[11px] text-gray-400">Coopérative CIF</p>
+                <p class="text-xs font-bold text-gray-800 group-hover:text-blue-700 leading-tight transition-colors">
+                  {{ currentAgent ? (currentAgent.prenom + ' ' + currentAgent.nom) : 'Portail CIF' }}
+                </p>
+                <p class="text-[11px] text-gray-400 leading-tight truncate max-w-[140px]">
+                  {{ currentAgent ? currentAgent.roleLabel : 'Gérer les agents' }}
+                </p>
               </div>
+<<<<<<< HEAD
               <button (click)="logout()" class="ml-2 p-2 rounded-lg text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors" title="Se déconnecter" aria-label="Se déconnecter">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M10 17l5-5-5-5m5 5H3m10-9h5a2 2 0 012 2v2m0 10v2a2 2 0 01-2 2h-5"/></svg>
               </button>
             </div>
+=======
+            </a>
+>>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
           </div>
         </header>
 
@@ -171,10 +214,29 @@ import { AuthService } from './services/auth.service';
   styles: []
 })
 export class AppComponent {
+<<<<<<< HEAD
   private readonly router = inject(Router);
   private readonly auth = inject(AuthService);
+=======
+  private authService = inject(AuthService);
+
+>>>>>>> 2571cb76d3177b66649333b1b7086e06361a277f
   isSidebarOpen = false;       // État du tiroir sur mobile
   isDesktopCollapsed = false;  // État réduit/étendu sur bureau
+  currentAgent: AgentUser | null = null;
+
+  constructor() {
+    this.authService.currentUser$.subscribe(agent => {
+      this.currentAgent = agent;
+    });
+  }
+
+  getInitials(agent: AgentUser | null): string {
+    if (!agent) return 'CIF';
+    const p = agent.prenom ? agent.prenom[0] : '';
+    const n = agent.nom ? agent.nom[0] : '';
+    return (p + n).toUpperCase() || 'CIF';
+  }
 
   get isAuthPage(): boolean {
     return this.router.url.startsWith('/login');
