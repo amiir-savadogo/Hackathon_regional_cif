@@ -607,6 +607,10 @@ export class AuthService {
     }
   }
 
+  public getTrash(): CorbeilleItem[] {
+    return this.trashSubject.value;
+  }
+
   public addToTrash(item: {
     type: 'ROLE' | 'AGENT' | 'AGENCE' | 'OBJET_CREDIT' | 'GARANTIE';
     typeLabel: string;
@@ -634,8 +638,8 @@ export class AuthService {
   }
 
   public restoreItem(trashId: string): boolean {
-    const trash = this.getTrash();
-    const item = trash.find(t => t.id === trashId);
+    const trash: CorbeilleItem[] = this.getTrash();
+    const item = trash.find((t: CorbeilleItem) => t.id === trashId);
     if (!item) return false;
 
     // Restauration selon le type
@@ -696,7 +700,7 @@ export class AuthService {
     }
 
     // Retirer de la corbeille
-    const updatedTrash = trash.filter(t => t.id !== trashId);
+    const updatedTrash = trash.filter((t: CorbeilleItem) => t.id !== trashId);
     this.trashSubject.next(updatedTrash);
 
     if (typeof window !== 'undefined' && window.localStorage) {
@@ -706,7 +710,7 @@ export class AuthService {
   }
 
   public permanentDelete(trashId: string): void {
-    const updated = this.getTrash().filter(t => t.id !== trashId);
+    const updated = this.getTrash().filter((t: CorbeilleItem) => t.id !== trashId);
     this.trashSubject.next(updated);
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.setItem(STORAGE_TRASH_KEY, JSON.stringify(updated));
