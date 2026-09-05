@@ -127,14 +127,20 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
                 </div>
               </div>
 
-              <!-- Badge connecté / bouton supprimer -->
-              <div class="flex items-center space-x-2">
-                <span *ngIf="isCurrentAgent(agent)" class="px-2 py-0.5 bg-[#e5f3f1] text-[#147c76] text-[10px] font-bold rounded-full border border-[#b9ded9] uppercase tracking-wider flex items-center gap-1">
+              <!-- Actions: Modifier + Supprimer -->
+              <div class="flex items-center space-x-1">
+                <span *ngIf="isCurrentAgent(agent)" class="mr-1 px-2 py-0.5 bg-[#e5f3f1] text-[#147c76] text-[10px] font-bold rounded-full border border-[#b9ded9] uppercase tracking-wider flex items-center gap-1">
                   <span class="w-1.5 h-1.5 rounded-full bg-[#147c76] animate-pulse"></span>
                   Actif
                 </span>
+                <button (click)="openEditModal(agent)" title="Modifier ce collaborateur"
+                  class="text-gray-400 hover:text-[#147c76] hover:bg-[#e5f3f1] p-1.5 rounded-lg transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536m-2.036-5.036a2.5 2.5 0 113.536 3.536L6.5 21.036H3v-3.572L16.732 3.732z"/>
+                  </svg>
+                </button>
                 <button (click)="deleteAgent(agent)" title="Supprimer cet agent"
-                  class="text-gray-300 hover:text-red-600 p-1 transition-colors">
+                  class="text-gray-300 hover:text-red-600 hover:bg-red-50 p-1.5 rounded-lg transition-colors">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
               </div>
@@ -181,21 +187,23 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
         <p class="text-gray-500 font-medium">Aucun collaborateur ne correspond à votre recherche.</p>
       </div>
 
-      <!-- MODAL D'AJOUT D'UN NOUVEL AGENT -->
+      <!-- MODAL D'AJOUT / MODIFICATION D'UN AGENT -->
       <div *ngIf="isModalOpen" class="fixed inset-0 bg-slate-900/60 z-50 flex items-center justify-center p-4">
         <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl relative animate-fade-in max-h-[90vh] overflow-y-auto">
           
           <div class="flex items-center justify-between pb-4 border-b border-gray-100 mb-5">
             <div>
-              <h2 class="text-lg font-bold text-gray-900">Enregistrer un collaborateur</h2>
-              <p class="text-xs text-gray-500">Affectation officielle à une agence CIF</p>
+              <h2 class="text-lg font-bold text-gray-900" *ngIf="editingAgentId">Modifier le collaborateur</h2>
+              <h2 class="text-lg font-bold text-gray-900" *ngIf="!editingAgentId">Enregistrer un collaborateur</h2>
+              <p class="text-xs text-gray-500" *ngIf="editingAgentId">Mettre à jour les informations et accès</p>
+              <p class="text-xs text-gray-500" *ngIf="!editingAgentId">Affectation officielle à une agence CIF</p>
             </div>
             <button (click)="closeModal()" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
             </button>
           </div>
 
-          <form (ngSubmit)="submitNewAgent()" #agentForm="ngForm" class="space-y-4">
+          <form (ngSubmit)="submitAgentForm()" #agentForm="ngForm" class="space-y-4">
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Prénom *</label>
@@ -235,15 +243,15 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
 
             <div>
               <div class="flex items-center justify-between mb-1">
-                <label class="block text-xs font-semibold text-gray-700">Mot de passe de connexion *</label>
+                <label class="block text-xs font-semibold text-gray-700">{{ editingAgentId ? 'Nouveau mot de passe (optionnel)' : 'Mot de passe de connexion *' }}</label>
                 <button type="button" (click)="generateRandomPassword()" class="text-[11px] font-semibold text-[#147c76] hover:text-[#0e625e] transition-colors flex items-center gap-1">
                   <svg class="w-3 h-3" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                   <span>Générer un mot de passe</span>
                 </button>
               </div>
               <div class="relative">
-                <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="newAgent.motDePasse" name="motDePasse" required minlength="4"
-                  placeholder="Définir un mot de passe (min. 4 car.)"
+                <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="newAgent.motDePasse" name="motDePasse" [required]="!editingAgentId" [minlength]="editingAgentId ? 0 : 4"
+                  [placeholder]="editingAgentId ? 'Laisser vide pour conserver le mot de passe actuel' : 'Définir un mot de passe (min. 4 car.)'"
                   class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
                 <button type="button" (click)="showPassword = !showPassword"
                   class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
@@ -251,7 +259,8 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
                   <svg *ngIf="showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13.875 18.825A10.05 10.05 0 0112 19c-4.478 0-8.268-2.943-9.543-7a9.97 9.97 0 011.563-3.029m5.858.908a3 3 0 114.243 4.243M9.878 9.878l4.242 4.242M9.88 9.88l-3.29-3.29m7.532 7.532l3.29 3.29M3 3l18 18"/></svg>
                 </button>
               </div>
-              <p class="text-[11px] text-gray-400 mt-1">Requis pour que l'agent puisse se connecter et valider ses opérations.</p>
+              <p class="text-[11px] text-gray-400 mt-1" *ngIf="editingAgentId">Laissez vide si vous ne souhaitez pas changer le mot de passe.</p>
+              <p class="text-[11px] text-gray-400 mt-1" *ngIf="!editingAgentId">Requis pour que le collaborateur puisse se connecter et valider ses opérations.</p>
             </div>
 
             <div class="grid grid-cols-2 gap-3">
@@ -285,7 +294,8 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               </button>
               <button type="submit" [disabled]="!agentForm.form.valid"
                 class="px-5 py-2 bg-[#147c76] hover:bg-[#0e625e] disabled:opacity-50 text-white text-sm font-semibold rounded-lg shadow-sm transition-colors">
-                Enregistrer l'agent
+                <span *ngIf="editingAgentId">Enregistrer les modifications</span>
+                <span *ngIf="!editingAgentId">Enregistrer le collaborateur</span>
               </button>
             </div>
           </form>
@@ -508,7 +518,10 @@ export class AgentsComponent implements OnInit {
     this.authErrorMessage = '';
   }
 
+  editingAgentId: string | null = null;
+
   openModal() {
+    this.editingAgentId = null;
     this.newAgent = {
       nom: '',
       prenom: '',
@@ -523,14 +536,44 @@ export class AgentsComponent implements OnInit {
     this.isModalOpen = true;
   }
 
-  closeModal() {
-    this.isModalOpen = false;
+  openEditModal(agent: AgentUser) {
+    this.editingAgentId = agent.id;
+    this.newAgent = {
+      nom: agent.nom,
+      prenom: agent.prenom,
+      matricule: agent.matricule,
+      email: agent.email || '',
+      motDePasse: '', // Laisser vide pour conserver le mot de passe existant sauf si modifié
+      roleCode: agent.roleCode,
+      agence: agent.agence,
+      telephone: agent.telephone || ''
+    };
+    this.showPassword = false;
+    this.isModalOpen = true;
   }
 
-  submitNewAgent() {
-    if (!this.newAgent.nom || !this.newAgent.prenom || !this.newAgent.matricule || !this.newAgent.motDePasse) return;
-    const created = this.authService.addAgent(this.newAgent);
-    this.closeModal();
-    this.activateAgent(created);
+  closeModal() {
+    this.isModalOpen = false;
+    this.editingAgentId = null;
+  }
+
+  submitAgentForm() {
+    if (!this.newAgent.nom || !this.newAgent.prenom || !this.newAgent.matricule) return;
+
+    if (this.editingAgentId) {
+      // Mode Édition
+      const updated = this.authService.updateAgent(this.editingAgentId, this.newAgent);
+      this.closeModal();
+      if (updated) {
+        this.switchNotification = `Collaborateur ${updated.prenom} ${updated.nom} mis à jour avec succès.`;
+        setTimeout(() => this.switchNotification = '', 4000);
+      }
+    } else {
+      // Mode Nouvel Agent
+      if (!this.newAgent.motDePasse) return;
+      const created = this.authService.addAgent(this.newAgent);
+      this.closeModal();
+      this.activateAgent(created);
+    }
   }
 }

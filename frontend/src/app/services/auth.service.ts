@@ -495,6 +495,54 @@ export class AuthService {
     return newAgent;
   }
 
+  public updateAgent(id: string, data: {
+    matricule: string;
+    nom: string;
+    prenom: string;
+    email: string;
+    motDePasse?: string;
+    roleCode: string;
+    agence: string;
+    telephone?: string;
+  }): AgentUser | null {
+    const agents = this.getAgents();
+    const index = agents.findIndex(a => a.id === id);
+    if (index === -1) return null;
+
+    const roles = this.getRoles();
+    const role = roles.find(r => r.code === data.roleCode);
+    const roleLabel = role ? role.label : (data.roleCode === 'ADMIN_SYSTEME' ? 'Administrateur Système' : data.roleCode);
+
+    const existing = agents[index];
+    const updatedAgent: AgentUser = {
+      ...existing,
+      matricule: data.matricule.trim().toUpperCase(),
+      nom: data.nom.trim(),
+      prenom: data.prenom.trim(),
+      email: (data.email || '').trim(),
+      motDePasse: data.motDePasse ? data.motDePasse.trim() : existing.motDePasse,
+      roleCode: data.roleCode,
+      roleLabel: roleLabel,
+      agence: data.agence,
+      telephone: (data.telephone || '').trim()
+    };
+
+    const updated = [...agents];
+    updated[index] = updatedAgent;
+    this.agentsSubject.next(updated);
+
+    if (typeof window !== 'undefined' && window.localStorage) {
+      localStorage.setItem(STORAGE_AGENTS_KEY, JSON.stringify(updated));
+    }
+
+    const current = this.getCurrentUser();
+    if (current && current.id === id) {
+      this.currentUserSubject.next(updatedAgent);
+    }
+
+    return updatedAgent;
+  }
+
   public updateAgentPassword(agentId: string, newPass: string): boolean {
     const agents = this.getAgents();
     const index = agents.findIndex(a => a.id === agentId);

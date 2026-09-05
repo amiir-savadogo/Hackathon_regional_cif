@@ -44,7 +44,7 @@ import { AuthService } from '../../services/auth.service';
                 type="text"
                 [(ngModel)]="email"
                 #emailInput="ngModel"
-                placeholder="Email (ex: agent@cif.bf) ou Matricule"
+                placeholder="Email (ex: agent&#64;cif.bf) ou Matricule"
                 autocomplete="username"
                 required />
             </div>
