@@ -90,14 +90,49 @@ import { AgentUser } from './models/user.model';
             <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">Agents & Équipe</span>
           </a>
 
-          <!-- LIEN PARAMÈTRES & CONFIGURATION DES RÔLES -->
-          <a routerLink="/parametres" routerLinkActive="bg-[#1b5558] text-white" (click)="closeSidebar()"
-            [title]="isDesktopCollapsed ? 'Paramètres' : ''"
-            [class.justify-center]="isDesktopCollapsed"
-            class="flex items-center space-x-3 px-3 py-3 md:py-2.5 rounded-xl text-[#b9cbca] hover:bg-[#1b5558] hover:text-white transition-all text-sm font-medium">
-            <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-            <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap">Paramètres</span>
-          </a>
+          <!-- LIEN PARAMÈTRES & CONFIGURATION GLOBALE -->
+          <div class="pt-2">
+            <a routerLink="/parametres" routerLinkActive="bg-[#1b5558] text-white" [routerLinkActiveOptions]="{ exact: true }" (click)="closeSidebar()"
+              [title]="isDesktopCollapsed ? 'Paramètres' : ''"
+              [class.justify-center]="isDesktopCollapsed"
+              class="flex items-center space-x-3 px-3 py-3 md:py-2.5 rounded-xl text-[#b9cbca] hover:bg-[#1b5558] hover:text-white transition-all text-sm font-medium">
+              <svg class="w-5 h-5 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+              <span *ngIf="!isDesktopCollapsed" class="whitespace-nowrap font-bold">Paramètres</span>
+            </a>
+
+            <!-- SOUS-MENUS PARAMÈTRES (Quand la sidebar est dépliée) -->
+            <div *ngIf="!isDesktopCollapsed" class="ml-4 pl-3 border-l border-[#28565a] space-y-1 mt-1">
+              <a routerLink="/parametres" [queryParams]="{ tab: 'OBJETS_CREDIT' }" (click)="closeSidebar()"
+                class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#9cb4b4] hover:text-white hover:bg-[#1b5558]/60 transition-colors">
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                <span>Objets de Crédit</span>
+              </a>
+
+              <a routerLink="/parametres" [queryParams]="{ tab: 'GARANTIES' }" (click)="closeSidebar()"
+                class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#9cb4b4] hover:text-white hover:bg-[#1b5558]/60 transition-colors">
+                <svg class="w-3.5 h-3.5 text-teal-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+                <span>Types de Garanties</span>
+              </a>
+
+              <a routerLink="/parametres" [queryParams]="{ tab: 'AGENCES' }" (click)="closeSidebar()"
+                class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#9cb4b4] hover:text-white hover:bg-[#1b5558]/60 transition-colors">
+                <svg class="w-3.5 h-3.5 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+                <span>Agences CIF</span>
+              </a>
+
+              <a routerLink="/parametres" [queryParams]="{ tab: 'ROLES' }" (click)="closeSidebar()"
+                class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#9cb4b4] hover:text-white hover:bg-[#1b5558]/60 transition-colors">
+                <svg class="w-3.5 h-3.5 text-indigo-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+                <span>Rôles</span>
+              </a>
+
+              <a routerLink="/parametres" [queryParams]="{ tab: 'CORBEILLE' }" (click)="closeSidebar()"
+                class="flex items-center space-x-2 px-2.5 py-1.5 rounded-lg text-xs font-semibold text-[#9cb4b4] hover:text-white hover:bg-[#1b5558]/60 transition-colors">
+                <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                <span>Corbeille</span>
+              </a>
+            </div>
+          </div>
         </nav>
 
         <div class="px-4 py-4 border-t border-[#28565a] mt-auto" *ngIf="!isDesktopCollapsed">

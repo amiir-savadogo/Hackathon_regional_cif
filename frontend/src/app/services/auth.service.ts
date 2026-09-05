@@ -607,12 +607,8 @@ export class AuthService {
     }
   }
 
-  public getTrash(): CorbeilleItem[] {
-    return this.trashSubject.value;
-  }
-
-  private addToTrash(item: {
-    type: 'ROLE' | 'AGENT' | 'AGENCE';
+  public addToTrash(item: {
+    type: 'ROLE' | 'AGENT' | 'AGENCE' | 'OBJET_CREDIT' | 'GARANTIE';
     typeLabel: string;
     title: string;
     details: string;
@@ -672,6 +668,30 @@ export class AuthService {
         if (typeof window !== 'undefined' && window.localStorage) {
           localStorage.setItem(STORAGE_AGENCES_KEY, JSON.stringify(updatedAgences));
         }
+      }
+    } else if (item.type === 'OBJET_CREDIT') {
+      const OBJ_KEY = 'cif_settings_objets_credit';
+      try {
+        const raw = localStorage.getItem(OBJ_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        if (!list.some((o: any) => o.id === item.data.id)) {
+          list.unshift(item.data);
+          localStorage.setItem(OBJ_KEY, JSON.stringify(list));
+        }
+      } catch (e) {
+        console.error('Erreur restauration objet credit:', e);
+      }
+    } else if (item.type === 'GARANTIE') {
+      const GAR_KEY = 'cif_settings_garanties';
+      try {
+        const raw = localStorage.getItem(GAR_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        if (!list.some((g: any) => g.id === item.data.id)) {
+          list.unshift(item.data);
+          localStorage.setItem(GAR_KEY, JSON.stringify(list));
+        }
+      } catch (e) {
+        console.error('Erreur restauration garantie:', e);
       }
     }
 

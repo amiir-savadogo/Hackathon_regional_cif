@@ -4,7 +4,6 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.model';
-import { SOCIETAIRES_CIF_BASE } from '../../data/societaires-data';
 
 interface CreditDossierItem {
   demande: DemandeCredit;
@@ -281,7 +280,7 @@ interface CreditDossierItem {
 export class CreditsComponent implements OnInit {
   private apiService = inject(ApiService);
 
-  clients: Client[] = SOCIETAIRES_CIF_BASE && SOCIETAIRES_CIF_BASE.length > 0 ? SOCIETAIRES_CIF_BASE : [];
+  clients: Client[] = [];
   dossiers: CreditDossierItem[] = [];
   searchQuery = '';
   selectedStatusFilter = 'ALL';
@@ -294,9 +293,7 @@ export class CreditsComponent implements OnInit {
   loadData() {
     this.apiService.getClients().subscribe({
       next: (list) => {
-        if (list && list.length > 0) {
-          this.clients = list;
-        }
+        this.clients = list || [];
         const allDossiers: CreditDossierItem[] = [];
         
         this.clients.forEach(c => {
@@ -317,10 +314,7 @@ export class CreditsComponent implements OnInit {
         this.dossiers = allDossiers;
       },
       error: (err) => {
-        console.error('Erreur chargement crédits:', err);
-        if (!this.clients || this.clients.length === 0) {
-          this.clients = SOCIETAIRES_CIF_BASE;
-        }
+        console.error('Erreur chargement crédits depuis la base:', err);
       }
     });
   }
@@ -335,8 +329,7 @@ export class CreditsComponent implements OnInit {
   get matchedBankSocietaires(): Client[] {
     const q = (this.searchQuery || '').toLowerCase().replace(/\s+/g, '').trim();
     if (!q || q.length < 2) return [];
-    const source = this.clients && this.clients.length > 0 ? this.clients : SOCIETAIRES_CIF_BASE;
-    return source.filter(c => {
+    return this.clients.filter(c => {
       const cnib = (c.numeroCnib || '').toLowerCase().replace(/\s+/g, '');
       const acct = (c.numeroCompte || '').toLowerCase().replace(/\s+/g, '');
       const nom = (c.nom || '').toLowerCase();

@@ -3,8 +3,8 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
+import { SettingsService, ObjetCreditItem, GarantieItem } from '../../services/settings.service';
 import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.model';
-import { SOCIETAIRES_CIF_BASE } from '../../data/societaires-data';
 
 @Component({
   selector: 'app-credit-form',
@@ -297,35 +297,32 @@ import { SOCIETAIRES_CIF_BASE } from '../../data/societaires-data';
               </div>
             </div>
 
-            <!-- BLOC 4 : ACTIVITÉ ÉCONOMIQUE & REVENUS -->
+            <!-- BLOC 4 : ACTIVITÉ ÉCONOMIQUE & EXPÉRIENCE -->
             <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm space-y-3">
               <h2 class="text-xs font-bold text-[#147c76] uppercase tracking-wider flex items-center gap-2 pb-2 border-b border-gray-100">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 13.255A23.931 23.931 0 0112 15c-3.183 0-6.22-.62-9-1.745M16 6V4a2 2 0 00-2-2h-4a2 2 0 00-2 2v2m4 6h.01M5 20h14a2 2 0 002-2V8a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
-                4. Activité Économique & Revenus
+                4. Activité Professionnelle & Expérience
               </h2>
               <div class="grid grid-cols-2 gap-3 text-xs">
                 <div class="p-2.5 bg-gray-50 rounded-xl col-span-2">
-                  <span class="text-gray-400 block text-[11px]">Activité Principale</span>
+                  <span class="text-gray-400 block text-[11px]">Métier & Activité Principale</span>
                   <span class="font-bold text-gray-900 text-sm">{{ selectedClient.activite }}</span>
-                  <span class="text-[11px] text-gray-500 block">Secteur {{ selectedClient.secteurActivite }} ({{ selectedClient.ancienneteActiviteAnnees }} ans d'expérience)</span>
                 </div>
                 <div class="p-2.5 bg-gray-50 rounded-xl">
-                  <span class="text-gray-400 block text-[11px]">Revenu Mensuel Déclaré</span>
-                  <span class="font-bold text-gray-900 text-sm">{{ selectedClient.revenuMensuelFcfa | number }} FCFA</span>
+                  <span class="text-gray-400 block text-[11px]">Secteur d'Activité</span>
+                  <span class="font-bold text-gray-900">{{ selectedClient.secteurActivite }}</span>
                 </div>
                 <div class="p-2.5 bg-gray-50 rounded-xl">
-                  <span class="text-gray-400 block text-[11px]">Charges Mensuelles</span>
-                  <span class="font-bold text-gray-900 text-sm">{{ selectedClient.chargesMensuellesFcfa | number }} FCFA</span>
+                  <span class="text-gray-400 block text-[11px]">Expérience dans l'Activité</span>
+                  <span class="font-bold text-gray-900">{{ selectedClient.ancienneteActiviteAnnees }} an(s) d'exercice</span>
                 </div>
-                <div class="p-2.5 bg-emerald-50 rounded-xl border border-[#7ebcb7] col-span-2 flex items-center justify-between">
+                <div class="p-2.5 bg-[#e5f3f1] rounded-xl border border-[#b9ded9] col-span-2 flex items-center justify-between">
                   <div>
-                    <span class="text-[#147c76] block text-[11px] font-semibold">Reste à Vivre Mensuel Estimé</span>
-                    <span class="font-bold text-emerald-800 text-base">
-                      {{ ((selectedClient.revenuMensuelFcfa || 0) - (selectedClient.chargesMensuellesFcfa || 0)) | number }} FCFA / mois
-                    </span>
+                    <span class="text-[#147c76] block text-[11px] font-semibold">Statut KYC du Sociétaire</span>
+                    <span class="font-bold text-gray-900 text-xs">Dossier sociétaire CIF complet & actif</span>
                   </div>
                   <span class="px-2.5 py-1 bg-white text-[#147c76] text-xs font-bold rounded-lg border border-[#b9ded9]">
-                    KYC Validé
+                    ✓ Profil Vérifié
                   </span>
                 </div>
               </div>
@@ -382,49 +379,63 @@ import { SOCIETAIRES_CIF_BASE } from '../../data/societaires-data';
                 <div>
                   <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Montant Sollicité (FCFA) *</label>
                   <input type="number" [(ngModel)]="demande.montantDemandeFcfa" name="montant" required min="50000" step="10000"
+                    placeholder="Ex: 1500000"
                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-lg font-bold text-gray-900 focus:outline-none focus:border-[#147c76] bg-gray-50/50" />
+                  <span class="text-[11px] text-gray-400 mt-1 block">Saisissez le montant exact demandé par le sociétaire</span>
                 </div>
                 <div>
                   <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Durée du Remboursement (mois) *</label>
                   <input type="number" [(ngModel)]="demande.dureeMois" name="duree" required min="1" max="48"
+                    placeholder="Ex: 12"
                     class="w-full px-4 py-3 border-2 border-gray-200 rounded-xl text-lg font-bold text-gray-900 focus:outline-none focus:border-[#147c76] bg-gray-50/50" />
+                  <span class="text-[11px] text-gray-400 mt-1 block">Durée en mois (entre 1 et 48 mois)</span>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
                 <div>
-                  <label class="block text-xs font-semibold text-gray-700 mb-1">Objet du Crédit</label>
-                  <select [(ngModel)]="demande.objetCredit" name="objet"
-                    class="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] bg-white">
-                    <option value="Commerce / Fonds de roulement">Commerce / Fonds de roulement</option>
-                    <option value="Agriculture / Achat intrants">Agriculture / Achat intrants</option>
-                    <option value="Élevage & Embouche ovine">Élevage & Embouche ovine</option>
-                    <option value="Artisanat & Équipement professionnel">Artisanat & Équipement professionnel</option>
-                    <option value="Amélioration habitat & Travaux">Amélioration habitat & Travaux</option>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Objet du Crédit *</label>
+                    <a routerLink="/parametres" class="text-[11px] text-[#147c76] hover:underline font-semibold flex items-center gap-0.5">
+                      <span>⚙ Gérer</span>
+                    </a>
+                  </div>
+                  <select [(ngModel)]="demande.objetCredit" name="objet" required
+                    class="w-full px-3.5 py-2.5 border-2 border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#147c76] bg-white text-gray-800 font-medium">
+                    <option value="" disabled selected>-- Sélectionnez l'objet du crédit ({{ objetsCredit.length }} configurés) --</option>
+                    <option *ngFor="let o of objetsCredit" [value]="o.label">
+                      {{ o.label }}
+                    </option>
                   </select>
                 </div>
                 <div>
-                  <label class="block text-xs font-semibold text-gray-700 mb-1">Garantie Proposée</label>
-                  <select [(ngModel)]="demande.garantie" name="garantie"
-                    class="w-full px-3.5 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] bg-white">
-                    <option value="Caution solidaire">Caution solidaire de groupe</option>
-                    <option value="Gage matériel / Stock">Gage sur stock de marchandises</option>
-                    <option value="Nantissement équipement">Nantissement équipement professionnel</option>
-                    <option value="Caution individuelle d'un tiers">Caution individuelle d'un tiers</option>
-                    <option value="Hypothèque / Titre foncier">Hypothèque / Titre foncier</option>
+                  <div class="flex items-center justify-between mb-1">
+                    <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Garantie Proposée *</label>
+                    <a routerLink="/parametres" class="text-[11px] text-[#147c76] hover:underline font-semibold flex items-center gap-0.5">
+                      <span>⚙ Gérer</span>
+                    </a>
+                  </div>
+                  <select [(ngModel)]="demande.garantie" name="garantie" required
+                    class="w-full px-3.5 py-2.5 border-2 border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#147c76] bg-white text-gray-800 font-medium">
+                    <option value="" disabled selected>-- Sélectionnez une garantie ({{ typesGaranties.length }} configurées) --</option>
+                    <option *ngFor="let g of typesGaranties" [value]="g.label">
+                      {{ g.label }} ({{ g.typeGarantie === 'PERSONNELLE' ? 'Personnelle' : (g.typeGarantie === 'REELLE_MOBILIERE' ? 'Mobilière' : (g.typeGarantie === 'REELLE_IMMOBILIERE' ? 'Immobilière' : 'Financière')) }})
+                    </option>
                   </select>
                 </div>
               </div>
 
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4 p-4 bg-gray-50 rounded-xl border border-gray-200 text-xs">
                 <div>
-                  <label class="block text-gray-600 font-semibold mb-1">Revenu Mensuel (FCFA) :</label>
+                  <label class="block text-gray-600 font-semibold mb-1">Revenu Mensuel Sociétaire (FCFA) :</label>
                   <input type="number" [(ngModel)]="demande.revenuMensuelFcfa" name="rev" required step="5000"
+                    placeholder="Revenu mensuel"
                     class="w-full px-3 py-2 border rounded-lg bg-white text-sm font-bold" />
                 </div>
                 <div>
                   <label class="block text-gray-600 font-semibold mb-1">Charges Mensuelles (FCFA) :</label>
                   <input type="number" [(ngModel)]="demande.chargesMensuellesFcfa" name="charges" required step="5000"
+                    placeholder="Charges mensuelles"
                     class="w-full px-3 py-2 border rounded-lg bg-white text-sm font-bold" />
                 </div>
                 <div>
@@ -442,8 +453,8 @@ import { SOCIETAIRES_CIF_BASE } from '../../data/societaires-data';
                   ← Fiche Sociétaire
                 </button>
 
-                <button type="submit" [disabled]="isEvaluating"
-                  class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold px-7 py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-50">
+                <button type="submit" [disabled]="isEvaluating || !demande.montantDemandeFcfa || !demande.dureeMois || !demande.objetCredit"
+                  class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold px-7 py-3 rounded-xl shadow-md hover:shadow-lg transition-all flex items-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed">
                   <svg *ngIf="!isEvaluating" class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
                   <svg *ngIf="isEvaluating" class="w-5 h-5 animate-spin" fill="none" viewBox="0 0 24 24"><circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle><path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"></path></svg>
                   <span>{{ isEvaluating ? 'Calcul du Score IA en cours...' : 'Calculer le Score & Évaluer le Dossier ⚡' }}</span>
@@ -531,44 +542,40 @@ import { SOCIETAIRES_CIF_BASE } from '../../data/societaires-data';
 })
 export class CreditFormComponent implements OnInit {
   private apiService = inject(ApiService);
+  private settingsService = inject(SettingsService);
   private route = inject(ActivatedRoute);
   private router = inject(Router);
 
   step = 1; // 1: Fiche Sociétaire (Informations), 2: Demande de Prêt, 3: Résultat IA
-  clients: Client[] = SOCIETAIRES_CIF_BASE && SOCIETAIRES_CIF_BASE.length > 0 ? SOCIETAIRES_CIF_BASE : [];
+  clients: Client[] = [];
   searchQuery = '';
   selectedClient: Client | null = null;
   isEvaluating = false;
   evaluationResult: DemandeCredit | null = null;
 
-  demande: DemandeCredit = {
-    montantDemandeFcfa: 500000,
-    dureeMois: 12,
-    revenuMensuelFcfa: 180000,
-    chargesMensuellesFcfa: 60000,
-    ancienneteCooperativeMois: 24,
-    epargneSoldeMoyenFcfa: 250000,
-    nombreCreditsAnterieurs: 1,
-    possedeMobileMoney: true,
-    frequenceTransactionsMmMois: 10,
-    objetCredit: 'Commerce / Fonds de roulement',
-    garantie: 'Caution solidaire'
+  objetsCredit: ObjetCreditItem[] = [];
+  typesGaranties: GarantieItem[] = [];
+
+  demande: Partial<DemandeCredit> = {
+    montantDemandeFcfa: undefined,
+    dureeMois: undefined,
+    revenuMensuelFcfa: undefined,
+    chargesMensuellesFcfa: undefined,
+    objetCredit: '',
+    garantie: ''
   };
 
   ngOnInit() {
-    this.checkRouteParams();
+    this.settingsService.objets$.subscribe(list => this.objetsCredit = list || []);
+    this.settingsService.garanties$.subscribe(list => this.typesGaranties = list || []);
+
     this.apiService.getClients().subscribe({
       next: (list) => {
-        if (list && list.length > 0) {
-          this.clients = list;
-          this.checkRouteParams();
-        }
+        this.clients = list || [];
+        this.checkRouteParams();
       },
-      error: () => {
-        if (!this.clients || this.clients.length === 0) {
-          this.clients = SOCIETAIRES_CIF_BASE;
-          this.checkRouteParams();
-        }
+      error: (err) => {
+        console.error('Erreur chargement clients depuis la base:', err);
       }
     });
   }
@@ -592,6 +599,14 @@ export class CreditFormComponent implements OnInit {
   resetSelection() {
     this.selectedClient = null;
     this.evaluationResult = null;
+    this.demande = {
+      montantDemandeFcfa: undefined,
+      dureeMois: undefined,
+      revenuMensuelFcfa: undefined,
+      chargesMensuellesFcfa: undefined,
+      objetCredit: '',
+      garantie: ''
+    };
     this.step = 1;
   }
 
@@ -628,31 +643,30 @@ export class CreditFormComponent implements OnInit {
     this.evaluationResult = null;
     this.step = 1; // Commence à l'étape 1 du processus (Fiche d'Informations)
     
-    const rev = client.revenuMensuelFcfa || 180000;
-    const charges = client.chargesMensuellesFcfa || Math.round(rev * 0.35);
-    const epargne = client.soldeEpargneActuelFcfa || 220000;
-    const anc = client.ancienneteCooperativeMois || (client.ancienneteActiviteAnnees ? client.ancienneteActiviteAnnees * 12 : 24);
+    const epargne = client.soldeEpargneActuelFcfa || 0;
+    const anc = client.ancienneteCooperativeMois || 0;
 
     this.demande = {
-      montantDemandeFcfa: Math.min(2500000, Math.max(100000, Math.round(rev * 2.5 / 10000) * 10000)),
-      dureeMois: 12,
-      revenuMensuelFcfa: rev,
-      chargesMensuellesFcfa: charges,
+      montantDemandeFcfa: undefined,
+      dureeMois: undefined,
+      revenuMensuelFcfa: undefined,
+      chargesMensuellesFcfa: undefined,
       ancienneteCooperativeMois: anc,
       epargneSoldeMoyenFcfa: epargne,
       nombreCreditsAnterieurs: anc > 24 ? 2 : (anc > 12 ? 1 : 0),
       possedeMobileMoney: true,
       frequenceTransactionsMmMois: 10,
-      objetCredit: client.activite ? `Développement: ${client.activite}` : 'Commerce / Fonds de roulement',
-      garantie: 'Caution solidaire'
+      objetCredit: '',
+      garantie: ''
     };
   }
 
   submitEvaluation() {
     if (!this.selectedClient || !this.selectedClient.id) return;
+    if (!this.demande.montantDemandeFcfa || !this.demande.dureeMois || !this.demande.revenuMensuelFcfa) return;
 
     this.isEvaluating = true;
-    this.apiService.evaluerCredit(this.selectedClient.id, this.demande).subscribe({
+    this.apiService.evaluerCredit(this.selectedClient.id, this.demande as DemandeCredit).subscribe({
       next: (res) => {
         this.isEvaluating = false;
         this.evaluationResult = res;
