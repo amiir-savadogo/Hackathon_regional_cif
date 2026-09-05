@@ -120,25 +120,10 @@ import { AgentUser } from './models/user.model';
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
               </svg>
             </button>
-
-            <span class="px-2.5 py-1 text-xs font-semibold rounded-full bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9] flex items-center gap-1.5">
-              <span class="w-1.5 h-1.5 rounded-full bg-[#147c76] animate-pulse"></span>
-              Plateforme CIF · DigiCoop-WA+
-            </span>
-            <span class="text-gray-300">|</span>
-            <span class="text-xs text-gray-500 font-medium">Devise : <strong class="text-gray-700">FCFA (XOF)</strong></span>
           </div>
 
           <!-- Profil Agent Dynamique + Actions Header -->
           <div class="flex items-center space-x-3">
-            <a routerLink="/clients/nouveau" 
-              class="inline-flex items-center space-x-1.5 px-3 py-1.5 bg-[#147c76] hover:bg-[#0e625e] text-white rounded-xl text-xs font-semibold shadow-sm transition-all">
-              <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-              <span>+ Nouveau client</span>
-            </a>
-
-            <div class="h-6 w-px bg-gray-200"></div>
-
             <a routerLink="/agents" class="flex items-center space-x-2.5 p-1.5 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer" title="Gérer les agents / Affecter un collaborateur">
               <div class="w-8 h-8 rounded-full bg-[#147c76] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                 {{ getInitials(currentAgent) }}
