@@ -93,6 +93,22 @@ public class ClientController {
                      .orElse(ResponseEntity.notFound().build());
     }
 
+    @GetMapping("/clients/by-cnib/{cnib}")
+    public ResponseEntity<Client> getClientByCnib(@PathVariable String cnib) {
+        return clientRepository.findByNumeroCnibIgnoreCase(cnib.trim())
+                .map(ResponseEntity::ok)
+                .orElse(ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/clients/search")
+    public ResponseEntity<List<Client>> searchClients(@RequestParam(required = false) String query) {
+        if (query == null || query.trim().isEmpty()) {
+            Pageable pageable = PageRequest.of(0, 50, Sort.by(Sort.Direction.DESC, "dateCreation"));
+            return ResponseEntity.ok(clientRepository.findAll(pageable).getContent());
+        }
+        return ResponseEntity.ok(clientRepository.searchClients(query.trim()));
+    }
+
     // =====================================================================
     // GESTION DES DEMANDES DE CRÉDIT
     // =====================================================================

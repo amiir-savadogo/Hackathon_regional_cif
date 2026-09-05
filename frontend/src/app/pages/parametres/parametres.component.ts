@@ -1,12 +1,12 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { SettingsService, ObjetCreditItem, GarantieItem } from '../../services/settings.service';
+import { SettingsService, CategorieItem, ObjetCreditItem, GarantieItem } from '../../services/settings.service';
 import { AgentRole, AgenceCIF, CorbeilleItem } from '../../models/user.model';
 
-export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARANTIES' | 'CORBEILLE';
+export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' | 'AGENCES' | 'ROLES' | 'CORBEILLE';
 
 @Component({
   selector: 'app-parametres',
@@ -16,82 +16,45 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
     <div class="max-w-7xl mx-auto space-y-6">
 
       <!-- ========================================================================= -->
-      <!-- BARRE DE NAVIGATION SUPÉRIEURE (ONGLETS DIRECTS & FIL D'ARIANE)           -->
+      <!-- BARRE SUPÉRIEURE ÉPURÉE AVEC FIL D'ARIANE PROPRE & RETOUR HUB             -->
       <!-- ========================================================================= -->
-      <div class="bg-white rounded-2xl border border-gray-200/80 p-3 shadow-sm flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3">
-        <!-- Fil d'Ariane -->
-        <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 px-2" aria-label="Breadcrumb">
-          <a routerLink="/dashboard" class="inline-flex items-center text-[#147c76] hover:text-[#0e625e] font-semibold transition-colors">
-            <svg class="w-3.5 h-3.5 mr-1 text-[#147c76]" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-            Accueil
+      <div class="bg-white rounded-2xl border border-gray-200/80 px-5 py-3.5 shadow-sm flex items-center justify-between gap-4">
+        <!-- Fil d'Ariane élégant et clair -->
+        <nav class="flex items-center space-x-2 text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+          <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors group">
+            <svg class="w-4 h-4 mr-1.5 text-gray-400 group-hover:text-[#147c76] transition-colors" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+            <span>Accueil</span>
           </a>
-          <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          <span class="text-gray-900 font-bold">Paramètres SAMDE</span>
+          
+          <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+          
+          <button type="button" (click)="goToSection('HUB')" 
+            class="transition-colors cursor-pointer inline-flex items-center gap-1.5"
+            [ngClass]="currentSection === 'HUB' ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-[#147c76]'">
+            <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+            <span>Paramètres</span>
+          </button>
+
+          <ng-container *ngIf="currentSection !== 'HUB'">
+            <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            <span class="text-[#147c76] font-bold px-2.5 py-0.5 bg-[#e5f3f1] rounded-lg border border-[#b9ded9]">
+              {{ getSectionBreadcrumbLabel() }}
+            </span>
+          </ng-container>
         </nav>
 
-        <!-- Onglets rapides d'accès -->
-        <div class="flex items-center space-x-1.5 overflow-x-auto pb-1 lg:pb-0">
-          <button (click)="goToSection('HUB')"
-            [ngClass]="currentSection === 'HUB' ? 'bg-slate-900 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/></svg>
-            <span>Hub</span>
+        <!-- Action à droite : bouton de retour épuré quand on est dans une sous-page -->
+        <div class="flex items-center space-x-2">
+          <button *ngIf="currentSection !== 'HUB'" (click)="goToSection('HUB')"
+            class="px-4 py-2 rounded-xl bg-gray-100 hover:bg-gray-200 text-gray-700 text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer shadow-sm">
+            <svg class="w-4 h-4 text-gray-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M10 19l-7-7m0 0l7-7m-7 7h18"/></svg>
+            <span>← Retour aux Paramètres</span>
           </button>
 
-          <button (click)="goToSection('OBJETS_CREDIT')"
-            [ngClass]="currentSection === 'OBJETS_CREDIT' ? 'bg-[#147c76] text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-            <span>Objets de Crédit</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold"
-              [ngClass]="currentSection === 'OBJETS_CREDIT' ? 'bg-[#0e625e] text-white' : 'bg-gray-200 text-gray-600'">
-              {{ objetsCredit.length }}
-            </span>
-          </button>
-
-          <button (click)="goToSection('GARANTIES')"
-            [ngClass]="currentSection === 'GARANTIES' ? 'bg-teal-700 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-            <span>Types de Garanties</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold"
-              [ngClass]="currentSection === 'GARANTIES' ? 'bg-teal-900 text-white' : 'bg-gray-200 text-gray-600'">
-              {{ typesGaranties.length }}
-            </span>
-          </button>
-
-          <button (click)="goToSection('AGENCES')"
-            [ngClass]="currentSection === 'AGENCES' ? 'bg-emerald-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-            <span>Agences CIF</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold"
-              [ngClass]="currentSection === 'AGENCES' ? 'bg-emerald-800 text-emerald-100' : 'bg-gray-200 text-gray-600'">
-              {{ agences.length }}
-            </span>
-          </button>
-
-          <button (click)="goToSection('ROLES')"
-            [ngClass]="currentSection === 'ROLES' ? 'bg-indigo-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-            <span>Rôles</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold"
-              [ngClass]="currentSection === 'ROLES' ? 'bg-indigo-800 text-indigo-100' : 'bg-gray-200 text-gray-600'">
-              {{ roles.length }}
-            </span>
-          </button>
-
-          <button (click)="goToSection('CORBEILLE')"
-            [ngClass]="currentSection === 'CORBEILLE' ? 'bg-amber-600 text-white shadow-sm' : 'bg-gray-100 text-gray-700 hover:bg-gray-200'"
-            class="px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 whitespace-nowrap cursor-pointer">
-            <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-            <span>Corbeille</span>
-            <span class="px-1.5 py-0.2 rounded-full text-[10px] font-extrabold"
-              [ngClass]="currentSection === 'CORBEILLE' ? 'bg-amber-800 text-amber-100' : 'bg-gray-200 text-gray-600'">
-              {{ trashItems.length }}
-            </span>
-          </button>
+          <div *ngIf="currentSection === 'HUB'" class="flex items-center space-x-2">
+            <span class="text-xs text-gray-400 font-medium hidden sm:inline">6 modules configurables</span>
+            <span class="w-2 h-2 rounded-full bg-[#147c76]"></span>
+          </div>
         </div>
       </div>
 
@@ -105,7 +68,7 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
       </div>
 
       <!-- ========================================================================= -->
-      <!-- VUE 1 : LE HUB DES PARAMÈTRES (Dashboard visuel)                          -->
+      <!-- VUE 1 : LE HUB DES PARAMÈTRES (Dashboard visuel des 6 sections)           -->
       <!-- ========================================================================= -->
       <div *ngIf="currentSection === 'HUB'" class="space-y-6 animate-fade-in">
         
@@ -113,51 +76,84 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
           <div class="absolute -right-10 -bottom-10 w-64 h-64 bg-[#147c76]/10 rounded-full blur-3xl pointer-events-none"></div>
           <div class="relative z-10 max-w-2xl">
             <span class="px-3 py-1 bg-white/10 text-[#b9ded9] text-xs font-semibold rounded-full uppercase tracking-wider backdrop-blur-sm inline-block mb-3">
-              Configuration Centrale & Métier CIF
+              Configuration Centrale SAMDE · Données 100% Paramétrables
             </span>
             <h1 class="text-2xl md:text-3xl font-extrabold tracking-tight text-white">Centre de Paramétrage SAMDE</h1>
             <p class="text-slate-300 text-sm mt-2 leading-relaxed">
-              Gérez les types d'objets de crédit, les types de garanties, les agences du réseau CIF, les rôles des collaborateurs et la corbeille de restauration.
+              Personnalisez les catégories sectorielles, les objets de crédit, les types de garanties, le réseau d'agences CIF, les rôles des agents et la corbeille de restauration.
             </p>
           </div>
         </div>
 
         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 pt-2">
           
-          <!-- CARTE OBJETS DE CRÉDIT -->
-          <div (click)="goToSection('OBJETS_CREDIT')"
+          <!-- 1. CARTE CATÉGORIES DE PRÊT -->
+          <div (click)="goToSection('CATEGORIES')"
             class="bg-white rounded-3xl border-2 border-[#147c76]/20 hover:border-[#147c76] p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-28 h-28 bg-emerald-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
+            <div class="absolute top-0 right-0 w-28 h-28 bg-[#e5f3f1]/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
 
             <div class="relative z-10">
               <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-[#147c76] to-[#0e625e] text-white flex items-center justify-center mb-4 shadow-lg shadow-[#147c76]/30 group-hover:scale-105 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/>
+                </svg>
+              </div>
+
+              <div class="flex items-center space-x-2 mb-1.5">
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-[#147c76] transition-colors">Catégories de Prêt</h2>
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
+                  {{ categories.length }}
+                </span>
+              </div>
+              
+              <p class="text-xs text-gray-500 leading-relaxed">
+                Familles sectorielles (Commerce, Agriculture, Élevage, Artisanat, Habitat, Social) avec coefficients de risque et taux de référence.
+              </p>
+            </div>
+
+            <div class="pt-5 mt-4 border-t border-gray-100 flex items-center justify-between relative z-10">
+              <span class="text-xs font-bold text-[#147c76] group-hover:translate-x-1 transition-transform inline-flex items-center">
+                Configurer les catégories
+                <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+              </span>
+              <span class="text-[10px] text-[#147c76] font-semibold bg-[#e5f3f1] px-2 py-0.5 rounded-full">Secteurs</span>
+            </div>
+          </div>
+
+          <!-- 2. CARTE OBJETS DE CRÉDIT -->
+          <div (click)="goToSection('OBJETS_CREDIT')"
+            class="bg-white rounded-3xl border-2 border-emerald-100 hover:border-emerald-600 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-28 h-28 bg-emerald-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
+
+            <div class="relative z-10">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-600 to-teal-700 text-white flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/>
                 </svg>
               </div>
 
               <div class="flex items-center space-x-2 mb-1.5">
-                <h2 class="text-lg font-bold text-gray-900 group-hover:text-[#147c76] transition-colors">Objets de Crédit</h2>
-                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-50 text-[#147c76] border border-emerald-200">
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">Objets de Crédit</h2>
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
                   {{ objetsCredit.length }}
                 </span>
               </div>
               
               <p class="text-xs text-gray-500 leading-relaxed">
-                Types de besoins financés (Commerce, Intrants Agricoles, Élevage, Artisanat, Habitat) sélectionnés lors de l'instruction.
+                Motifs précis de financement rattachés aux catégories (Fonds de roulement, Intrants de campagne, Embouche bovine, Toiture...).
               </p>
             </div>
 
             <div class="pt-5 mt-4 border-t border-gray-100 flex items-center justify-between relative z-10">
-              <span class="text-xs font-bold text-[#147c76] group-hover:translate-x-1 transition-transform inline-flex items-center">
+              <span class="text-xs font-bold text-emerald-700 group-hover:translate-x-1 transition-transform inline-flex items-center">
                 Configurer les objets
                 <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
               </span>
-              <span class="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">Prêts CIF</span>
+              <span class="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">Motifs</span>
             </div>
           </div>
 
-          <!-- CARTE TYPES DE GARANTIES -->
+          <!-- 3. CARTE TYPES DE GARANTIES -->
           <div (click)="goToSection('GARANTIES')"
             class="bg-white rounded-3xl border-2 border-teal-100 hover:border-teal-600 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
             <div class="absolute top-0 right-0 w-28 h-28 bg-teal-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
@@ -177,7 +173,7 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
               </div>
               
               <p class="text-xs text-gray-500 leading-relaxed">
-                Sûretés exigées (Caution solidaire, Gage sur stock, Hypothèque foncière, Épargne nantie, Avaliste).
+                Sûretés exigées (Caution solidaire, Avaliste, Gage sur stock, Épargne nantie, Hypothèque) et taux de couverture requis.
               </p>
             </div>
 
@@ -190,40 +186,40 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
             </div>
           </div>
 
-          <!-- CARTE AGENCES CIF -->
+          <!-- 4. CARTE AGENCES CIF -->
           <div (click)="goToSection('AGENCES')"
-            class="bg-white rounded-3xl border-2 border-emerald-100 hover:border-emerald-500 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
-            <div class="absolute top-0 right-0 w-28 h-28 bg-emerald-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
+            class="bg-white rounded-3xl border-2 border-cyan-100 hover:border-cyan-600 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-28 h-28 bg-cyan-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
 
             <div class="relative z-10">
-              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-600 text-white flex items-center justify-center mb-4 shadow-lg shadow-emerald-500/30 group-hover:scale-105 transition-transform">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-cyan-600 to-blue-700 text-white flex items-center justify-center mb-4 shadow-lg shadow-cyan-500/30 group-hover:scale-105 transition-transform">
                 <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
                 </svg>
               </div>
 
               <div class="flex items-center space-x-2 mb-1.5">
-                <h2 class="text-lg font-bold text-gray-900 group-hover:text-emerald-700 transition-colors">Agences CIF</h2>
-                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-emerald-50 text-emerald-700 border border-emerald-200">
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-cyan-700 transition-colors">Agences CIF</h2>
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-cyan-50 text-cyan-700 border border-cyan-200">
                   {{ agences.length }}
                 </span>
               </div>
               
               <p class="text-xs text-gray-500 leading-relaxed">
-                Configurez les caisses régionales, agences et délégations CIF rattachées au réseau.
+                Caisses populaires, délégations régionales et points de service bancaires rattachés au réseau CIF.
               </p>
             </div>
 
             <div class="pt-5 mt-4 border-t border-gray-100 flex items-center justify-between relative z-10">
-              <span class="text-xs font-bold text-emerald-700 group-hover:translate-x-1 transition-transform inline-flex items-center">
+              <span class="text-xs font-bold text-cyan-700 group-hover:translate-x-1 transition-transform inline-flex items-center">
                 Configurer les agences
                 <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
               </span>
-              <span class="text-[10px] text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-full">Réseau</span>
+              <span class="text-[10px] text-cyan-700 font-semibold bg-cyan-50 px-2 py-0.5 rounded-full">Réseau</span>
             </div>
           </div>
 
-          <!-- CARTE RÔLES DES AGENTS -->
+          <!-- 5. CARTE RÔLES DES AGENTS -->
           <div (click)="goToSection('ROLES')"
             class="bg-white rounded-3xl border-2 border-indigo-100 hover:border-indigo-500 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
             <div class="absolute top-0 right-0 w-28 h-28 bg-indigo-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
@@ -243,7 +239,7 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
               </div>
               
               <p class="text-xs text-gray-500 leading-relaxed">
-                Créez et personnalisez les profils d'accès aux dossiers (Conseillers, Risques, Direction).
+                Profils d'accès et habilitations des collaborateurs (Conseillers, Risques, Comités, Administrateurs).
               </p>
             </div>
 
@@ -252,11 +248,11 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
                 Configurer les rôles
                 <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
               </span>
-              <span class="text-[10px] text-indigo-700 font-semibold bg-indigo-50 px-2 py-0.5 rounded-full">Accès</span>
+              <span class="text-[10px] text-indigo-700 font-semibold bg-indigo-50 px-2 py-0.5 rounded-full">Habilitations</span>
             </div>
           </div>
 
-          <!-- CARTE CORBEILLE -->
+          <!-- 6. CARTE CORBEILLE -->
           <div (click)="goToSection('CORBEILLE')"
             class="bg-white rounded-3xl border-2 border-amber-100 hover:border-amber-500 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
             <div class="absolute top-0 right-0 w-28 h-28 bg-amber-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
@@ -277,7 +273,7 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
               </div>
               
               <p class="text-xs text-gray-500 leading-relaxed">
-                Restaurez les objets de crédit, garanties, agences ou rôles supprimés sous 30 jours.
+                Restaurez les catégories, objets de crédit, garanties, agences ou rôles supprimés sous 30 jours.
               </p>
             </div>
 
@@ -294,13 +290,111 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
       </div>
 
       <!-- ========================================================================= -->
+      <!-- VUE : CATÉGORIES DE CRÉDIT (CRÉATION, MODIFICATION, SUPPRESSION)          -->
+      <!-- ========================================================================= -->
+      <div *ngIf="currentSection === 'CATEGORIES'" class="space-y-6 animate-fade-in">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-[#e5f3f1] text-[#147c76] flex items-center justify-center font-bold">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+            <div>
+              <h2 class="text-xl font-extrabold text-gray-900">Catégories & Familles de Prêt</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Secteurs d'activité, coefficients de risque et taux d'intérêt indicatifs</p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <span class="px-3 py-1 bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9] rounded-full text-xs font-bold font-mono">
+              {{ categories.length }} catégorie(s) configurée(s)
+            </span>
+            <button (click)="openCreateCategorieModal()"
+              class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-[#147c76]/20 hover:shadow-lg transition-all flex items-center space-x-2 cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              <span>Nouvelle Catégorie</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 shadow-sm">
+          
+          <div *ngIf="categories.length === 0" class="text-center py-12 max-w-md mx-auto">
+            <div class="w-16 h-16 bg-gray-50 text-gray-400 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-gray-900 mb-1">Aucune catégorie configurée</h3>
+            <p class="text-xs text-gray-500 mb-5">Ajoutez une première catégorie sectorielle pour classifier vos objets de crédit.</p>
+            <button (click)="openCreateCategorieModal()" class="bg-[#147c76] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer">
+              Ajouter une catégorie
+            </button>
+          </div>
+
+          <!-- GRILLE DES CATÉGORIES -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" *ngIf="categories.length > 0">
+            <div *ngFor="let cat of categories"
+              class="bg-white rounded-2xl border border-gray-200 hover:border-[#147c76] p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+              <div>
+                <div class="flex items-start justify-between mb-2">
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold border" [ngClass]="cat.badgeColor || 'bg-emerald-50 text-emerald-800 border-emerald-200'">
+                    {{ cat.label }}
+                  </span>
+                  <button (click)="toggleCategorieActif(cat)" title="Activer / Désactiver"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors"
+                    [ngClass]="cat.actif ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                    {{ cat.actif ? '✓ Actif' : 'Inactif' }}
+                  </button>
+                </div>
+
+                <p class="text-[11px] font-mono text-gray-400 mb-2">{{ cat.code }}</p>
+
+                <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                  {{ cat.description || 'Aucune description spécifique renseignée.' }}
+                </p>
+
+                <div class="mt-4 pt-3 border-t border-gray-100 grid grid-cols-3 gap-2 text-center text-xs">
+                  <div class="p-2 bg-slate-50 rounded-xl">
+                    <span class="text-[10px] text-gray-400 block font-medium">Coeff. Risque</span>
+                    <span class="font-bold text-slate-800">{{ cat.coefficientRisque }}x</span>
+                  </div>
+                  <div class="p-2 bg-slate-50 rounded-xl">
+                    <span class="text-[10px] text-gray-400 block font-medium">Taux Min</span>
+                    <span class="font-bold text-[#147c76]">{{ cat.tauxMin }}%</span>
+                  </div>
+                  <div class="p-2 bg-slate-50 rounded-xl">
+                    <span class="text-[10px] text-gray-400 block font-medium">Durée Max</span>
+                    <span class="font-bold text-gray-800">{{ cat.dureeMaxMois }}m</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between text-xs">
+                <span class="text-[11px] text-gray-400">Créé le {{ cat.dateCreation | date:'dd/MM/yyyy' }}</span>
+                <div class="flex items-center space-x-1">
+                  <button (click)="openEditCategorieModal(cat)" title="Modifier cette catégorie"
+                    class="text-gray-400 hover:text-[#147c76] p-1.5 rounded-lg hover:bg-emerald-50 transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  </button>
+                  <button (click)="confirmDeleteCategorie(cat)" title="Déplacer vers la corbeille"
+                    class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
       <!-- VUE : OBJETS DE CRÉDIT (CRÉATION, MODIFICATION, SUPPRESSION)              -->
       <!-- ========================================================================= -->
       <div *ngIf="currentSection === 'OBJETS_CREDIT'" class="space-y-6 animate-fade-in">
         
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-[#e5f3f1] text-[#147c76] flex items-center justify-center font-bold">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
             <div>
@@ -310,7 +404,7 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
           </div>
 
           <div class="flex items-center space-x-3">
-            <span class="px-3 py-1 bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9] rounded-full text-xs font-bold font-mono">
+            <span class="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold font-mono">
               {{ objetsCredit.length }} objet(s) configuré(s)
             </span>
             <button (click)="openCreateObjetModal()"
@@ -322,66 +416,60 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
         </div>
 
         <div class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 shadow-sm">
-
-          <!-- ÉTAT VIDE -->
-          <div *ngIf="objetsCredit.length === 0" class="text-center py-16 px-4 max-w-md mx-auto">
-            <div class="w-20 h-20 bg-emerald-50 text-[#147c76] rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
-              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          
+          <div *ngIf="objetsCredit.length === 0" class="text-center py-12 max-w-md mx-auto">
+            <div class="w-16 h-16 bg-gray-50 text-gray-400 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Aucun objet de crédit configuré</h3>
-            <p class="text-sm text-gray-500 mb-6">
-              Définissez les secteurs d'activité et objets de financement éligibles au crédit.
-            </p>
-            <button (click)="openCreateObjetModal()"
-              class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold px-6 py-3 rounded-xl shadow-md transition-all inline-flex items-center space-x-2 cursor-pointer">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              <span>Créer le premier objet de crédit</span>
+            <h3 class="text-base font-bold text-gray-900 mb-1">Aucun objet de crédit configuré</h3>
+            <p class="text-xs text-gray-500 mb-5">Ajoutez des motifs de prêts (Commerce, Intrants, Élevage...) pour enrichir l'octroi de crédit.</p>
+            <button (click)="openCreateObjetModal()" class="bg-[#147c76] text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer">
+              Créer un objet de crédit
             </button>
           </div>
 
-          <!-- GRILLE DES OBJETS -->
+          <!-- GRILLE DES OBJETS DE CRÉDIT -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" *ngIf="objetsCredit.length > 0">
             <div *ngFor="let obj of objetsCredit"
-              class="bg-white rounded-2xl border border-gray-200/90 hover:border-[#147c76] p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+              class="bg-white rounded-2xl border border-gray-200 hover:border-emerald-500 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
-                <div class="flex items-start justify-between mb-3 gap-2">
-                  <div class="flex-1">
-                    <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
-                      {{ obj.categorie }}
-                    </span>
-                    <h3 class="text-base font-bold text-gray-900 mt-2 leading-snug group-hover:text-[#147c76] transition-colors">
-                      {{ obj.label }}
-                    </h3>
-                  </div>
-                  <button (click)="toggleObjetActif(obj)"
-                    [title]="obj.actif ? 'Désactiver cet objet' : 'Activer cet objet'"
-                    [ngClass]="obj.actif ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-gray-100 text-gray-500 border-gray-200'"
-                    class="px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors flex-shrink-0 cursor-pointer">
-                    {{ obj.actif ? '● Actif' : '○ Inactif' }}
+                <div class="flex items-start justify-between mb-2">
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
+                    {{ obj.categorie }}
+                  </span>
+                  <button (click)="toggleObjetActif(obj)" title="Activer / Désactiver"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors"
+                    [ngClass]="obj.actif ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                    {{ obj.actif ? '✓ Actif' : 'Inactif' }}
                   </button>
                 </div>
 
-                <p class="text-xs text-gray-600 line-clamp-2 mt-1 leading-relaxed min-h-[32px]">
-                  {{ obj.description || 'Aucune description spécifique.' }}
+                <h3 class="text-sm font-bold text-gray-900 group-hover:text-emerald-700 transition-colors mt-1">
+                  {{ obj.label }}
+                </h3>
+                <p class="text-[11px] font-mono text-gray-400 mb-2">{{ obj.code }}</p>
+
+                <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                  {{ obj.description || 'Aucune description spécifique renseignée.' }}
                 </p>
 
-                <div class="mt-3.5 pt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-xs">
-                  <div class="bg-gray-50 rounded-xl p-2">
-                    <span class="text-[10px] text-gray-400 block font-semibold">Taux indicatif</span>
-                    <span class="font-bold text-gray-800">{{ obj.tauxInteretMin ? obj.tauxInteretMin + ' % / an' : 'N/A' }}</span>
+                <div class="mt-4 pt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-center text-xs">
+                  <div class="p-2 bg-gray-50 rounded-xl">
+                    <span class="text-[10px] text-gray-400 block font-medium">Taux indicatif</span>
+                    <span class="font-bold text-emerald-700">{{ obj.tauxInteretMin || 9.5 }}%</span>
                   </div>
-                  <div class="bg-gray-50 rounded-xl p-2">
-                    <span class="text-[10px] text-gray-400 block font-semibold">Durée max</span>
-                    <span class="font-bold text-gray-800">{{ obj.dureeMaxMois ? obj.dureeMaxMois + ' mois' : 'Libre' }}</span>
+                  <div class="p-2 bg-gray-50 rounded-xl">
+                    <span class="text-[10px] text-gray-400 block font-medium">Durée max</span>
+                    <span class="font-bold text-gray-800">{{ obj.dureeMaxMois || 12 }} mois</span>
                   </div>
                 </div>
               </div>
 
               <div class="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between text-xs">
-                <span class="text-[11px] font-mono text-gray-400">{{ obj.code }}</span>
+                <span class="text-[11px] text-gray-400">Créé le {{ obj.dateCreation | date:'dd/MM/yyyy' }}</span>
                 <div class="flex items-center space-x-1">
                   <button (click)="openEditObjetModal(obj)" title="Modifier cet objet"
-                    class="text-gray-400 hover:text-[#147c76] p-1.5 rounded-lg hover:bg-[#e5f3f1] transition-all cursor-pointer">
+                    class="text-gray-400 hover:text-emerald-700 p-1.5 rounded-lg hover:bg-emerald-50 transition-all cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                   </button>
                   <button (click)="confirmDeleteObjet(obj)" title="Déplacer vers la corbeille"
@@ -408,88 +496,79 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
             </div>
             <div>
               <h2 class="text-xl font-extrabold text-gray-900">Types de Garanties & Sûretés</h2>
-              <p class="text-xs text-gray-500 mt-0.5">Modalités de couverture de risque et garanties exigibles pour les crédits</p>
+              <p class="text-xs text-gray-500 mt-0.5">Sûretés exigibles pour mitiger le risque de non-remboursement</p>
             </div>
           </div>
 
           <div class="flex items-center space-x-3">
             <span class="px-3 py-1 bg-teal-50 text-teal-700 border border-teal-200 rounded-full text-xs font-bold font-mono">
-              {{ typesGaranties.length }} garantie(s)
+              {{ typesGaranties.length }} type(s) configuré(s)
             </span>
             <button (click)="openCreateGarantieModal()"
               class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-teal-700/20 hover:shadow-lg transition-all flex items-center space-x-2 cursor-pointer">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              <span>Nouvelle Garantie</span>
+              <span>Nouveau Type de Garantie</span>
             </button>
           </div>
         </div>
 
         <div class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 shadow-sm">
-
-          <!-- ÉTAT VIDE -->
-          <div *ngIf="typesGaranties.length === 0" class="text-center py-16 px-4 max-w-md mx-auto">
-            <div class="w-20 h-20 bg-teal-50 text-teal-700 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
-              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+          
+          <div *ngIf="typesGaranties.length === 0" class="text-center py-12 max-w-md mx-auto">
+            <div class="w-16 h-16 bg-gray-50 text-gray-400 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
             </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Aucune garantie configurée</h3>
-            <p class="text-sm text-gray-500 mb-6">
-              Configurez les sûretés personnelles, réelles ou financières requises lors des octrois.
-            </p>
-            <button (click)="openCreateGarantieModal()"
-              class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-md transition-all inline-flex items-center space-x-2 cursor-pointer">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              <span>Créer la première garantie</span>
+            <h3 class="text-base font-bold text-gray-900 mb-1">Aucune garantie configurée</h3>
+            <p class="text-xs text-gray-500 mb-5">Ajoutez des sûretés (Caution solidaire, Aval, Gage...) pour sécuriser les crédits.</p>
+            <button (click)="openCreateGarantieModal()" class="bg-teal-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer">
+              Créer une garantie
             </button>
           </div>
 
-          <!-- GRILLE DES GARANTIES -->
+          <!-- GRILLE DES TYPES DE GARANTIE -->
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" *ngIf="typesGaranties.length > 0">
             <div *ngFor="let gar of typesGaranties"
-              class="bg-white rounded-2xl border border-gray-200/90 hover:border-teal-600 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+              class="bg-white rounded-2xl border border-gray-200 hover:border-teal-500 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
-                <div class="flex items-start justify-between mb-3 gap-2">
-                  <div class="flex-1">
-                    <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-bold"
-                      [ngClass]="{
-                        'bg-blue-50 text-blue-700 border border-blue-200': gar.typeGarantie === 'PERSONNELLE',
-                        'bg-amber-50 text-amber-700 border border-amber-200': gar.typeGarantie === 'REELLE_MOBILIERE',
-                        'bg-purple-50 text-purple-700 border border-purple-200': gar.typeGarantie === 'REELLE_IMMOBILIERE',
-                        'bg-emerald-50 text-emerald-700 border border-emerald-200': gar.typeGarantie === 'FINANCIERE'
-                      }">
-                      {{ getGarantieCategoryLabel(gar.typeGarantie) }}
-                    </span>
-                    <h3 class="text-base font-bold text-gray-900 mt-2 leading-snug group-hover:text-teal-700 transition-colors">
-                      {{ gar.label }}
-                    </h3>
-                  </div>
-                  <button (click)="toggleGarantieActif(gar)"
-                    [title]="gar.actif ? 'Désactiver cette garantie' : 'Activer cette garantie'"
-                    [ngClass]="gar.actif ? 'bg-emerald-100 text-emerald-800 border-emerald-300' : 'bg-gray-100 text-gray-500 border-gray-200'"
-                    class="px-2 py-0.5 rounded-full text-[10px] font-bold border transition-colors flex-shrink-0 cursor-pointer">
-                    {{ gar.actif ? '● Actif' : '○ Inactif' }}
+                <div class="flex items-start justify-between mb-2">
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold"
+                    [ngClass]="{
+                      'bg-blue-50 text-blue-800 border border-blue-200': gar.typeGarantie === 'PERSONNELLE',
+                      'bg-amber-50 text-amber-800 border border-amber-200': gar.typeGarantie === 'REELLE_MOBILIERE',
+                      'bg-purple-50 text-purple-800 border border-purple-200': gar.typeGarantie === 'REELLE_IMMOBILIERE',
+                      'bg-emerald-50 text-emerald-800 border border-emerald-200': gar.typeGarantie === 'FINANCIERE'
+                    }">
+                    {{ getGarantieCategoryLabel(gar.typeGarantie) }}
+                  </span>
+                  <button (click)="toggleGarantieActif(gar)" title="Activer / Désactiver"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors"
+                    [ngClass]="gar.actif ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                    {{ gar.actif ? '✓ Actif' : 'Inactif' }}
                   </button>
                 </div>
 
-                <p class="text-xs text-gray-600 line-clamp-2 mt-1 leading-relaxed min-h-[32px]">
-                  {{ gar.description || 'Aucune description spécifique.' }}
+                <h3 class="text-sm font-bold text-gray-900 group-hover:text-teal-700 transition-colors mt-1">
+                  {{ gar.label }}
+                </h3>
+                <p class="text-[11px] font-mono text-gray-400 mb-2">{{ gar.code }}</p>
+
+                <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                  {{ gar.description || 'Aucune description spécifique renseignée.' }}
                 </p>
 
-                <div class="mt-3.5 pt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-xs">
-                  <div class="bg-gray-50 rounded-xl p-2">
-                    <span class="text-[10px] text-gray-400 block font-semibold">Taux couverture</span>
-                    <span class="font-bold text-gray-800">{{ gar.tauxCouvertureRecommande || 100 }} %</span>
+                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                  <div class="flex items-center space-x-1.5">
+                    <span class="w-2 h-2 rounded-full" [ngClass]="gar.exigeDocument ? 'bg-amber-500' : 'bg-gray-300'"></span>
+                    <span class="text-gray-500 font-medium">{{ gar.exigeDocument ? 'Justificatif exigé' : 'Sans pièce obligatoire' }}</span>
                   </div>
-                  <div class="bg-gray-50 rounded-xl p-2">
-                    <span class="text-[10px] text-gray-400 block font-semibold">Justificatif</span>
-                    <span class="font-bold" [ngClass]="gar.exigeDocument ? 'text-amber-700' : 'text-gray-600'">
-                      {{ gar.exigeDocument ? 'Document Requis' : 'Sans Document' }}
-                    </span>
-                  </div>
+                  <span class="font-bold text-teal-700 font-mono bg-teal-50 px-2 py-0.5 rounded-md border border-teal-200">
+                    {{ gar.tauxCouvertureRecommande || 100 }}% couverture
+                  </span>
                 </div>
               </div>
 
               <div class="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between text-xs">
-                <span class="text-[11px] font-mono text-gray-400">{{ gar.code }}</span>
+                <span class="text-[11px] text-gray-400">Créé le {{ gar.dateCreation | date:'dd/MM/yyyy' }}</span>
                 <div class="flex items-center space-x-1">
                   <button (click)="openEditGarantieModal(gar)" title="Modifier cette garantie"
                     class="text-gray-400 hover:text-teal-700 p-1.5 rounded-lg hover:bg-teal-50 transition-all cursor-pointer">
@@ -508,96 +587,75 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
       </div>
 
       <!-- ========================================================================= -->
-      <!-- VUE 2 : MODULE AGENCES CIF (CRÉATION, MODIFICATION, SUPPRESSION, CORBEILLE) -->
+      <!-- VUE : AGENCES CIF (CRÉATION, MODIFICATION, SUPPRESSION)                   -->
       <!-- ========================================================================= -->
       <div *ngIf="currentSection === 'AGENCES'" class="space-y-6 animate-fade-in">
         
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
           <div class="flex items-center space-x-3">
-            <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold">
+            <div class="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center font-bold">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
             </div>
             <div>
-              <h2 class="text-xl font-extrabold text-gray-900">Réseau des Agences CIF</h2>
-              <p class="text-xs text-gray-500 mt-0.5">Points de service, délégations et caisses populaires rattachées</p>
+              <h2 class="text-xl font-extrabold text-gray-900">Agences du Réseau CIF</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Caisses populaires, délégations régionales et points de service bancaires</p>
             </div>
           </div>
 
           <div class="flex items-center space-x-3">
-            <span class="px-3 py-1 bg-emerald-50 text-emerald-700 border border-emerald-200 rounded-full text-xs font-bold font-mono">
-              {{ agences.length }} agence(s)
+            <span class="px-3 py-1 bg-cyan-50 text-cyan-700 border border-cyan-200 rounded-full text-xs font-bold font-mono">
+              {{ agences.length }} agence(s) active(s)
             </span>
             <button (click)="openCreateAgenceModal()"
-              class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-emerald-600/20 hover:shadow-lg transition-all flex items-center space-x-2 cursor-pointer">
+              class="bg-cyan-700 hover:bg-cyan-800 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-cyan-700/20 hover:shadow-lg transition-all flex items-center space-x-2 cursor-pointer">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              <span>Nouvelle agence</span>
+              <span>Nouvelle Agence CIF</span>
             </button>
           </div>
         </div>
 
         <div class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 shadow-sm">
-
-          <!-- ÉTAT VIDE -->
-          <div *ngIf="agences.length === 0" class="text-center py-16 px-4 max-w-md mx-auto">
-            <div class="w-20 h-20 bg-emerald-50 text-emerald-600 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
-              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/>
-              </svg>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Aucune agence configurée pour l'instant</h3>
-            <p class="text-sm text-gray-500 mb-6">
-              Créez vos agences bancaires régionales pour pouvoir y affecter vos collaborateurs et agents de crédit.
-            </p>
-            <button (click)="openCreateAgenceModal()"
-              class="bg-emerald-600 hover:bg-emerald-700 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-md transition-all inline-flex items-center space-x-2 cursor-pointer">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              <span>Créer la première agence</span>
-            </button>
-          </div>
-
-          <!-- GRILLE DES AGENCES -->
+          
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" *ngIf="agences.length > 0">
-            <div *ngFor="let agence of agences"
-              class="bg-white rounded-2xl border border-gray-200/90 hover:border-emerald-500 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+            <div *ngFor="let ag of agences"
+              class="bg-white rounded-2xl border border-gray-200 hover:border-cyan-600 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
-                <div class="flex items-start justify-between mb-3">
-                  <div class="flex items-center space-x-3">
-                    <div class="w-11 h-11 rounded-xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold text-base shadow-2xs">
-                      <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-                    </div>
-                    <div>
-                      <h3 class="text-base font-bold text-gray-900 leading-snug group-hover:text-emerald-700 transition-colors">{{ agence.nom }}</h3>
-                      <p class="text-xs font-mono font-semibold text-emerald-700 mt-0.5">{{ agence.code }}</p>
-                    </div>
-                  </div>
-                  <span class="px-2.5 py-0.5 rounded-full text-[10px] font-bold bg-emerald-50 text-emerald-700 border border-emerald-200">
-                    Opérationnelle
+                <div class="flex items-start justify-between mb-2">
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-cyan-50 text-cyan-800 border border-cyan-200">
+                    {{ ag.region }}
+                  </span>
+                  <span class="text-[11px] font-mono font-semibold text-gray-400 bg-gray-50 px-2 py-0.5 rounded-md">
+                    {{ ag.code }}
                   </span>
                 </div>
 
-                <div class="space-y-1.5 mt-3 text-xs text-gray-600">
-                  <div class="flex items-center space-x-2">
-                    <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-                    <span class="font-medium">{{ agence.ville }} <span class="text-gray-400">·</span> {{ agence.region }} <span *ngIf="agence.pays" class="text-emerald-700 font-bold">({{ agence.pays }})</span></span>
-                  </div>
-                  <div *ngIf="agence.telephone" class="flex items-center space-x-2 text-gray-500">
-                    <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
-                    <span>{{ agence.telephone }}</span>
-                  </div>
-                  <div *ngIf="agence.adresse" class="flex items-center space-x-2 text-gray-400 italic">
-                    <span class="truncate">{{ agence.adresse }}</span>
-                  </div>
-                </div>
+                <h3 class="text-sm font-bold text-gray-900 group-hover:text-cyan-700 transition-colors mt-1">
+                  {{ ag.nom }}
+                </h3>
+
+                <p class="text-xs text-gray-600 mt-2 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-gray-400 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
+                  <span class="truncate">{{ ag.ville }}, {{ ag.pays }}</span>
+                </p>
+
+                <p *ngIf="ag.adresse" class="text-[11px] text-gray-500 mt-1 pl-5 truncate">
+                  {{ ag.adresse }}
+                </p>
+
+                <p *ngIf="ag.telephone" class="text-xs text-cyan-700 font-mono mt-3 pt-3 border-t border-gray-100 flex items-center gap-1.5">
+                  <svg class="w-3.5 h-3.5 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"/></svg>
+                  <span>{{ ag.telephone }}</span>
+                </p>
               </div>
 
               <div class="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between text-xs">
-                <span class="text-[11px] text-gray-400">Créée le {{ agence.dateCreation | date:'dd/MM/yyyy' }}</span>
+                <span class="text-[11px] text-gray-400">Réseau CIF</span>
                 <div class="flex items-center space-x-1">
-                  <button (click)="openEditAgenceModal(agence)" title="Modifier cette agence"
-                    class="text-gray-400 hover:text-emerald-700 p-1.5 rounded-lg hover:bg-emerald-50 transition-all cursor-pointer">
+                  <button (click)="openEditAgenceModal(ag)" title="Modifier cette agence"
+                    class="text-gray-400 hover:text-cyan-700 p-1.5 rounded-lg hover:bg-cyan-50 transition-all cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                   </button>
-                  <button (click)="confirmDeleteAgence(agence)" title="Déplacer vers la corbeille"
+                  <button (click)="confirmDeleteAgence(ag)" title="Déplacer vers la corbeille"
                     class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-all cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   </button>
@@ -610,7 +668,7 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
       </div>
 
       <!-- ========================================================================= -->
-      <!-- VUE 3 : MODULE RÔLES DES AGENTS                                           -->
+      <!-- VUE : RÔLES AGENTS (CRÉATION, MODIFICATION, SUPPRESSION)                  -->
       <!-- ========================================================================= -->
       <div *ngIf="currentSection === 'ROLES'" class="space-y-6 animate-fade-in">
         
@@ -620,47 +678,28 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
             </div>
             <div>
-              <h2 class="text-xl font-extrabold text-gray-900">Rôles & Habilitations</h2>
-              <p class="text-xs text-gray-500 mt-0.5">Rôles attribuables lors de l'enregistrement d'un collaborateur</p>
+              <h2 class="text-xl font-extrabold text-gray-900">Rôles & Habilitations Agents</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Créez et personnalisez les profils d'accès aux dossiers de crédit</p>
             </div>
           </div>
 
           <div class="flex items-center space-x-3">
             <span class="px-3 py-1 bg-indigo-50 text-indigo-700 border border-indigo-200 rounded-full text-xs font-bold font-mono">
-              {{ roles.length }} rôle(s)
+              {{ roles.length }} rôle(s) défini(s)
             </span>
             <button (click)="openCreateRoleModal()"
               class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-indigo-600/20 hover:shadow-lg transition-all flex items-center space-x-2 cursor-pointer">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              <span>Nouveau rôle</span>
+              <span>Nouveau Rôle</span>
             </button>
           </div>
         </div>
 
         <div class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 shadow-sm">
-
-          <!-- ÉTAT VIDE -->
-          <div *ngIf="roles.length === 0" class="text-center py-16 px-4 max-w-md mx-auto">
-            <div class="w-20 h-20 bg-indigo-50 text-indigo-700 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
-              <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/>
-              </svg>
-            </div>
-            <h3 class="text-lg font-bold text-gray-900 mb-2">Aucun rôle défini pour l'instant</h3>
-            <p class="text-sm text-gray-500 mb-6">
-              Définissez les rôles de votre coopérative pour habiliter vos collaborateurs.
-            </p>
-            <button (click)="openCreateRoleModal()"
-              class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold px-6 py-3 rounded-xl shadow-md transition-all inline-flex items-center space-x-2 cursor-pointer">
-              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
-              <span>Créer le premier rôle</span>
-            </button>
-          </div>
-
-          <!-- GRILLE DES RÔLES -->
+          
           <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" *ngIf="roles.length > 0">
             <div *ngFor="let role of roles"
-              class="bg-white rounded-2xl border border-gray-200/90 hover:border-indigo-500 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+              class="bg-white rounded-2xl border border-gray-200 hover:border-indigo-500 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
                 <div class="flex items-start justify-between mb-3">
                   <span class="px-3 py-1 rounded-xl text-xs font-bold border" [ngClass]="role.badgeColor">
@@ -696,7 +735,7 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
       </div>
 
       <!-- ========================================================================= -->
-      <!-- VUE 4 : CORBEILLE (RÉCUPÉRATION SOUS 30 JOURS)                             -->
+      <!-- VUE : CORBEILLE (RÉCUPÉRATION SOUS 30 JOURS)                              -->
       <!-- ========================================================================= -->
       <div *ngIf="currentSection === 'CORBEILLE'" class="space-y-6 animate-fade-in">
         
@@ -723,7 +762,7 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
         </div>
 
         <div class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 shadow-sm">
-          <!-- Corbeille vide -->
+          
           <div *ngIf="trashItems.length === 0" class="text-center py-16 px-4 max-w-md mx-auto">
             <div class="w-20 h-20 bg-gray-50 text-gray-400 rounded-3xl flex items-center justify-center mx-auto mb-5 shadow-inner">
               <svg class="w-10 h-10" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -742,545 +781,623 @@ export type ParamSection = 'HUB' | 'ROLES' | 'AGENCES' | 'OBJETS_CREDIT' | 'GARA
               <div class="flex items-start space-x-3.5">
                 <div class="w-12 h-12 rounded-xl flex items-center justify-center font-bold text-xs flex-shrink-0 text-center leading-tight px-1"
                   [ngClass]="{
-                    'bg-[#e5f3f1] text-[#147c76]': item.type === 'OBJET_CREDIT',
+                    'bg-[#e5f3f1] text-[#147c76]': item.type === 'CATEGORIE',
+                    'bg-emerald-100 text-emerald-800': item.type === 'OBJET_CREDIT',
                     'bg-teal-100 text-teal-800': item.type === 'GARANTIE',
-                    'bg-emerald-100 text-emerald-700': item.type === 'AGENCE',
+                    'bg-cyan-100 text-cyan-800': item.type === 'AGENCE',
                     'bg-indigo-100 text-indigo-700': item.type === 'ROLE',
                     'bg-gray-100 text-gray-700': item.type === 'AGENT'
                   }">
                   {{ item.typeLabel }}
                 </div>
                 <div>
-                  <div class="flex items-center space-x-2">
-                    <h3 class="text-base font-bold text-gray-900">{{ item.title }}</h3>
-                    <span class="text-[10px] font-semibold px-2 py-0.5 rounded-md bg-gray-100 text-gray-700">
-                      {{ item.type }}
-                    </span>
-                  </div>
+                  <h4 class="text-sm font-bold text-gray-900">{{ item.title }}</h4>
                   <p class="text-xs text-gray-500 mt-0.5">{{ item.details }}</p>
-                  <p class="text-[11px] text-gray-400 mt-1">Supprimé le {{ item.dateSuppression | date:'dd/MM/yyyy à HH:mm' }} · Rétention 30j</p>
+                  <div class="flex items-center space-x-3 mt-1.5 text-[11px] text-gray-400">
+                    <span>Supprimé le {{ item.dateSuppression | date:'dd/MM/yyyy HH:mm' }}</span>
+                    <span>•</span>
+                    <span class="text-amber-700 font-semibold">Purge auto sous {{ item.delaiJours }} jours</span>
+                  </div>
                 </div>
               </div>
 
-              <div class="flex items-center space-x-2.5">
+              <div class="flex items-center space-x-2 self-end sm:self-auto">
                 <button (click)="restoreItem(item)"
-                  class="px-4 py-2 bg-emerald-50 hover:bg-emerald-100 text-emerald-700 border border-emerald-200 rounded-xl text-xs font-bold transition-all flex items-center space-x-1.5 cursor-pointer">
-                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
+                  class="bg-emerald-50 hover:bg-emerald-100 text-[#147c76] border border-[#b9ded9] text-xs font-bold px-4 py-2 rounded-xl transition-all flex items-center space-x-1.5 cursor-pointer">
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/></svg>
                   <span>Restaurer</span>
                 </button>
                 <button (click)="permanentDeleteItem(item)"
-                  class="px-3 py-2 text-gray-400 hover:text-red-600 hover:bg-red-50 rounded-xl text-xs transition-colors cursor-pointer" title="Purger définitivement">
+                  class="bg-gray-50 hover:bg-red-50 text-gray-400 hover:text-red-600 p-2 rounded-xl border border-gray-200 transition-all cursor-pointer"
+                  title="Purger définitivement">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
-              </div>
+              <!-- ========================================================================= -->
+    <!-- MODAL : CRÉER / MODIFIER UNE CATÉGORIE DE PRÊT                            -->
+    <!-- ========================================================================= -->
+    <div *ngIf="isCategorieModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0 bg-white">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-[#e5f3f1] text-[#147c76] flex items-center justify-center font-bold flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 11H5m14 0a2 2 0 012 2v6a2 2 0 01-2 2H5a2 2 0 01-2-2v-6a2 2 0 012-2m14 0V9a2 2 0 00-2-2M5 11V9a2 2 0 012-2m0 0V5a2 2 0 012-2h6a2 2 0 012 2v2M7 7h10"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">{{ isEditingCategorie ? 'Modifier la Catégorie' : 'Nouvelle Catégorie de Prêt' }}</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Secteur d'activité, coefficient de risque et barèmes</p>
             </div>
           </div>
+          <button (click)="closeCategorieModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold p-1.5 rounded-lg hover:bg-gray-100 transition-colors" title="Fermer">✕</button>
         </div>
-      </div>
 
-      <!-- ========================================================================= -->
-      <!-- MODAL CRÉATION / MODIFICATION OBJET DE CRÉDIT                             -->
-      <!-- ========================================================================= -->
-      <div *ngIf="isObjetModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-7 md:p-8 shadow-2xl relative animate-fade-in border border-slate-100 max-h-[90vh] overflow-y-auto">
-          
-          <div class="flex items-center justify-between pb-5 border-b border-gray-100 mb-6">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-[#e5f3f1] text-[#147c76] flex items-center justify-center font-bold">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+        <form (ngSubmit)="submitCategorieForm()" class="flex flex-col flex-1 overflow-hidden">
+          <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Libellé de la Catégorie *</label>
+              <input type="text" [(ngModel)]="categorieFormData.label" name="catLabel" (input)="autoGenerateCategorieCode()" required
+                placeholder="Ex: Transport & Logistique"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#147c76]" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Code Technique (Unique) *</label>
+              <input type="text" [(ngModel)]="categorieFormData.code" name="catCode" required
+                placeholder="Ex: CAT_TRANSPORT"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:border-[#147c76] bg-gray-50/50" />
+            </div>
+
+            <div class="grid grid-cols-3 gap-3">
+              <div>
+                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Coeff. Risque *</label>
+                <input type="number" [(ngModel)]="categorieFormData.coefficientRisque" name="catCoeff" step="0.05" min="0.1" max="3.0" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm font-bold text-slate-800" />
               </div>
               <div>
-                <h3 class="text-lg font-bold text-gray-900" *ngIf="isEditingObjet">Modifier l'objet de crédit</h3>
-                <h3 class="text-lg font-bold text-gray-900" *ngIf="!isEditingObjet">Nouvel objet de crédit</h3>
-                <p class="text-xs text-gray-500">Paramétrage du motif et des conditions de financement</p>
+                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Taux Min (%) *</label>
+                <input type="number" [(ngModel)]="categorieFormData.tauxMin" name="catTaux" step="0.5" min="1" max="30" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm font-bold text-[#147c76]" />
+              </div>
+              <div>
+                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Durée Max (m) *</label>
+                <input type="number" [(ngModel)]="categorieFormData.dureeMaxMois" name="catDuree" min="1" max="120" required
+                  class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm font-bold text-gray-800" />
               </div>
             </div>
-            
-            <button (click)="closeObjetModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Description & Domaine financé</label>
+              <textarea [(ngModel)]="categorieFormData.description" name="catDesc" rows="2"
+                placeholder="Précisez les types d'activités couvertes..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#147c76]"></textarea>
+            </div>
+
+            <div class="flex items-center space-x-2 pt-1">
+              <input type="checkbox" id="catActif" [(ngModel)]="categorieFormData.actif" name="catActif" class="w-4 h-4 text-[#147c76] rounded cursor-pointer" />
+              <label for="catActif" class="text-xs font-medium text-gray-700 cursor-pointer">Catégorie active (proposée lors de l'ajout d'objets)</label>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+            <button type="button" (click)="closeCategorieModal()" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer">Annuler</button>
+            <button type="submit" [disabled]="!categorieFormData.label || !categorieFormData.code"
+              class="bg-[#147c76] hover:bg-[#0e625e] text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all disabled:opacity-40 cursor-pointer">
+              {{ isEditingCategorie ? 'Mettre à jour' : 'Enregistrer la catégorie' }}
             </button>
           </div>
-
-          <form (ngSubmit)="submitObjetForm()" #objetForm="ngForm" class="space-y-4">
-            
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Intitulé de l'objet <span class="text-red-500">*</span>
-              </label>
-              <input type="text" [(ngModel)]="objetFormData.label" name="label" (input)="autoGenerateObjetCode()" required
-                placeholder="Ex: Élevage & Embouche Bovine"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Catégorie / Secteur <span class="text-red-500">*</span>
-                </label>
-                <select [(ngModel)]="objetFormData.categorie" name="categorie" required
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all bg-white font-medium">
-                  <option value="Commerce & Vente">Commerce & Vente</option>
-                  <option value="Agriculture">Agriculture & Intrants</option>
-                  <option value="Élevage">Élevage & Pastoralisme</option>
-                  <option value="Artisanat / Métiers">Artisanat / Transformation</option>
-                  <option value="Habitat & Cadre de Vie">Habitat & Énergie</option>
-                  <option value="Social & Famille">Social & Scolarité</option>
-                  <option value="Services & Transport">Services & Transport</option>
-                  <option value="Autre Secteur">Autre Secteur</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Code technique <span class="text-red-500">*</span>
-                </label>
-                <input type="text" [(ngModel)]="objetFormData.code" name="code" required
-                  placeholder="CODE_TECHNIQUE"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm uppercase font-mono font-semibold bg-gray-50/70 focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Taux d'intérêt min (% / an)
-                </label>
-                <input type="number" [(ngModel)]="objetFormData.tauxInteretMin" name="tauxInteretMin" step="0.1" min="1" max="30"
-                  placeholder="Ex: 9.5"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Durée maximale (mois)
-                </label>
-                <input type="number" [(ngModel)]="objetFormData.dureeMaxMois" name="dureeMaxMois" min="1" max="60"
-                  placeholder="Ex: 12"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Description & Directives d'instruction
-              </label>
-              <textarea [(ngModel)]="objetFormData.description" name="description" rows="3"
-                placeholder="Explications du besoin, typologies de biens finançables, consignes pour les agents..."
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76] focus:border-transparent transition-all resize-none"></textarea>
-            </div>
-
-            <div class="pt-5 border-t border-gray-100 flex items-center justify-end space-x-3">
-              <button type="button" (click)="closeObjetModal()"
-                class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
-                Annuler
-              </button>
-              <button type="submit" [disabled]="!objetForm.form.valid"
-                class="px-6 py-2.5 bg-[#147c76] hover:bg-[#0e625e] disabled:opacity-40 text-white text-sm font-bold rounded-xl shadow-md shadow-[#147c76]/20 hover:shadow-lg transition-all cursor-pointer">
-                <span *ngIf="isEditingObjet">Mettre à jour</span>
-                <span *ngIf="!isEditingObjet">Enregistrer l'objet</span>
-              </button>
-            </div>
-
-          </form>
-        </div>
+        </form>
       </div>
-
-      <!-- ========================================================================= -->
-      <!-- MODAL CRÉATION / MODIFICATION TYPE DE GARANTIE                            -->
-      <!-- ========================================================================= -->
-      <div *ngIf="isGarantieModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-7 md:p-8 shadow-2xl relative animate-fade-in border border-slate-100 max-h-[90vh] overflow-y-auto">
-          
-          <div class="flex items-center justify-between pb-5 border-b border-gray-100 mb-6">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-bold text-gray-900" *ngIf="isEditingGarantie">Modifier le type de garantie</h3>
-                <h3 class="text-lg font-bold text-gray-900" *ngIf="!isEditingGarantie">Nouveau type de garantie</h3>
-                <p class="text-xs text-gray-500">Paramétrage de la sûreté et des exigences de couverture</p>
-              </div>
-            </div>
-            
-            <button (click)="closeGarantieModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-          </div>
-
-          <form (ngSubmit)="submitGarantieForm()" #garantieForm="ngForm" class="space-y-4">
-            
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Intitulé de la garantie <span class="text-red-500">*</span>
-              </label>
-              <input type="text" [(ngModel)]="garantieFormData.label" name="label" (input)="autoGenerateGarantieCode()" required
-                placeholder="Ex: Gage sur Stock de Marchandises"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all" />
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Nature juridique <span class="text-red-500">*</span>
-                </label>
-                <select [(ngModel)]="garantieFormData.typeGarantie" name="typeGarantie" required
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all bg-white font-medium">
-                  <option value="PERSONNELLE">Garantie Personnelle (Caution/Aval)</option>
-                  <option value="REELLE_MOBILIERE">Réelle Mobilière (Gage/Nantissement)</option>
-                  <option value="REELLE_IMMOBILIERE">Réelle Immobilière (Hypothèque/PUH)</option>
-                  <option value="FINANCIERE">Financière (DAT/Épargne Nantie)</option>
-                </select>
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Code technique <span class="text-red-500">*</span>
-                </label>
-                <input type="text" [(ngModel)]="garantieFormData.code" name="code" required
-                  placeholder="CODE_GARANTIE"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm uppercase font-mono font-semibold bg-gray-50/70 focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Couverture recommandée (%)
-                </label>
-                <input type="number" [(ngModel)]="garantieFormData.tauxCouvertureRecommande" name="tauxCouvertureRecommande" min="50" max="300"
-                  placeholder="Ex: 120"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all" />
-              </div>
-
-              <div class="flex items-center pt-6">
-                <label class="inline-flex items-center cursor-pointer">
-                  <input type="checkbox" [(ngModel)]="garantieFormData.exigeDocument" name="exigeDocument" class="w-4 h-4 text-teal-600 rounded border-gray-300 focus:ring-teal-500 cursor-pointer" />
-                  <span class="ml-2.5 text-xs font-bold text-gray-700">Document légal / Pièce requise</span>
-                </label>
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Description & Modalités pratiques
-              </label>
-              <textarea [(ngModel)]="garantieFormData.description" name="description" rows="3"
-                placeholder="Ex: Inventaire physique, acte sous seing privé, vérification au cadastre..."
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-teal-600 focus:border-transparent transition-all resize-none"></textarea>
-            </div>
-
-            <div class="pt-5 border-t border-gray-100 flex items-center justify-end space-x-3">
-              <button type="button" (click)="closeGarantieModal()"
-                class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
-                Annuler
-              </button>
-              <button type="submit" [disabled]="!garantieForm.form.valid"
-                class="px-6 py-2.5 bg-teal-700 hover:bg-teal-800 disabled:opacity-40 text-white text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer">
-                <span *ngIf="isEditingGarantie">Mettre à jour</span>
-                <span *ngIf="!isEditingGarantie">Enregistrer la garantie</span>
-              </button>
-            </div>
-
-          </form>
-        </div>
-      </div>
-
-      <!-- ========================================================================= -->
-      <!-- MODAL CRÉATION / MODIFICATION AGENCE                                      -->
-      <!-- ========================================================================= -->
-      <div *ngIf="isAgenceModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-7 md:p-8 shadow-2xl relative animate-fade-in border border-slate-100 max-h-[90vh] overflow-y-auto">
-          
-          <div class="flex items-center justify-between pb-5 border-b border-gray-100 mb-6">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-emerald-50 text-emerald-600 flex items-center justify-center font-bold">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-bold text-gray-900" *ngIf="isEditingAgence">Modifier l'agence</h3>
-                <h3 class="text-lg font-bold text-gray-900" *ngIf="!isEditingAgence">Nouvelle agence CIF</h3>
-                <p class="text-xs text-gray-500">Création ou mise à jour d'un point de service bancaire</p>
-              </div>
-            </div>
-            
-            <button (click)="closeAgenceModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-          </div>
-
-          <form (ngSubmit)="submitAgenceForm()" #agenceForm="ngForm" class="space-y-4">
-            
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Nom de l'agence <span class="text-red-500">*</span>
-              </label>
-              <input type="text" [(ngModel)]="agenceFormData.nom" name="nom" (input)="autoGenerateAgenceCode()" required
-                placeholder="Ex: Agence Ouaga 2000"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Code agence <span class="text-red-500">*</span>
-              </label>
-              <input type="text" [(ngModel)]="agenceFormData.code" name="code" required
-                placeholder="AGC_OUAGA_2000"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm uppercase font-mono font-semibold bg-gray-50/70 focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all" />
-              <p class="text-[11px] text-gray-400 mt-1">Identifiant unique de l'agence CIF.</p>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Pays <span class="text-red-500">*</span>
-                </label>
-                <input type="text" [(ngModel)]="agenceFormData.pays" name="pays" required
-                  placeholder="Burkina Faso"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Ville <span class="text-red-500">*</span>
-                </label>
-                <input type="text" [(ngModel)]="agenceFormData.ville" name="ville" required
-                  placeholder="Ouagadougou"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all" />
-              </div>
-            </div>
-
-            <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Région <span class="text-red-500">*</span>
-                </label>
-                <input type="text" [(ngModel)]="agenceFormData.region" name="region" required
-                  placeholder="Centre"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all" />
-              </div>
-
-              <div>
-                <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                  Téléphone agence
-                </label>
-                <input type="text" [(ngModel)]="agenceFormData.telephone" name="telephone"
-                  placeholder="+226 25 30 00 00"
-                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all" />
-              </div>
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Adresse physique
-              </label>
-              <input type="text" [(ngModel)]="agenceFormData.adresse" name="adresse"
-                placeholder="Avenue Pascal Zagré, Secteur 15"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-emerald-600 focus:border-transparent transition-all" />
-            </div>
-
-            <div class="pt-5 border-t border-gray-100 flex items-center justify-end space-x-3">
-              <button type="button" (click)="closeAgenceModal()"
-                class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
-                Annuler
-              </button>
-              <button type="submit" [disabled]="!agenceForm.form.valid"
-                class="px-6 py-2.5 bg-emerald-600 hover:bg-emerald-700 disabled:opacity-40 text-white text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer">
-                <span *ngIf="isEditingAgence">Mettre à jour</span>
-                <span *ngIf="!isEditingAgence">Enregistrer l'agence</span>
-              </button>
-            </div>
-
-          </form>
-        </div>
-      </div>
-
-      <!-- ========================================================================= -->
-      <!-- MODAL CRÉATION / MODIFICATION RÔLE                                        -->
-      <!-- ========================================================================= -->
-      <div *ngIf="isRoleModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-lg w-full p-7 md:p-8 shadow-2xl relative animate-fade-in border border-slate-100">
-          
-          <div class="flex items-center justify-between pb-5 border-b border-gray-100 mb-6">
-            <div class="flex items-center space-x-3">
-              <div class="w-10 h-10 rounded-xl bg-indigo-50 text-indigo-600 flex items-center justify-center font-bold">
-                <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
-              </div>
-              <div>
-                <h3 class="text-lg font-bold text-gray-900" *ngIf="isEditingRole">Modifier le rôle</h3>
-                <h3 class="text-lg font-bold text-gray-900" *ngIf="!isEditingRole">Nouveau rôle système</h3>
-                <p class="text-xs text-gray-500">Profil d'attribution des agents</p>
-              </div>
-            </div>
-            
-            <button (click)="closeRoleModal()" class="text-gray-400 hover:text-gray-600 p-2 rounded-xl hover:bg-gray-100 transition-colors cursor-pointer">
-              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
-            </button>
-          </div>
-
-          <form (ngSubmit)="submitRoleForm()" #roleForm="ngForm" class="space-y-4">
-            
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Libellé du rôle <span class="text-red-500">*</span>
-              </label>
-              <input type="text" [(ngModel)]="roleFormData.label" name="label" (input)="autoGenerateCode()" required
-                placeholder="Ex: Analyste Risques Senior"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Code technique <span class="text-red-500">*</span>
-              </label>
-              <input type="text" [(ngModel)]="roleFormData.code" name="code" required
-                placeholder="ANALYSTE_RISQUES_SENIOR"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm uppercase font-mono font-semibold bg-gray-50/70 focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all" />
-            </div>
-
-            <div>
-              <label class="block text-xs font-bold text-gray-800 uppercase tracking-wide mb-1.5">
-                Description / Missions
-              </label>
-              <textarea [(ngModel)]="roleFormData.description" name="description" rows="3"
-                placeholder="Précisez les attributions de ce rôle..."
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-indigo-600 focus:border-transparent transition-all resize-none"></textarea>
-            </div>
-
-            <div class="pt-5 border-t border-gray-100 flex items-center justify-end space-x-3">
-              <button type="button" (click)="closeRoleModal()"
-                class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">
-                Annuler
-              </button>
-              <button type="submit" [disabled]="!roleForm.form.valid"
-                class="px-6 py-2.5 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-40 text-white text-sm font-bold rounded-xl shadow-md transition-all cursor-pointer">
-                <span *ngIf="isEditingRole">Mettre à jour</span>
-                <span *ngIf="!isEditingRole">Enregistrer le rôle</span>
-              </button>
-            </div>
-
-          </form>
-        </div>
-      </div>
-
-      <!-- ========================================================================= -->
-      <!-- MODALS CONFIRMATION SUPPRESSION (Vers la Corbeille)                       -->
-      <!-- ========================================================================= -->
-      <div *ngIf="objetToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-7 shadow-2xl relative animate-fade-in border border-slate-100 text-center">
-          <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-gray-900 mb-1.5">Déplacer l'objet vers la Corbeille ?</h3>
-          <p class="text-sm text-gray-800 mb-2 font-semibold">{{ objetToDelete.label }}</p>
-          <p class="text-xs text-gray-500 mb-6 leading-relaxed">
-            Cet objet ne sera plus proposé dans le formulaire de crédit. Il reste restaurable pendant <strong>30 jours</strong> dans la Corbeille.
-          </p>
-          <div class="flex items-center justify-center space-x-3">
-            <button (click)="objetToDelete = null" class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Annuler</button>
-            <button (click)="executeDeleteObjet()" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-xl shadow-md transition-colors cursor-pointer">Déplacer dans la corbeille</button>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="garantieToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-7 shadow-2xl relative animate-fade-in border border-slate-100 text-center">
-          <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-gray-900 mb-1.5">Déplacer la garantie vers la Corbeille ?</h3>
-          <p class="text-sm text-gray-800 mb-2 font-semibold">{{ garantieToDelete.label }}</p>
-          <p class="text-xs text-gray-500 mb-6 leading-relaxed">
-            Ce type de garantie ne sera plus proposé dans les demandes de prêt. Il reste restaurable pendant <strong>30 jours</strong> dans la Corbeille.
-          </p>
-          <div class="flex items-center justify-center space-x-3">
-            <button (click)="garantieToDelete = null" class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Annuler</button>
-            <button (click)="executeDeleteGarantie()" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-xl shadow-md transition-colors cursor-pointer">Déplacer dans la corbeille</button>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="agenceToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-7 shadow-2xl relative animate-fade-in border border-slate-100 text-center">
-          <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-gray-900 mb-1.5">Déplacer l'agence vers la Corbeille ?</h3>
-          <p class="text-sm text-gray-800 mb-2 font-semibold">{{ agenceToDelete.nom }}</p>
-          <p class="text-xs text-gray-500 mb-6 leading-relaxed">
-            Cette agence sera retirée des choix d'affectation. Elle reste restaurable pendant <strong>30 jours</strong> dans la Corbeille.
-          </p>
-          <div class="flex items-center justify-center space-x-3">
-            <button (click)="agenceToDelete = null" class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Annuler</button>
-            <button (click)="executeDeleteAgence()" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-xl shadow-md transition-colors cursor-pointer">Déplacer dans la corbeille</button>
-          </div>
-        </div>
-      </div>
-
-      <div *ngIf="roleToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-md w-full p-7 shadow-2xl relative animate-fade-in border border-slate-100 text-center">
-          <div class="w-14 h-14 rounded-2xl bg-amber-50 text-amber-600 flex items-center justify-center mx-auto mb-4">
-            <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z"/></svg>
-          </div>
-          <h3 class="text-lg font-bold text-gray-900 mb-1.5">Déplacer le rôle vers la Corbeille ?</h3>
-          <p class="text-sm text-gray-800 mb-2 font-semibold">{{ roleToDelete.label }}</p>
-          <p class="text-xs text-gray-500 mb-6 leading-relaxed">
-            Ce rôle ne sera plus proposé pour les nouveaux agents. Il reste restaurable pendant <strong>30 jours</strong> dans la Corbeille.
-          </p>
-          <div class="flex items-center justify-center space-x-3">
-            <button (click)="roleToDelete = null" class="px-5 py-2.5 border border-gray-300 rounded-xl text-sm font-semibold text-gray-700 hover:bg-gray-50 transition-colors cursor-pointer">Annuler</button>
-            <button (click)="executeDeleteRole()" class="px-5 py-2.5 bg-amber-600 hover:bg-amber-700 text-white text-sm font-bold rounded-xl shadow-md transition-colors cursor-pointer">Déplacer dans la corbeille</button>
-          </div>
-        </div>
-      </div>
-
     </div>
-  `
+
+    <!-- ========================================================================= -->
+    <!-- MODAL : CRÉER / MODIFIER UN OBJET DE CRÉDIT                               -->
+    <!-- ========================================================================= -->
+    <div *ngIf="isObjetModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0 bg-white">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-emerald-50 text-emerald-700 flex items-center justify-center font-bold flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8c-1.657 0-3 .895-3 2s1.343 2 3 2 3 .895 3 2-1.343 2-3 2m0-8c1.11 0 2.08.402 2.599 1M12 8V7m0 1v8m0 0v1m0-1c-1.11 0-2.08-.402-2.599-1M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">{{ isEditingObjet ? 'Modifier l\'Objet de Crédit' : 'Nouvel Objet de Crédit' }}</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Définissez le motif, la catégorie rattachée et les barèmes</p>
+            </div>
+          </div>
+          <button (click)="closeObjetModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold p-1.5 rounded-lg hover:bg-gray-100 transition-colors" title="Fermer">✕</button>
+        </div>
+
+        <form (ngSubmit)="submitObjetForm()" class="flex flex-col flex-1 overflow-hidden">
+          <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Libellé de l'Objet *</label>
+              <input type="text" [(ngModel)]="objetFormData.label" name="objLabel" (input)="autoGenerateObjetCode()" required
+                placeholder="Ex: Achat d'Engrais & Semences"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-emerald-500" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Code Technique (Unique) *</label>
+              <input type="text" [(ngModel)]="objetFormData.code" name="objCode" required
+                placeholder="Ex: AGRI_INTRANTS_CAMPAGNE"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:border-emerald-500 bg-gray-50/50" />
+            </div>
+
+            <div>
+              <div class="flex items-center justify-between mb-1">
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Catégorie de Rattachement *</label>
+                <button type="button" (click)="closeObjetModal(); goToSection('CATEGORIES')" class="text-[11px] text-[#147c76] hover:underline font-semibold cursor-pointer">
+                  + Gérer les catégories
+                </button>
+              </div>
+              <select [(ngModel)]="objetFormData.categorie" name="objCat" required
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-emerald-500 bg-white">
+                <option value="" disabled>-- Sélectionnez une catégorie --</option>
+                <option *ngFor="let cat of categories" [value]="cat.label">
+                  {{ cat.label }} (Coeff: {{ cat.coefficientRisque }}x)
+                </option>
+              </select>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Taux Intérêt Min (%)</label>
+                <input type="number" [(ngModel)]="objetFormData.tauxInteretMin" name="objTaux" step="0.5" min="1" max="30"
+                  placeholder="Ex: 9.5"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-bold text-emerald-700 focus:outline-none focus:border-emerald-500" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Durée Max (Mois)</label>
+                <input type="number" [(ngModel)]="objetFormData.dureeMaxMois" name="objDuree" min="1" max="120"
+                  placeholder="Ex: 12"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-bold text-gray-800 focus:outline-none focus:border-emerald-500" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Description & Usage</label>
+              <textarea [(ngModel)]="objetFormData.description" name="objDesc" rows="2"
+                placeholder="Décrivez l'utilisation du crédit..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-emerald-500"></textarea>
+            </div>
+
+            <div class="flex items-center space-x-2 pt-1">
+              <input type="checkbox" id="objActif" [(ngModel)]="objetFormData.actif" name="objActif" class="w-4 h-4 text-emerald-600 rounded cursor-pointer" />
+              <label for="objActif" class="text-xs font-medium text-gray-700 cursor-pointer">Objet de crédit actif (visible dans le formulaire d'octroi)</label>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+            <button type="button" (click)="closeObjetModal()" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer">Annuler</button>
+            <button type="submit" [disabled]="!objetFormData.label || !objetFormData.code || !objetFormData.categorie"
+              class="bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all disabled:opacity-40 cursor-pointer">
+              {{ isEditingObjet ? 'Mettre à jour' : 'Enregistrer l\'objet' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL : CRÉER / MODIFIER UNE GARANTIE                                     -->
+    <!-- ========================================================================= -->
+    <div *ngIf="isGarantieModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0 bg-white">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-teal-50 text-teal-700 flex items-center justify-center font-bold flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">{{ isEditingGarantie ? 'Modifier le Type de Garantie' : 'Nouveau Type de Garantie' }}</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Nature juridique, taux de couverture et justificatifs</p>
+            </div>
+          </div>
+          <button (click)="closeGarantieModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold p-1.5 rounded-lg hover:bg-gray-100 transition-colors" title="Fermer">✕</button>
+        </div>
+
+        <form (ngSubmit)="submitGarantieForm()" class="flex flex-col flex-1 overflow-hidden">
+          <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Libellé de la Garantie *</label>
+              <input type="text" [(ngModel)]="garantieFormData.label" name="garLabel" (input)="autoGenerateGarantieCode()" required
+                placeholder="Ex: Hypothèque Foncière Notariée"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-teal-500" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Code Technique (Unique) *</label>
+              <input type="text" [(ngModel)]="garantieFormData.code" name="garCode" required
+                placeholder="Ex: HYPOTHEQUE_FONCIERE"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:border-teal-500 bg-gray-50/50" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Nature Juridique *</label>
+                <select [(ngModel)]="garantieFormData.typeGarantie" name="garType" required
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-teal-500 bg-white">
+                  <option value="PERSONNELLE">Personnelle (Caution/Aval)</option>
+                  <option value="REELLE_MOBILIERE">Réelle Mobilière (Gage/Matériel)</option>
+                  <option value="REELLE_IMMOBILIERE">Réelle Immobilière (Titre/PUH)</option>
+                  <option value="FINANCIERE">Financière (Épargne/DAT)</option>
+                </select>
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Taux Couverture Recommandé (%)</label>
+                <input type="number" [(ngModel)]="garantieFormData.tauxCouvertureRecommande" name="garTaux" min="10" max="300"
+                  placeholder="Ex: 120"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-bold text-teal-700 focus:outline-none focus:border-teal-500" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Description & Formalités</label>
+              <textarea [(ngModel)]="garantieFormData.description" name="garDesc" rows="2"
+                placeholder="Conditions juridiques ou pièces nécessaires..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-teal-500"></textarea>
+            </div>
+
+            <div class="space-y-2 pt-1">
+              <div class="flex items-center space-x-2">
+                <input type="checkbox" id="garDoc" [(ngModel)]="garantieFormData.exigeDocument" name="garDoc" class="w-4 h-4 text-teal-600 rounded cursor-pointer" />
+                <label for="garDoc" class="text-xs font-medium text-gray-700 cursor-pointer">Exige un document ou justificatif officiel (acte signé, titre...)</label>
+              </div>
+              <div class="flex items-center space-x-2">
+                <input type="checkbox" id="garActif" [(ngModel)]="garantieFormData.actif" name="garActif" class="w-4 h-4 text-teal-600 rounded cursor-pointer" />
+                <label for="garActif" class="text-xs font-medium text-gray-700 cursor-pointer">Garantie active (disponible lors des demandes de prêt)</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+            <button type="button" (click)="closeGarantieModal()" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer">Annuler</button>
+            <button type="submit" [disabled]="!garantieFormData.label || !garantieFormData.code"
+              class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all disabled:opacity-40 cursor-pointer">
+              {{ isEditingGarantie ? 'Mettre à jour' : 'Enregistrer la garantie' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL : CRÉER / MODIFIER UNE AGENCE CIF                                   -->
+    <!-- ========================================================================= -->
+    <div *ngIf="isAgenceModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0 bg-white">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-cyan-50 text-cyan-700 flex items-center justify-center font-bold flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">{{ isEditingAgence ? 'Modifier l\'Agence CIF' : 'Nouvelle Agence CIF' }}</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Ajoutez une caisse populaire ou délégation au réseau</p>
+            </div>
+          </div>
+          <button (click)="closeAgenceModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold p-1.5 rounded-lg hover:bg-gray-100 transition-colors" title="Fermer">✕</button>
+        </div>
+
+        <form (ngSubmit)="submitAgenceForm()" class="flex flex-col flex-1 overflow-hidden">
+          <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Nom de l'Agence / Caisse *</label>
+              <input type="text" [(ngModel)]="agenceFormData.nom" name="agenceNom" (input)="autoGenerateAgenceCode()" required
+                placeholder="Ex: Caisse Populaire Koudougou Centre"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-cyan-600" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Code Agence *</label>
+              <input type="text" [(ngModel)]="agenceFormData.code" name="agenceCode" required
+                placeholder="Ex: AGC_KOUDOUGOU"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:border-cyan-600 bg-gray-50/50" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Ville *</label>
+                <input type="text" [(ngModel)]="agenceFormData.ville" name="agenceVille" required
+                  placeholder="Ex: Koudougou"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-cyan-600" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Région *</label>
+                <input type="text" [(ngModel)]="agenceFormData.region" name="agenceRegion" required
+                  placeholder="Ex: Centre-Ouest"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-cyan-600" />
+              </div>
+            </div>
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Pays *</label>
+                <input type="text" [(ngModel)]="agenceFormData.pays" name="agencePays" required
+                  placeholder="Ex: Burkina Faso"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-cyan-600" />
+              </div>
+              <div>
+                <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Téléphone</label>
+                <input type="text" [(ngModel)]="agenceFormData.telephone" name="agenceTel"
+                  placeholder="Ex: +226 25 44 00 00"
+                  class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-cyan-600" />
+              </div>
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Adresse Géographique</label>
+              <input type="text" [(ngModel)]="agenceFormData.adresse" name="agenceAdr"
+                placeholder="Ex: Place Maurice Yaméogo, Secteur 3"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-cyan-600" />
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+            <button type="button" (click)="closeAgenceModal()" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer">Annuler</button>
+            <button type="submit" [disabled]="!agenceFormData.nom || !agenceFormData.code || !agenceFormData.ville || !agenceFormData.region"
+              class="bg-cyan-700 hover:bg-cyan-800 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all disabled:opacity-40 cursor-pointer">
+              {{ isEditingAgence ? 'Mettre à jour' : 'Créer l\'agence' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- MODAL : CRÉER / MODIFIER UN RÔLE                                          -->
+    <!-- ========================================================================= -->
+    <div *ngIf="isRoleModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0 bg-white">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-indigo-50 text-indigo-700 flex items-center justify-center font-bold flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">{{ isEditingRole ? 'Modifier le Rôle' : 'Nouveau Rôle Agent' }}</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Intitulé et code d'habilitation</p>
+            </div>
+          </div>
+          <button (click)="closeRoleModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold p-1.5 rounded-lg hover:bg-gray-100 transition-colors" title="Fermer">✕</button>
+        </div>
+
+        <form (ngSubmit)="submitRoleForm()" class="flex flex-col flex-1 overflow-hidden">
+          <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Nom du Rôle *</label>
+              <input type="text" [(ngModel)]="roleFormData.label" name="roleLabel" (input)="autoGenerateCode()" required
+                placeholder="Ex: Chargé de Recouvrement"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-indigo-600" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Code Technique (Unique) *</label>
+              <input type="text" [(ngModel)]="roleFormData.code" name="roleCode" required
+                placeholder="Ex: CHARGE_RECOUVREMENT"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:border-indigo-600 bg-gray-50/50" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Description des prérogatives</label>
+              <textarea [(ngModel)]="roleFormData.description" name="roleDesc" rows="3"
+                placeholder="Description des responsabilités..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-indigo-600"></textarea>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+            <button type="button" (click)="closeRoleModal()" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer">Annuler</button>
+            <button type="submit" [disabled]="!roleFormData.label || !roleFormData.code"
+              class="bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all disabled:opacity-40 cursor-pointer">
+              {{ isEditingRole ? 'Mettre à jour' : 'Créer le rôle' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMATION SUPPRESSION CATEGORIE -->
+    <div *ngIf="categorieToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-gray-100 my-auto">
+        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-gray-900">Mettre à la corbeille ?</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Voulez-vous déplacer la catégorie <strong>"{{ categorieToDelete.label }}"</strong> vers la corbeille ? Elle restera restaurable pendant 30 jours.
+          </p>
+        </div>
+        <div class="flex items-center justify-center space-x-3 pt-2">
+          <button (click)="categorieToDelete = null" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer">Annuler</button>
+          <button (click)="executeDeleteCategorie()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer">
+            Déplacer vers la corbeille
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMATION SUPPRESSION OBJET -->
+    <div *ngIf="objetToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-gray-100 my-auto">
+        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-gray-900">Mettre à la corbeille ?</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Voulez-vous déplacer l'objet <strong>"{{ objetToDelete.label }}"</strong> vers la corbeille ? Il restera restaurable pendant 30 jours.
+          </p>
+        </div>
+        <div class="flex items-center justify-center space-x-3 pt-2">
+          <button (click)="objetToDelete = null" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer">Annuler</button>
+          <button (click)="executeDeleteObjet()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer">
+            Déplacer vers la corbeille
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMATION SUPPRESSION GARANTIE -->
+    <div *ngIf="garantieToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-gray-100 my-auto">
+        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-gray-900">Mettre à la corbeille ?</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Voulez-vous déplacer la garantie <strong>"{{ garantieToDelete.label }}"</strong> vers la corbeille ? Elle restera restaurable pendant 30 jours.
+          </p>
+        </div>
+        <div class="flex items-center justify-center space-x-3 pt-2">
+          <button (click)="garantieToDelete = null" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer">Annuler</button>
+          <button (click)="executeDeleteGarantie()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer">
+            Déplacer vers la corbeille
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMATION SUPPRESSION ROLE -->
+    <div *ngIf="roleToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-gray-100 my-auto">
+        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-gray-900">Mettre à la corbeille ?</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Voulez-vous déplacer le rôle <strong>"{{ roleToDelete.label }}"</strong> vers la corbeille ? Il restera restaurable pendant 30 jours.
+          </p>
+        </div>
+        <div class="flex items-center justify-center space-x-3 pt-2">
+          <button (click)="roleToDelete = null" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer">Annuler</button>
+          <button (click)="executeDeleteRole()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer">
+            Déplacer vers la corbeille
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMATION SUPPRESSION AGENCE -->
+    <div *ngIf="agenceToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-gray-100 my-auto">
+        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-gray-900">Mettre à la corbeille ?</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Voulez-vous déplacer l'agence <strong>"{{ agenceToDelete.nom }}"</strong> vers la corbeille ? Elle restera restaurable pendant 30 jours.
+          </p>
+        </div>
+        <div class="flex items-center justify-center space-x-3 pt-2">
+          <button (click)="agenceToDelete = null" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer">Annuler</button>
+          <button (click)="executeDeleteAgence()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer">
+            Déplacer vers la corbeille
+          </button>
+        </div>
+      </div>
+    </div>
+  `,
+  styles: [`
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(4px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    .animate-fade-in {
+      animation: fadeIn 0.25s ease-out forwards;
+    }
+  `]
 })
 export class ParametresComponent implements OnInit {
   private authService = inject(AuthService);
   private settingsService = inject(SettingsService);
   private route = inject(ActivatedRoute);
+  private router = inject(Router);
 
   currentSection: ParamSection = 'HUB';
-  roles: AgentRole[] = [];
-  agences: AgenceCIF[] = [];
+  notificationMessage = '';
+
+  // Données dynamiques
+  categories: CategorieItem[] = [];
   objetsCredit: ObjetCreditItem[] = [];
   typesGaranties: GarantieItem[] = [];
+  roles: AgentRole[] = [];
+  agences: AgenceCIF[] = [];
   trashItems: CorbeilleItem[] = [];
-  notificationMessage = '';
-  
-  // Gestion Objets de Crédit
+
+  // Modals & Forms : Catégories
+  isCategorieModalOpen = false;
+  isEditingCategorie = false;
+  editingCategorieId: string | null = null;
+  categorieToDelete: CategorieItem | null = null;
+  categorieFormData: {
+    label: string;
+    code: string;
+    description: string;
+    coefficientRisque: number;
+    tauxMin: number;
+    dureeMaxMois: number;
+    actif: boolean;
+  } = {
+    label: '',
+    code: '',
+    description: '',
+    coefficientRisque: 1.0,
+    tauxMin: 9.5,
+    dureeMaxMois: 12,
+    actif: true
+  };
+
+  // Modals & Forms : Objets de Crédit
   isObjetModalOpen = false;
   isEditingObjet = false;
   editingObjetId: any = null;
   objetToDelete: ObjetCreditItem | null = null;
-  objetFormData = {
+  objetFormData: {
+    label: string;
+    code: string;
+    categorie: string;
+    description: string;
+    tauxInteretMin?: number;
+    dureeMaxMois?: number;
+    actif: boolean;
+  } = {
     label: '',
     code: '',
-    categorie: 'Commerce & Vente',
+    categorie: '',
     description: '',
-    tauxInteretMin: 9.5 as number | undefined,
-    dureeMaxMois: 12 as number | undefined,
+    tauxInteretMin: 9.5,
+    dureeMaxMois: 12,
     actif: true
   };
 
-  // Gestion Garanties
+  // Modals & Forms : Types de Garanties
   isGarantieModalOpen = false;
   isEditingGarantie = false;
   editingGarantieId: any = null;
   garantieToDelete: GarantieItem | null = null;
-  garantieFormData = {
+  garantieFormData: {
+    label: string;
+    code: string;
+    typeGarantie: 'PERSONNELLE' | 'REELLE_MOBILIERE' | 'REELLE_IMMOBILIERE' | 'FINANCIERE';
+    tauxCouvertureRecommande?: number;
+    description: string;
+    exigeDocument: boolean;
+    actif: boolean;
+  } = {
     label: '',
     code: '',
-    typeGarantie: 'PERSONNELLE' as 'PERSONNELLE' | 'REELLE_MOBILIERE' | 'REELLE_IMMOBILIERE' | 'FINANCIERE',
-    tauxCouvertureRecommande: 100 as number | undefined,
+    typeGarantie: 'PERSONNELLE',
+    tauxCouvertureRecommande: 100,
     description: '',
     exigeDocument: false,
     actif: true
   };
 
-  // Gestion Rôles
+  // Modals & Forms : Rôles
   isRoleModalOpen = false;
   isEditingRole = false;
   editingRoleId: string | null = null;
@@ -1291,7 +1408,7 @@ export class ParametresComponent implements OnInit {
     description: ''
   };
 
-  // Gestion Agences
+  // Modals & Forms : Agences
   isAgenceModalOpen = false;
   isEditingAgence = false;
   editingAgenceId: string | null = null;
@@ -1310,21 +1427,47 @@ export class ParametresComponent implements OnInit {
     this.authService.roles$.subscribe(list => this.roles = list || []);
     this.authService.agences$.subscribe(list => this.agences = list || []);
     this.authService.trash$.subscribe(items => this.trashItems = items || []);
+    this.settingsService.categories$.subscribe(list => this.categories = list || []);
     this.settingsService.objets$.subscribe(list => this.objetsCredit = list || []);
     this.settingsService.garanties$.subscribe(list => this.typesGaranties = list || []);
 
     this.route.queryParamMap.subscribe(params => {
       const tab = params.get('tab');
-      if (tab && ['HUB', 'ROLES', 'AGENCES', 'OBJETS_CREDIT', 'GARANTIES', 'CORBEILLE'].includes(tab)) {
-        this.goToSection(tab as ParamSection);
+      if (tab && ['HUB', 'CATEGORIES', 'OBJETS_CREDIT', 'GARANTIES', 'AGENCES', 'ROLES', 'CORBEILLE'].includes(tab)) {
+        this.currentSection = tab as ParamSection;
+        this.loadSectionData(tab as ParamSection);
+      } else {
+        this.currentSection = 'HUB';
       }
     });
   }
 
+  getSectionBreadcrumbLabel(): string {
+    switch (this.currentSection) {
+      case 'CATEGORIES': return 'Catégories de Prêt';
+      case 'OBJETS_CREDIT': return 'Objets de Crédit';
+      case 'GARANTIES': return 'Types de Garanties';
+      case 'AGENCES': return 'Agences CIF';
+      case 'ROLES': return 'Rôles Agents';
+      case 'CORBEILLE': return 'Corbeille';
+      default: return 'Paramètres';
+    }
+  }
+
   goToSection(section: ParamSection) {
     this.currentSection = section;
+    this.router.navigate([], {
+      relativeTo: this.route,
+      queryParams: section === 'HUB' ? {} : { tab: section }
+    });
+    this.loadSectionData(section);
+  }
+
+  private loadSectionData(section: ParamSection) {
     if (section === 'AGENCES') {
       this.agences = this.authService.getAgences() || [];
+    } else if (section === 'CATEGORIES') {
+      this.categories = this.settingsService.getCategories() || [];
     } else if (section === 'OBJETS_CREDIT') {
       this.settingsService.refreshObjets().subscribe();
     } else if (section === 'GARANTIES') {
@@ -1343,6 +1486,89 @@ export class ParametresComponent implements OnInit {
   }
 
   // =========================================================================
+  // ACTIONS CATÉGORIES DE PRÊT
+  // =========================================================================
+  autoGenerateCategorieCode() {
+    if (this.categorieFormData.label && !this.isEditingCategorie) {
+      this.categorieFormData.code = 'CAT_' + this.categorieFormData.label
+        .toUpperCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^A-Z0-9]/g, '_')
+        .substring(0, 24);
+    }
+  }
+
+  openCreateCategorieModal() {
+    this.isEditingCategorie = false;
+    this.editingCategorieId = null;
+    this.categorieFormData = {
+      label: '',
+      code: '',
+      description: '',
+      coefficientRisque: 1.0,
+      tauxMin: 9.5,
+      dureeMaxMois: 12,
+      actif: true
+    };
+    this.isCategorieModalOpen = true;
+  }
+
+  openEditCategorieModal(cat: CategorieItem) {
+    this.isEditingCategorie = true;
+    this.editingCategorieId = cat.id;
+    this.categorieFormData = {
+      label: cat.label,
+      code: cat.code,
+      description: cat.description || '',
+      coefficientRisque: cat.coefficientRisque || 1.0,
+      tauxMin: cat.tauxMin || 9.5,
+      dureeMaxMois: cat.dureeMaxMois || 12,
+      actif: cat.actif
+    };
+    this.isCategorieModalOpen = true;
+  }
+
+  closeCategorieModal() {
+    this.isCategorieModalOpen = false;
+    this.isEditingCategorie = false;
+    this.editingCategorieId = null;
+  }
+
+  submitCategorieForm() {
+    if (!this.categorieFormData.label || !this.categorieFormData.code) return;
+
+    if (this.isEditingCategorie && this.editingCategorieId) {
+      this.settingsService.updateCategorie(this.editingCategorieId, this.categorieFormData);
+      this.notificationMessage = `Catégorie "${this.categorieFormData.label}" mise à jour avec succès !`;
+    } else {
+      this.settingsService.addCategorie(this.categorieFormData);
+      this.notificationMessage = `Catégorie "${this.categorieFormData.label}" créée avec succès !`;
+    }
+
+    this.closeCategorieModal();
+    setTimeout(() => this.notificationMessage = '', 5000);
+  }
+
+  toggleCategorieActif(cat: CategorieItem) {
+    this.settingsService.updateCategorie(cat.id, { actif: !cat.actif });
+    this.notificationMessage = `Catégorie "${cat.label}" ${!cat.actif ? 'activée' : 'désactivée'}.`;
+    setTimeout(() => this.notificationMessage = '', 3000);
+  }
+
+  confirmDeleteCategorie(cat: CategorieItem) {
+    this.categorieToDelete = cat;
+  }
+
+  executeDeleteCategorie() {
+    if (!this.categorieToDelete) return;
+    const label = this.categorieToDelete.label;
+    this.settingsService.deleteCategorie(this.categorieToDelete.id);
+    this.categorieToDelete = null;
+    this.notificationMessage = `La catégorie "${label}" a été déplacée vers la Corbeille (restaurable sous 30 jours).`;
+    setTimeout(() => this.notificationMessage = '', 5000);
+  }
+
+  // =========================================================================
   // ACTIONS OBJETS DE CRÉDIT
   // =========================================================================
   autoGenerateObjetCode() {
@@ -1358,10 +1584,11 @@ export class ParametresComponent implements OnInit {
   openCreateObjetModal() {
     this.isEditingObjet = false;
     this.editingObjetId = null;
+    const defaultCat = this.categories.length > 0 ? this.categories[0].label : '';
     this.objetFormData = {
       label: '',
       code: '',
-      categorie: 'Commerce & Vente',
+      categorie: defaultCat,
       description: '',
       tauxInteretMin: 9.5,
       dureeMaxMois: 12,
@@ -1397,14 +1624,14 @@ export class ParametresComponent implements OnInit {
     if (this.isEditingObjet && this.editingObjetId) {
       this.settingsService.updateObjet(this.editingObjetId, this.objetFormData).subscribe({
         next: () => {
-          this.notificationMessage = `Objet "${this.objetFormData.label}" mis à jour en base de données avec succès !`;
+          this.notificationMessage = `Objet "${this.objetFormData.label}" mis à jour avec succès !`;
           setTimeout(() => this.notificationMessage = '', 5000);
         }
       });
     } else {
       this.settingsService.addObjet(this.objetFormData).subscribe({
         next: () => {
-          this.notificationMessage = `Objet "${this.objetFormData.label}" enregistré en base de données avec succès !`;
+          this.notificationMessage = `Objet "${this.objetFormData.label}" enregistré avec succès !`;
           setTimeout(() => this.notificationMessage = '', 5000);
         }
       });
@@ -1493,14 +1720,14 @@ export class ParametresComponent implements OnInit {
     if (this.isEditingGarantie && this.editingGarantieId) {
       this.settingsService.updateGarantie(this.editingGarantieId, this.garantieFormData).subscribe({
         next: () => {
-          this.notificationMessage = `Garantie "${this.garantieFormData.label}" mise à jour en base de données avec succès !`;
+          this.notificationMessage = `Garantie "${this.garantieFormData.label}" mise à jour avec succès !`;
           setTimeout(() => this.notificationMessage = '', 5000);
         }
       });
     } else {
       this.settingsService.addGarantie(this.garantieFormData).subscribe({
         next: () => {
-          this.notificationMessage = `Garantie "${this.garantieFormData.label}" enregistrée en base de données avec succès !`;
+          this.notificationMessage = `Garantie "${this.garantieFormData.label}" enregistrée avec succès !`;
           setTimeout(() => this.notificationMessage = '', 5000);
         }
       });
@@ -1685,10 +1912,12 @@ export class ParametresComponent implements OnInit {
   // =========================================================================
   restoreItem(item: CorbeilleItem) {
     this.authService.restoreItem(item.id);
-    if (item.type === 'OBJET_CREDIT') {
-      this.settingsService.restoreObjet(item.data);
+    if (item.type === 'CATEGORIE') {
+      this.settingsService.refreshCategories();
+    } else if (item.type === 'OBJET_CREDIT') {
+      this.settingsService.addObjet(item.data).subscribe();
     } else if (item.type === 'GARANTIE') {
-      this.settingsService.restoreGarantie(item.data);
+      this.settingsService.addGarantie(item.data).subscribe();
     }
     this.notificationMessage = `"${item.title}" a été restauré avec succès dans le système !`;
     setTimeout(() => this.notificationMessage = '', 5000);

@@ -55,128 +55,217 @@ public class DatabaseSeeder implements CommandLineRunner {
     }
 
     private void seedObjetsCredit() {
-        if (objetCreditRepository.count() == 0) {
-            log.info("Initialisation des Objets de Crédit dans PostgreSQL...");
-            objetCreditRepository.saveAll(List.of(
-                new ObjetCredit("COMMERCE_FOND_ROULEMENT", "Commerce & Fonds de Roulement", "Commerce & Vente", "Achat de marchandises et fonds de roulement pour boutiques/étals.", 9.5, 12, true),
-                new ObjetCredit("AGRI_INTRANTS_CAMPAGNE", "Campagne Agricole & Intrants", "Agriculture", "Achat d'engrais, semences certifiées, matériel de labour et main d'œuvre.", 8.0, 9, true),
-                new ObjetCredit("ELEVAGE_EMBOUCHE", "Élevage & Embouche Ovine/Bovine", "Élevage", "Acquisition de têtes de bétail, aliments concentrés et soins vétérinaires.", 9.0, 12, true),
-                new ObjetCredit("ARTISANAT_EQUIPEMENT", "Artisanat & Équipement Professionnel", "Artisanat / Métiers", "Achat de machines à coudre, outils de menuiserie ou soudure mécanique.", 10.0, 24, true),
-                new ObjetCredit("HABITAT_AMELIORATION", "Amélioration de l'Habitat & Énergie", "Habitat & Cadre de Vie", "Travaux de rénovation, toiture en tôle, électrification solaire ou eau.", 11.0, 36, true),
-                new ObjetCredit("SANTE_SCOLARITE_URGENCE", "Crédit Scolarité & Santé / Social", "Social & Famille", "Frais de scolarité universitaire/lycée ou prise en charge médicale urgente.", 8.5, 10, true)
-            ));
-        }
+        // Objets de crédit configurables à 100% par les utilisateurs depuis le centre de paramétrage
     }
 
     private void seedGaranties() {
-        if (typeGarantieRepository.count() == 0) {
-            log.info("Initialisation des Types de Garanties dans PostgreSQL...");
-            typeGarantieRepository.saveAll(List.of(
-                new TypeGarantie("CAUTION_SOLIDAIRE_GROUPE", "Caution Solidaire de Groupe", "PERSONNELLE", 100, "Engagement solidaire des membres du groupement solidaire / tontine d'épargne.", false, true),
-                new TypeGarantie("CAUTION_INDIVIDUELLE_AVAL", "Caution Individuelle / Avaliste", "PERSONNELLE", 100, "Engagement signé d'un tiers solvable (sociétaire CIF, fonctionnaire ou commerçant).", true, true),
-                new TypeGarantie("GAGE_STOCK_MARCHANDISES", "Gage sur Stock de Marchandises", "REELLE_MOBILIERE", 120, "Inventaire contradictoire et nantissement du stock du magasin avec visite agence.", true, true),
-                new TypeGarantie("NANTISSEMENT_MATERIEL_VEHICULE", "Nantissement Matériel / Moto / Équipement", "REELLE_MOBILIERE", 120, "Dépôt de la carte grise ou facture originale d'achat de l'équipement/moto.", true, true),
-                new TypeGarantie("NANTISSEMENT_DAT_EPARGNE", "Nantissement DAT / Épargne Bloquée", "FINANCIERE", 100, "Blocage du compte d'épargne nantie à hauteur de la quotité requise.", false, true),
-                new TypeGarantie("HYPOTHEQUE_TITRE_FONCIER_PUH", "Hypothèque Foncière / PUH / Attestation", "REELLE_IMMOBILIERE", 150, "Attestation d'attribution de parcelle, permis urbain d'habiter ou titre foncier notarié.", true, true)
-            ));
-        }
+        // Types de garanties configurables à 100% par les utilisateurs depuis le centre de paramétrage
     }
 
     private void seedClientsIfEmpty() {
-        if (clientRepository.count() == 0) {
-            log.info("Initialisation des sociétaires de démonstration dans la base PostgreSQL...");
+        if (clientRepository.count() < 50) {
+            log.info("Chargement automatique des sociétaires depuis societaires.csv...");
+            java.util.List<Client> clientsToSave = new java.util.ArrayList<>();
             
-            Client c1 = new Client();
-            c1.setNumeroCnib("B43345047");
-            c1.setDateExpirationCnib("2033-04-09");
-            c1.setNumeroCompte("CPT-0001");
-            c1.setTypeCompte("Compte Épargne Sociétaire");
-            c1.setStatutCompte("Actif");
-            c1.setPartsSocialesFcfa(50000.0);
-            c1.setAgence("Caisse Populaire Ouaga Centre");
-            c1.setAncienneteCooperativeMois(66);
-            c1.setSoldeEpargneActuelFcfa(459000.0);
-            c1.setNom("Ouédraogo");
-            c1.setPrenom("Kadiatou");
-            c1.setAge(36);
-            c1.setDateNaissance("1990-03-12");
-            c1.setTelephone("+226 07 83 80 72");
-            c1.setEmail("kadiatou.ouedraogo@cif.bf");
-            c1.setPays("Burkina Faso");
-            c1.setRegion("Centre");
-            c1.setVille("Ouagadougou");
-            c1.setAdresse("Saaba, Secteur 19, Rue 18");
-            c1.setTypeLogement("Locataire");
-            c1.setSecteurActivite("Commerce");
-            c1.setActivite("Commerce d'aliments et condiments");
-            c1.setAncienneteActiviteAnnees(7.0);
-            c1.setSexe("Femme");
-            c1.setZone("Urbaine");
-            c1.setSituationMatrimoniale("Divorcé(e)");
-            c1.setNiveauEducation("Primaire");
-            c1.setNombrePersonnesACharge(5);
+            // Recherche du fichier CSV dans plusieurs emplacements possibles
+            java.io.File csvFile = new java.io.File("data/societaires.csv");
+            if (!csvFile.exists()) csvFile = new java.io.File("../data/societaires.csv");
+            if (!csvFile.exists()) csvFile = new java.io.File("backend/src/main/resources/data/societaires.csv");
+            
+            java.io.InputStream is = null;
+            try {
+                if (csvFile.exists()) {
+                    is = new java.io.FileInputStream(csvFile);
+                } else {
+                    org.springframework.core.io.ClassPathResource resource = new org.springframework.core.io.ClassPathResource("data/societaires.csv");
+                    if (resource.exists()) {
+                        is = resource.getInputStream();
+                    }
+                }
+                
+                if (is != null) {
+                    try (java.io.BufferedReader reader = new java.io.BufferedReader(new java.io.InputStreamReader(is, java.nio.charset.StandardCharsets.UTF_8))) {
+                        String line = reader.readLine(); // En-tête
+                        if (line != null) {
+                            String[] headers = parseCsvLine(line);
+                            while ((line = reader.readLine()) != null) {
+                                if (line.trim().isEmpty()) continue;
+                                String[] values = parseCsvLine(line);
+                                Client c = mapCsvToClient(headers, values);
+                                if (c != null && c.getNumeroCnib() != null) {
+                                    clientsToSave.add(c);
+                                }
+                            }
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                log.warn("Impossible de lire societaires.csv automatiquement : {}", e.getMessage());
+            }
 
-            Client c2 = new Client();
-            c2.setNumeroCnib("B51923646");
-            c2.setDateExpirationCnib("2031-11-20");
-            c2.setNumeroCompte("CPT-0002");
-            c2.setTypeCompte("Compte Épargne & Crédit");
-            c2.setStatutCompte("Actif");
-            c2.setPartsSocialesFcfa(75000.0);
-            c2.setAgence("Délégation Régionale Bobo");
-            c2.setAncienneteCooperativeMois(48);
-            c2.setSoldeEpargneActuelFcfa(820000.0);
-            c2.setNom("Traoré");
-            c2.setPrenom("Mamadou");
-            c2.setAge(42);
-            c2.setDateNaissance("1984-07-24");
-            c2.setTelephone("+226 70 12 34 56");
-            c2.setEmail("mamadou.traore@cif.bf");
-            c2.setPays("Burkina Faso");
-            c2.setRegion("Hauts-Bassins");
-            c2.setVille("Bobo-Dioulasso");
-            c2.setAdresse("Accart-Ville, Rue 12");
-            c2.setTypeLogement("Propriétaire");
-            c2.setSecteurActivite("Agriculture");
-            c2.setActivite("Culture maraîchère et maïs");
-            c2.setAncienneteActiviteAnnees(12.0);
-            c2.setSexe("Homme");
-            c2.setZone("Semi-urbaine");
-            c2.setSituationMatrimoniale("Marié(e)");
-            c2.setNiveauEducation("Secondaire");
-            c2.setNombrePersonnesACharge(4);
-
-            Client c3 = new Client();
-            c3.setNumeroCnib("B12098471");
-            c3.setDateExpirationCnib("2032-06-15");
-            c3.setNumeroCompte("CPT-0003");
-            c3.setTypeCompte("Compte Épargne Sociétaire");
-            c3.setStatutCompte("Actif");
-            c3.setPartsSocialesFcfa(40000.0);
-            c3.setAgence("Agence CIF Koudougou");
-            c3.setAncienneteCooperativeMois(36);
-            c3.setSoldeEpargneActuelFcfa(310000.0);
-            c3.setNom("Sawadogo");
-            c3.setPrenom("Awa");
-            c3.setAge(29);
-            c3.setDateNaissance("1997-01-18");
-            c3.setTelephone("+226 78 99 88 77");
-            c3.setEmail("awa.sawadogo@cif.bf");
-            c3.setPays("Burkina Faso");
-            c3.setRegion("Centre-Ouest");
-            c3.setVille("Koudougou");
-            c3.setAdresse("Secteur 2, Koudougou");
-            c3.setTypeLogement("Propriétaire");
-            c3.setSecteurActivite("Artisanat");
-            c3.setActivite("Couture & confection de pagnes");
-            c3.setAncienneteActiviteAnnees(5.0);
-            c3.setSexe("Femme");
-            c3.setZone("Urbaine");
-            c3.setSituationMatrimoniale("Marié(e)");
-            c3.setNiveauEducation("Secondaire");
-            c3.setNombrePersonnesACharge(2);
-
-            clientRepository.saveAll(List.of(c1, c2, c3));
+            if (!clientsToSave.isEmpty()) {
+                // Sauvegarde par lots pour performance
+                clientRepository.saveAll(clientsToSave);
+                log.info("✅ {} sociétaires chargés avec succès dans PostgreSQL !", clientsToSave.size());
+            } else {
+                log.info("Création des 3 sociétaires de base par défaut...");
+                createDefaultFallbackClients();
+            }
         }
+    }
+
+    private String[] parseCsvLine(String line) {
+        java.util.List<String> tokens = new java.util.ArrayList<>();
+        StringBuilder sb = new StringBuilder();
+        boolean inQuotes = false;
+        for (char ch : line.toCharArray()) {
+            if (ch == '"') {
+                inQuotes = !inQuotes;
+            } else if (ch == ',' && !inQuotes) {
+                tokens.add(sb.toString().trim());
+                sb.setLength(0);
+            } else {
+                sb.append(ch);
+            }
+        }
+        tokens.add(sb.toString().trim());
+        return tokens.toArray(new String[0]);
+    }
+
+    private Client mapCsvToClient(String[] headers, String[] values) {
+        java.util.Map<String, String> map = new java.util.HashMap<>();
+        for (int i = 0; i < Math.min(headers.length, values.length); i++) {
+            map.put(headers[i].trim().toLowerCase(), values[i].trim());
+        }
+
+        String cnib = getVal(map, "n° cnib", "cnib", "numerocnib");
+        if (cnib == null || cnib.isEmpty()) return null;
+
+        Client c = new Client();
+        c.setNumeroCnib(cnib);
+        c.setNumeroCompte(getVal(map, "numéro compte", "numero compte", "compte"));
+        c.setTypeCompte(getValDefault(map, "compte épargne sociétaire", "type de compte", "type compte"));
+        c.setStatutCompte(getValDefault(map, "Actif", "statut du compte", "statut compte"));
+        c.setPartsSocialesFcfa(parseDouble(getVal(map, "parts sociales (fcfa)", "parts sociales"), 10000.0));
+        c.setNom(getValDefault(map, "Nom", "nom"));
+        c.setPrenom(getValDefault(map, "Prénom", "prénom", "prenom"));
+        c.setDateNaissance(getValDefault(map, "1990-01-01", "date de naissance", "date naissance"));
+        c.setAge(parseInt(getVal(map, "âge", "age"), 30));
+        c.setDateExpirationCnib(getValDefault(map, "2035-12-31", "date expiration cnib", "date expiration"));
+        c.setTelephone(getValDefault(map, "+226 70 00 00 00", "contact téléphonique", "telephone", "téléphone"));
+        c.setEmail(getValDefault(map, "contact@cif-client.bf", "email"));
+        c.setPays(getValDefault(map, "Burkina Faso", "pays"));
+        c.setRegion(getValDefault(map, "Centre", "région", "region"));
+        c.setVille(getValDefault(map, "Ouagadougou", "ville"));
+        c.setAdresse(getValDefault(map, "Ouagadougou", "adresse complète", "adresse"));
+        c.setTypeLogement(getValDefault(map, "Locataire", "type de logement", "logement"));
+        c.setAgence(getValDefault(map, "Ouaga 1 - Siège Principal", "agence cif", "agence"));
+        c.setSituationMatrimoniale(getValDefault(map, "Marié(e)", "situation matrimoniale"));
+        c.setNombrePersonnesACharge(parseInt(getVal(map, "personnes en charge", "personnes a charge"), 2));
+        c.setNiveauEducation(getValDefault(map, "Secondaire", "niveau d'éducation", "niveau education"));
+        c.setActivité(getValDefault(map, "Commerce", "activité", "activite"));
+        c.setSecteurActivite(getValDefault(map, "Commerce général", "secteur d'activité", "secteur activite"));
+        c.setAncienneteActiviteAnnees(parseDouble(getVal(map, "ancienneté activité (années)", "anciennete activite"), 3.0));
+        c.setAncienneteCooperativeMois(parseInt(getVal(map, "ancienneté cif (mois)", "anciennete cif"), 12));
+        c.setSoldeEpargneActuelFcfa(parseDouble(getVal(map, "solde épargne actuel (fcfa)", "solde epargne"), 0.0));
+        c.setSexe(getValDefault(map, "Homme", "genre", "sexe"));
+        c.setZone(getValDefault(map, "Urbaine", "zone"));
+
+        return c;
+    }
+
+    private String getVal(java.util.Map<String, String> map, String... keys) {
+        for (String k : keys) {
+            String v = map.get(k.toLowerCase());
+            if (v != null && !v.trim().isEmpty()) return v.trim();
+        }
+        return null;
+    }
+
+    private String getValDefault(java.util.Map<String, String> map, String defaultVal, String... keys) {
+        String v = getVal(map, keys);
+        return v != null ? v : defaultVal;
+    }
+
+    private int parseInt(String val, int defaultVal) {
+        if (val == null) return defaultVal;
+        try {
+            return Integer.parseInt(val.replaceAll("[^0-9\\-]", ""));
+        } catch (Exception e) {
+            return defaultVal;
+        }
+    }
+
+    private double parseDouble(String val, double defaultVal) {
+        if (val == null) return defaultVal;
+        try {
+            return Double.parseDouble(val.replace(",", ".").replaceAll("[^0-9\\.\\-]", ""));
+        } catch (Exception e) {
+            return defaultVal;
+        }
+    }
+
+    private void createDefaultFallbackClients() {
+        Client c1 = new Client();
+        c1.setNumeroCnib("B43345047");
+        c1.setDateExpirationCnib("2033-04-09");
+        c1.setNumeroCompte("CPT-0001");
+        c1.setTypeCompte("Compte Épargne Sociétaire");
+        c1.setStatutCompte("Actif");
+        c1.setPartsSocialesFcfa(50000.0);
+        c1.setAgence("Caisse Populaire Ouaga Centre");
+        c1.setAncienneteCooperativeMois(66);
+        c1.setSoldeEpargneActuelFcfa(459000.0);
+        c1.setNom("Ouédraogo");
+        c1.setPrenom("Kadiatou");
+        c1.setAge(36);
+        c1.setDateNaissance("1990-03-12");
+        c1.setTelephone("+226 07 83 80 72");
+        c1.setEmail("kadiatou.ouedraogo@cif.bf");
+        c1.setPays("Burkina Faso");
+        c1.setRegion("Centre");
+        c1.setVille("Ouagadougou");
+        c1.setAdresse("Saaba, Secteur 19, Rue 18");
+        c1.setTypeLogement("Locataire");
+        c1.setSecteurActivite("Commerce");
+        c1.setActivite("Commerce d'aliments et condiments");
+        c1.setAncienneteActiviteAnnees(7.0);
+        c1.setSexe("Femme");
+        c1.setZone("Urbaine");
+        c1.setSituationMatrimoniale("Divorcé(e)");
+        c1.setNiveauEducation("Primaire");
+        c1.setNombrePersonnesACharge(5);
+
+        Client c2 = new Client();
+        c2.setNumeroCnib("B51923646");
+        c2.setDateExpirationCnib("2031-11-20");
+        c2.setNumeroCompte("CPT-0002");
+        c2.setTypeCompte("Compte Épargne & Crédit");
+        c2.setStatutCompte("Actif");
+        c2.setPartsSocialesFcfa(75000.0);
+        c2.setAgence("Délégation Régionale Bobo");
+        c2.setAncienneteCooperativeMois(48);
+        c2.setSoldeEpargneActuelFcfa(820000.0);
+        c2.setNom("Traoré");
+        c2.setPrenom("Mamadou");
+        c2.setAge(42);
+        c2.setDateNaissance("1984-07-24");
+        c2.setTelephone("+226 70 12 34 56");
+        c2.setEmail("mamadou.traore@cif.bf");
+        c2.setPays("Burkina Faso");
+        c2.setRegion("Hauts-Bassins");
+        c2.setVille("Bobo-Dioulasso");
+        c2.setAdresse("Accart-Ville, Rue 12");
+        c2.setTypeLogement("Propriétaire");
+        c2.setSecteurActivite("Agriculture");
+        c2.setActivite("Culture maraîchère et maïs");
+        c2.setAncienneteActiviteAnnees(12.0);
+        c2.setSexe("Homme");
+        c2.setZone("Semi-urbaine");
+        c2.setSituationMatrimoniale("Marié(e)");
+        c2.setNiveauEducation("Secondaire");
+        c2.setNombrePersonnesACharge(4);
+
+        clientRepository.saveAll(List.of(c1, c2));
     }
 }

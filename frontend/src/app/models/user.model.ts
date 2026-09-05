@@ -37,7 +37,7 @@ export interface AgenceCIF {
 
 export interface CorbeilleItem {
   id: string;
-  type: 'ROLE' | 'AGENT' | 'AGENCE' | 'OBJET_CREDIT' | 'GARANTIE';
+  type: 'ROLE' | 'AGENT' | 'AGENCE' | 'OBJET_CREDIT' | 'GARANTIE' | 'CATEGORIE';
   typeLabel: string;
   title: string;
   details: string;

@@ -612,7 +612,7 @@ export class AuthService {
   }
 
   public addToTrash(item: {
-    type: 'ROLE' | 'AGENT' | 'AGENCE' | 'OBJET_CREDIT' | 'GARANTIE';
+    type: 'ROLE' | 'AGENT' | 'AGENCE' | 'OBJET_CREDIT' | 'GARANTIE' | 'CATEGORIE';
     typeLabel: string;
     title: string;
     details: string;
@@ -674,7 +674,7 @@ export class AuthService {
         }
       }
     } else if (item.type === 'OBJET_CREDIT') {
-      const OBJ_KEY = 'cif_settings_objets_credit';
+      const OBJ_KEY = 'cif_settings_objets_credit_v2';
       try {
         const raw = localStorage.getItem(OBJ_KEY);
         const list = raw ? JSON.parse(raw) : [];
@@ -686,7 +686,7 @@ export class AuthService {
         console.error('Erreur restauration objet credit:', e);
       }
     } else if (item.type === 'GARANTIE') {
-      const GAR_KEY = 'cif_settings_garanties';
+      const GAR_KEY = 'cif_settings_garanties_v2';
       try {
         const raw = localStorage.getItem(GAR_KEY);
         const list = raw ? JSON.parse(raw) : [];
@@ -696,6 +696,18 @@ export class AuthService {
         }
       } catch (e) {
         console.error('Erreur restauration garantie:', e);
+      }
+    } else if (item.type === 'CATEGORIE') {
+      const CAT_KEY = 'cif_settings_categories_v2';
+      try {
+        const raw = localStorage.getItem(CAT_KEY);
+        const list = raw ? JSON.parse(raw) : [];
+        if (!list.some((c: any) => c.id === item.data.id)) {
+          list.unshift(item.data);
+          localStorage.setItem(CAT_KEY, JSON.stringify(list));
+        }
+      } catch (e) {
+        console.error('Erreur restauration categorie:', e);
       }
     }
 

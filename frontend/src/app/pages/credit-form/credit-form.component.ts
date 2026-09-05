@@ -96,7 +96,7 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
             </div>
 
             <div *ngIf="searchedClients.length === 0" class="p-8 text-center text-xs text-gray-400">
-              Aucun sociétaire trouvé pour « {{ searchQuery }} » dans la base de données CIF (1 000 sociétaires).
+              Aucun sociétaire trouvé pour « {{ searchQuery }} » dans la base de données CIF.
             </div>
           </div>
         </div>
@@ -404,14 +404,21 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                     class="w-full px-3.5 py-2.5 border-2 border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#147c76] bg-white text-gray-800 font-medium">
                     <option value="" disabled selected>-- Sélectionnez l'objet du crédit ({{ objetsCredit.length }} configurés) --</option>
                     <option *ngFor="let o of objetsCredit" [value]="o.label">
-                      {{ o.label }}
+                      {{ o.label }} ({{ o.categorie }})
                     </option>
                   </select>
+                  <div *ngIf="getSelectedObjet()" class="mt-1.5 flex items-center gap-1.5 text-[11px] text-[#147c76] font-semibold bg-[#e5f3f1] px-2.5 py-1 rounded-lg">
+                    <span>Catégorie : <strong>{{ getSelectedObjet()?.categorie }}</strong></span>
+                    <span>·</span>
+                    <span>Taux min : <strong>{{ getSelectedObjet()?.tauxInteretMin || 9.5 }}%</strong></span>
+                    <span>·</span>
+                    <span>Max : <strong>{{ getSelectedObjet()?.dureeMaxMois || 12 }}m</strong></span>
+                  </div>
                 </div>
                 <div>
                   <div class="flex items-center justify-between mb-1">
                     <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider">Garantie Proposée *</label>
-                    <a routerLink="/parametres" class="text-[11px] text-[#147c76] hover:underline font-semibold flex items-center gap-0.5">
+                    <a routerLink="/parametres" [queryParams]="{ tab: 'GARANTIES' }" class="text-[11px] text-[#147c76] hover:underline font-semibold flex items-center gap-0.5">
                       <span>⚙ Gérer</span>
                     </a>
                   </div>
@@ -419,9 +426,14 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
                     class="w-full px-3.5 py-2.5 border-2 border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#147c76] bg-white text-gray-800 font-medium">
                     <option value="" disabled selected>-- Sélectionnez une garantie ({{ typesGaranties.length }} configurées) --</option>
                     <option *ngFor="let g of typesGaranties" [value]="g.label">
-                      {{ g.label }} ({{ g.typeGarantie === 'PERSONNELLE' ? 'Personnelle' : (g.typeGarantie === 'REELLE_MOBILIERE' ? 'Mobilière' : (g.typeGarantie === 'REELLE_IMMOBILIERE' ? 'Immobilière' : 'Financière')) }})
+                      {{ g.label }} ({{ g.tauxCouvertureRecommande || 100 }}% couverture)
                     </option>
                   </select>
+                  <div *ngIf="getSelectedGarantie()" class="mt-1.5 flex items-center gap-1.5 text-[11px] text-teal-800 font-semibold bg-teal-50 px-2.5 py-1 rounded-lg">
+                    <span>Couverture : <strong>{{ getSelectedGarantie()?.tauxCouvertureRecommande || 100 }}%</strong></span>
+                    <span>·</span>
+                    <span>{{ getSelectedGarantie()?.exigeDocument ? 'Justificatif requis' : 'Sans acte officiel' }}</span>
+                  </div>
                 </div>
               </div>
 
@@ -566,8 +578,8 @@ export class CreditFormComponent implements OnInit {
   };
 
   ngOnInit() {
-    this.settingsService.objets$.subscribe(list => this.objetsCredit = list || []);
-    this.settingsService.garanties$.subscribe(list => this.typesGaranties = list || []);
+    this.settingsService.objets$.subscribe(list => this.objetsCredit = (list || []).filter(o => o.actif !== false));
+    this.settingsService.garanties$.subscribe(list => this.typesGaranties = (list || []).filter(g => g.actif !== false));
 
     this.apiService.getClients().subscribe({
       next: (list) => {
@@ -693,6 +705,14 @@ export class CreditFormComponent implements OnInit {
       case 'REJETE': return 'bg-red-50 text-red-700 border-red-200';
       default: return 'bg-gray-100 text-gray-700 border-gray-200';
     }
+  }
+
+  getSelectedObjet(): ObjetCreditItem | undefined {
+    return this.objetsCredit.find(o => o.label === this.demande.objetCredit);
+  }
+
+  getSelectedGarantie(): GarantieItem | undefined {
+    return this.typesGaranties.find(g => g.label === this.demande.garantie);
   }
 
   getStatusLabel(statut?: string): string {

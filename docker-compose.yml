@@ -2,10 +2,6 @@
 # et frontend. Usage : `docker compose up --build` depuis la racine du dépôt,
 # puis http://localhost:4200 (frontend), http://localhost:8080/api (backend),
 # http://localhost:8000/docs (documentation FastAPI auto-générée).
-#
-# NB déploiement réel (Render/Vercel) : ce fichier est un outil de démo/dev
-# local. Il ne remplace pas les déploiements séparés décrits dans le README
-# (chaque service a ses propres variables d'environnement en production).
 services:
   # 1. Base de données PostgreSQL
   db:
@@ -27,9 +23,6 @@ services:
     restart: unless-stopped
 
   # 2. Moteur de scoring IA (FastAPI + scikit-learn + SHAP)
-  #    Artefacts chargés depuis ai-service/models/ (généré par
-  #    scripts/02_train_model.py à la racine du dépôt, synchronisé
-  #    automatiquement par ce script - voir sa section 9).
   ai-service:
     build:
       context: ./ai-service
@@ -56,9 +49,6 @@ services:
       DB_URL: jdbc:postgresql://db:5432/cif_microcredit
       DB_USER: cif_user
       DB_PASSWORD: cif_password
-      # Nom de service Docker (résolu par le réseau interne de Compose),
-      # pas localhost : localhost, dans ce conteneur, ne désignerait que
-      # lui-même, jamais le conteneur ai-service.
       AI_SERVICE_URL: http://ai-service:8000/api/score
     ports:
       - "8080:8080"

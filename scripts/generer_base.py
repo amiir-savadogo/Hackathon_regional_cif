@@ -421,25 +421,14 @@ def consolider_vue_scoring(df_soc, df_credits, df_tx):
     return df_merged
 
 # -----------------------------------------------------------------------------
-# 6. EXPORT EXCLUSIF CSV
+# 6. EXPORT DE LA BASE DE DONNÉES JSON CIF
 # -----------------------------------------------------------------------------
 
-def exporter_fichiers_csv(df_soc, df_tx, df_cred, df_consolide):
+def exporter_base_societaires(df_soc, df_tx, df_cred, df_consolide):
     output_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "data")
     os.makedirs(output_dir, exist_ok=True)
     
-    # 1. Exports CSV UTF-8
-    f_soc = os.path.join(output_dir, "societaires.csv")
-    f_tx = os.path.join(output_dir, "transactions.csv")
-    f_cred = os.path.join(output_dir, "historique_credits.csv")
-    f_score = os.path.join(output_dir, "base_complete_scoring.csv")
-    
-    df_soc.to_csv(f_soc, index=False, encoding="utf-8")
-    df_tx.to_csv(f_tx, index=False, encoding="utf-8")
-    df_cred.to_csv(f_cred, index=False, encoding="utf-8")
-    df_consolide.to_csv(f_score, index=False, encoding="utf-8")
-    
-    # 2. Synchronisation directe avec l'application Web Frontend
+    # 1. Préparation des objets sociétaires structurés
     frontend_soc = []
     for idx, row in df_soc.iterrows():
         frontend_soc.append({
@@ -477,16 +466,20 @@ def exporter_fichiers_csv(df_soc, df_tx, df_cred, df_consolide):
             "demandes": []
         })
         
+    import json
+    
+    # A) Export dans data/societaires.json
+    with open(os.path.join(output_dir, "societaires.json"), "w", encoding="utf-8") as f:
+        json.dump(frontend_soc, f, ensure_ascii=False, indent=2)
+        
+    # B) Export direct dans le Frontend (public & source)
     frontend_dir = os.path.join(os.path.dirname(os.path.dirname(os.path.abspath(__file__))), "frontend")
     if os.path.exists(frontend_dir):
-        # A) Export JSON dans public/
         public_data_dir = os.path.join(frontend_dir, "public", "data")
         os.makedirs(public_data_dir, exist_ok=True)
-        import json
         with open(os.path.join(public_data_dir, "societaires.json"), "w", encoding="utf-8") as f:
             json.dump(frontend_soc, f, ensure_ascii=False, indent=2)
             
-        # B) Export TypeScript dans src/app/data/ pour chargement instantané
         app_data_dir = os.path.join(frontend_dir, "src", "app", "data")
         os.makedirs(app_data_dir, exist_ok=True)
         with open(os.path.join(app_data_dir, "societaires-data.ts"), "w", encoding="utf-8") as f:
@@ -495,24 +488,21 @@ def exporter_fichiers_csv(df_soc, df_tx, df_cred, df_consolide):
             f.write("export const SOCIETAIRES_CIF_BASE: Client[] = ")
             f.write(json.dumps(frontend_soc, ensure_ascii=False, indent=2))
             f.write(";\n")
-            
-        print("[OK] Synchronisation Frontend : 1,000 sociétaires chargés avec succès dans l'application web !")
-    
+
     print("\n" + "="*75)
-    print("[EXPORT] FICHIERS CSV BANCAIRES TERMINES AVEC SUCCES :")
+    print(" [SUCCÈS] BASE DE DONNÉES CIF INITIALISÉE AVEC SUCCÈS")
     print("="*75)
-    print(f"  1. {f_soc} ({len(df_soc):,} lignes)")
-    print(f"  2. {f_tx} ({len(df_tx):,} lignes)")
-    print(f"  3. {f_cred} ({len(df_cred):,} lignes)")
-    print(f"  4. {f_score} ({len(df_consolide):,} lignes)")
+    print(f"  • {len(frontend_soc):,} profils sociétaires prêts dans l'application web")
+    print(f"  • Données injectées dans : frontend/public/data/societaires.json")
+    print(f"  • Données injectées dans : frontend/src/app/data/societaires-data.ts")
     print("="*75 + "\n")
 
 if __name__ == "__main__":
     print("===========================================================================")
-    print(" GÉNERATION DE LA BASE DE DONNÉES CSV CIF (MICROFINANCE) ")
+    print(" GÉNERATION DE LA BASE DE DONNÉES DES SOCIÉTAIRES CIF ")
     print("===========================================================================")
     df_soc = generer_societaires(N_SOCIETAIRES)
     df_tx = generer_transactions(df_soc)
     df_cred = generer_historique_credits(df_soc)
     df_consolide = consolider_vue_scoring(df_soc, df_cred, df_tx)
-    exporter_fichiers_csv(df_soc, df_tx, df_cred, df_consolide)
+    exporter_base_societaires(df_soc, df_tx, df_cred, df_consolide)
