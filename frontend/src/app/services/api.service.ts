@@ -3,6 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, forkJoin, catchError, map, tap } from 'rxjs';
 import { Client, DemandeCredit, DashboardStats } from '../models/client.model';
+import { SCORE_SEUIL_VERT, SCORE_SEUIL_ORANGE } from '../models/scoring-zones';
 import { environment } from '../../environments/environment';
 import { SOCIETAIRES_CIF_BASE } from '../data/societaires-data';
 
@@ -194,6 +195,37 @@ export class ApiService {
   }
 
   // =====================================================================
+  // CORBEILLE (suppression logique des dossiers)
+  // =====================================================================
+
+  /** Envoie un dossier à la corbeille (réversible). */
+  supprimerDemande(id: number, par?: string): Observable<void> {
+    const params = par ? { params: { par } } : {};
+    return this.http.delete<void>(`${this.base}/demandes/${id}`, params);
+  }
+
+  restaurerDemande(id: number): Observable<DemandeCredit> {
+    return this.http.post<DemandeCredit>(`${this.base}/demandes/${id}/restaurer`, {});
+  }
+
+  supprimerDefinitivement(id: number): Observable<void> {
+    return this.http.delete<void>(`${this.base}/demandes/${id}/definitif`);
+  }
+
+  getCorbeille(): Observable<DemandeCredit[]> {
+    if (!this.isBrowser) return of([]);
+    return this.http.get<DemandeCredit[]>(`${this.base}/demandes/corbeille`).pipe(
+      catchError(() => of([] as DemandeCredit[]))
+    );
+  }
+
+  /** Enregistre l'appréciation manuelle de l'agent (informatif, hors modèle). */
+  enregistrerAvisAgent(id: number, avis: string, commentaire?: string, motifs?: string): Observable<DemandeCredit> {
+    return this.http.put<DemandeCredit>(`${this.base}/demandes/${id}/avis`,
+      { avis, commentaire: commentaire || '', motifs: motifs || '' });
+  }
+
+  // =====================================================================
   // TABLEAU DE BORD
   // =====================================================================
 
@@ -260,10 +292,14 @@ export class ApiService {
     const revenu = demande.revenuMensuelFcfa || c?.revenuMensuelFcfa || 250000;
     const montant = demande.montantDemandeFcfa || 500000;
     const duree = demande.dureeMois || 12;
+    const tauxAnnuel = demande.tauxInteretNominalAnnuelPct || 14;
     const epargne = demande.epargneSoldeMoyenFcfa || c?.soldeEpargneActuelFcfa || 150000;
     const anciennete = demande.ancienneteCooperativeMois || c?.ancienneteCooperativeMois || 12;
 
-    const ratioEndettement = (montant / duree) / Math.max(revenu, 1);
+    // Échéance mensuelle : vraie formule d'annuité (comme ai-service/main.py).
+    const i = (tauxAnnuel / 100) / 12;
+    const echeance = i <= 0 ? montant / duree : montant * i / (1 - Math.pow(1 + i, -duree));
+    const ratioEndettement = ((demande.chargesMensuellesFcfa || 0) + echeance) / Math.max(revenu, 1);
     const ratioEpargne = epargne / Math.max(montant, 1);
 
     let probaDefaut = 0.08;
@@ -274,16 +310,23 @@ export class ApiService {
     probaDefaut = Math.max(0.02, Math.min(0.65, probaDefaut));
 
     // Garde-fou de capacité de remboursement, même logique que le moteur.
-    const resteAVivre = revenu - (demande.chargesMensuellesFcfa || 0) - (montant / duree);
+    const resteAVivre = revenu - (demande.chargesMensuellesFcfa || 0) - echeance;
+
+    // LGD par garantie (table identique à ai-service/main.py).
+    const lgd: Record<string, number> = {
+      'Bien matériel': 0.35, "Aval d'un tiers": 0.45, 'Caution solidaire': 0.40, 'Aucune': 0.65,
+    };
+    const perteAttendue = probaDefaut * (lgd[demande.garantie || ''] ?? 0.55) * montant;
 
     // Score de solvabilité 0-100 = (1 - PD) x 100, comme ai-service/main.py.
     const scoreCredit = Math.round((1 - probaDefaut) * 100);
     let statut = 'APPROUVE';
     let zoneDecision = 'ACCORD_FAVORABLE';
-    if (scoreCredit <= 56 || resteAVivre < 0) {
+    // Seuils alignés sur le modèle déployé (cf. models/scoring-zones.ts).
+    if (scoreCredit <= SCORE_SEUIL_ORANGE || resteAVivre < 0) {
       statut = 'REJETE';
       zoneDecision = 'RISQUE_ELEVE';
-    } else if (scoreCredit <= 81) {
+    } else if (scoreCredit <= SCORE_SEUIL_VERT) {
       statut = 'A_L_ETUDE';
       zoneDecision = 'A_EXAMINER';
     }
@@ -295,6 +338,9 @@ export class ApiService {
       scoreRisque: Math.round(probaDefaut * 1000) / 10,
       probaDefaut: Math.round(probaDefaut * 10000) / 10000,
       ratioEndettement: Math.round(ratioEndettement * 100) / 100,
+      ratioResteAVivreFcfa: Math.round(resteAVivre / 100) * 100,
+      futureEcheanceCreditFcfa: Math.round(echeance / 100) * 100,
+      perteAttendueFcfa: Math.round(perteAttendue),
       zoneDecision,
       statut,
       source: 'ESTIMATION_LOCALE',

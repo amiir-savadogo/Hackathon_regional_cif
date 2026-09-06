@@ -61,7 +61,16 @@ from xgboost import XGBClassifier
 warnings.filterwarnings("ignore")
 optuna.logging.set_verbosity(optuna.logging.WARNING)
 RNG = 42
-N_TRIALS = 6  # par objectif et par modèle ; compromis exploration/temps de calcul (hackathon, pas de GPU/CI gratuit)
+# N_TRIALS : nombre d'essais Optuna par objectif et par modèle. Compromis
+# exploration/temps de calcul (hackathon, pas de GPU/CI gratuit). Surchargeable
+# par variable d'environnement pour une itération rapide (ex. N_TRIALS=2).
+N_TRIALS = int(os.environ.get("N_TRIALS", "6"))
+# MODELES : sous-ensemble de modèles à entraîner, séparés par des virgules
+# (ex. MODELES=LogisticRegression,RandomForest). Vide = les 5 modèles.
+_MODELES_ENV = [m.strip() for m in os.environ.get("MODELES", "").split(",") if m.strip()]
+# SKIP_STACKING=1 : ne pas construire le stacking (gros gain de temps ; le
+# stacking n'est de toute façon jamais déployé car non explicable par SHAP).
+SKIP_STACKING = os.environ.get("SKIP_STACKING", "").strip() in ("1", "true", "True", "yes")
 
 # ---------------------------------------------------------------------
 # 1. Chargement des données + split TRAIN / VALIDATION / TEST
@@ -287,6 +296,17 @@ CLASSES = {
 # cohérent avec l'exigence déjà posée en section 2.4 de la note de présentation).
 SHAP_COMPATIBLE = {"LogisticRegression", "RandomForest", "XGBoost", "LightGBM", "CatBoost"}
 
+# Restriction éventuelle à un sous-ensemble de modèles (variable d'env MODELES).
+if _MODELES_ENV:
+    inconnus = [m for m in _MODELES_ENV if m not in CLASSES]
+    if inconnus:
+        raise SystemExit(f"MODELES contient des noms inconnus : {inconnus}. "
+                         f"Choix possibles : {list(CLASSES)}")
+    CLASSES = {m: CLASSES[m] for m in _MODELES_ENV}
+    SPACES = {m: SPACES[m] for m in _MODELES_ENV}
+    print(f"[MODE RAPIDE] Modèles entraînés : {list(CLASSES)}")
+print(f"[CONFIG] N_TRIALS={N_TRIALS} | SKIP_STACKING={SKIP_STACKING}")
+
 # ---------------------------------------------------------------------
 # 5. Recherche Optuna : deux objectifs (F1 / coût métier) par modèle
 # ---------------------------------------------------------------------
@@ -349,17 +369,20 @@ for name, model_class in CLASSES.items():
     variants[f"{name} (F1)"] = make_pipeline(model_class, best_params_f1[name])
     variants[f"{name} (Financier)"] = make_pipeline(model_class, best_params_fin[name])
 
-# Stacking : combine les 5 variantes optimisées sur le critère F1 (cohérent avec
+# Stacking : combine les variantes optimisées sur le critère F1 (cohérent avec
 # l'intention du script reçu), méta-modèle = régression logistique. Chaque
 # estimateur de base reste un pipeline préprocesseur+SMOTE+modèle ; StackingClassifier
 # génère ses features de méta-niveau par validation croisée interne, donc tout le
 # pipeline (y compris SMOTE) est lui aussi ré-appliqué à chaque fold interne.
-stack_estimators = [(name, make_pipeline(CLASSES[name], best_params_f1[name])) for name in CLASSES]
-variants["Stacking"] = StackingClassifier(
-    estimators=stack_estimators,
-    final_estimator=LogisticRegression(max_iter=2000, random_state=RNG),
-    n_jobs=-1,
-)
+# Ignoré si SKIP_STACKING=1 ou si moins de 2 modèles de base (mode rapide) : le
+# stacking n'est jamais déployé (non explicable par SHAP par dossier).
+if not SKIP_STACKING and len(CLASSES) >= 2:
+    stack_estimators = [(name, make_pipeline(CLASSES[name], best_params_f1[name])) for name in CLASSES]
+    variants["Stacking"] = StackingClassifier(
+        estimators=stack_estimators,
+        final_estimator=LogisticRegression(max_iter=2000, random_state=RNG),
+        n_jobs=-1,
+    )
 
 print("\n=== Entraînement final (sur TRAIN) + évaluation sur VALIDATION (choix du modèle et du seuil) ===")
 report_val = {}

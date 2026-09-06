@@ -1,11 +1,11 @@
 {
   "best_model_name": "RandomForest (F1)",
   "best_model_family": "RandomForest",
-  "hyperparameter_search_method": "Optuna TPESampler, 6 essais x 2 objectifs (F1 / coût métier) x 3 folds CV, sur TRAIN uniquement",
+  "hyperparameter_search_method": "Optuna TPESampler, 2 essais x 2 objectifs (F1 / coût métier) x 3 folds CV, sur TRAIN uniquement",
   "hyperparameters_f1_objective": {
     "LogisticRegression": {
-      "penalty": "l2",
-      "C": 0.4205156450913872,
+      "penalty": "l1",
+      "C": 0.0060252157362038605,
       "solver": "liblinear",
       "max_iter": 2000,
       "random_state": 42
@@ -17,38 +17,12 @@
       "max_features": "sqrt",
       "random_state": 42,
       "n_jobs": -1
-    },
-    "XGBoost": {
-      "n_estimators": 255,
-      "max_depth": 4,
-      "learning_rate": 0.048164145309070844,
-      "subsample": 0.7727780074568463,
-      "colsample_bytree": 0.7164916560792167,
-      "eval_metric": "logloss",
-      "random_state": 42,
-      "n_jobs": -1
-    },
-    "LightGBM": {
-      "n_estimators": 380,
-      "max_depth": 3,
-      "learning_rate": 0.015957084694148364,
-      "class_weight": "balanced",
-      "random_state": 42,
-      "n_jobs": -1,
-      "verbosity": -1
-    },
-    "CatBoost": {
-      "iterations": 186,
-      "depth": 4,
-      "learning_rate": 0.03347776308515933,
-      "random_state": 42,
-      "verbose": 0
     }
   },
   "hyperparameters_financial_objective": {
     "LogisticRegression": {
-      "penalty": "l2",
-      "C": 0.4205156450913872,
+      "penalty": "l1",
+      "C": 0.0060252157362038605,
       "solver": "liblinear",
       "max_iter": 2000,
       "random_state": 42
@@ -60,32 +34,6 @@
       "max_features": "sqrt",
       "random_state": 42,
       "n_jobs": -1
-    },
-    "XGBoost": {
-      "n_estimators": 384,
-      "max_depth": 3,
-      "learning_rate": 0.023993242906812727,
-      "subsample": 0.7465447373174767,
-      "colsample_bytree": 0.7824279936868144,
-      "eval_metric": "logloss",
-      "random_state": 42,
-      "n_jobs": -1
-    },
-    "LightGBM": {
-      "n_estimators": 380,
-      "max_depth": 3,
-      "learning_rate": 0.015957084694148364,
-      "class_weight": "balanced",
-      "random_state": 42,
-      "n_jobs": -1,
-      "verbosity": -1
-    },
-    "CatBoost": {
-      "iterations": 317,
-      "depth": 4,
-      "learning_rate": 0.015199348301309814,
-      "random_state": 42,
-      "verbose": 0
     }
   },
   "business_cost_assumptions": {
@@ -101,156 +49,72 @@
   },
   "results_comparatif_validation": {
     "LogisticRegression (F1)": {
-      "AUC-ROC": 0.8164,
-      "Gini": 0.6327,
-      "Accuracy@0.5": 0.7767,
-      "Recall_classe1@0.5": 0.7067,
-      "Seuil_F1_optimal": 0.678,
-      "F1_classe1@Seuil_F1": 0.4767,
-      "Seuil_Financier_optimal": 0.57,
-      "Cout_total_FCFA@Seuil_Financier": 6645590,
-      "Gain_vs_seuil_0.5_FCFA": 775670,
-      "Recall_Defaut@Seuil_Financier": 0.6533
+      "AUC-ROC": 0.9311,
+      "Gini": 0.8622,
+      "Accuracy@0.5": 0.8367,
+      "Recall_classe1@0.5": 0.8861,
+      "Seuil_F1_optimal": 0.658,
+      "F1_classe1@Seuil_F1": 0.6905,
+      "Seuil_Financier_optimal": 0.55,
+      "Cout_total_FCFA@Seuil_Financier": 4645520,
+      "Gain_vs_seuil_0.5_FCFA": 410020,
+      "Recall_Defaut@Seuil_Financier": 0.8481
     },
     "LogisticRegression (Financier)": {
-      "AUC-ROC": 0.8164,
-      "Gini": 0.6327,
-      "Accuracy@0.5": 0.7767,
-      "Recall_classe1@0.5": 0.7067,
-      "Seuil_F1_optimal": 0.678,
-      "F1_classe1@Seuil_F1": 0.4767,
-      "Seuil_Financier_optimal": 0.57,
-      "Cout_total_FCFA@Seuil_Financier": 6645590,
-      "Gain_vs_seuil_0.5_FCFA": 775670,
-      "Recall_Defaut@Seuil_Financier": 0.6533
+      "AUC-ROC": 0.9311,
+      "Gini": 0.8622,
+      "Accuracy@0.5": 0.8367,
+      "Recall_classe1@0.5": 0.8861,
+      "Seuil_F1_optimal": 0.658,
+      "F1_classe1@Seuil_F1": 0.6905,
+      "Seuil_Financier_optimal": 0.55,
+      "Cout_total_FCFA@Seuil_Financier": 4645520,
+      "Gain_vs_seuil_0.5_FCFA": 410020,
+      "Recall_Defaut@Seuil_Financier": 0.8481
     },
     "RandomForest (F1)": {
-      "AUC-ROC": 0.8251,
-      "Gini": 0.6502,
-      "Accuracy@0.5": 0.86,
-      "Recall_classe1@0.5": 0.48,
-      "Seuil_F1_optimal": 0.422,
-      "F1_classe1@Seuil_F1": 0.5181,
-      "Seuil_Financier_optimal": 0.34,
-      "Cout_total_FCFA@Seuil_Financier": 6082190,
-      "Gain_vs_seuil_0.5_FCFA": 912190,
-      "Recall_Defaut@Seuil_Financier": 0.72
+      "AUC-ROC": 0.9188,
+      "Gini": 0.8376,
+      "Accuracy@0.5": 0.89,
+      "Recall_classe1@0.5": 0.6582,
+      "Seuil_F1_optimal": 0.593,
+      "F1_classe1@Seuil_F1": 0.6331,
+      "Seuil_Financier_optimal": 0.43,
+      "Cout_total_FCFA@Seuil_Financier": 4640470,
+      "Gain_vs_seuil_0.5_FCFA": 954130,
+      "Recall_Defaut@Seuil_Financier": 0.7722
     },
     "RandomForest (Financier)": {
-      "AUC-ROC": 0.8251,
-      "Gini": 0.6502,
-      "Accuracy@0.5": 0.86,
-      "Recall_classe1@0.5": 0.48,
-      "Seuil_F1_optimal": 0.422,
-      "F1_classe1@Seuil_F1": 0.5181,
-      "Seuil_Financier_optimal": 0.34,
-      "Cout_total_FCFA@Seuil_Financier": 6082190,
-      "Gain_vs_seuil_0.5_FCFA": 912190,
-      "Recall_Defaut@Seuil_Financier": 0.72
-    },
-    "XGBoost (F1)": {
-      "AUC-ROC": 0.8466,
-      "Gini": 0.6932,
-      "Accuracy@0.5": 0.8783,
-      "Recall_classe1@0.5": 0.2667,
-      "Seuil_F1_optimal": 0.238,
-      "F1_classe1@Seuil_F1": 0.4974,
-      "Seuil_Financier_optimal": 0.14,
-      "Cout_total_FCFA@Seuil_Financier": 6825080,
-      "Gain_vs_seuil_0.5_FCFA": 1364860,
-      "Recall_Defaut@Seuil_Financier": 0.76
-    },
-    "XGBoost (Financier)": {
-      "AUC-ROC": 0.8434,
-      "Gini": 0.6868,
-      "Accuracy@0.5": 0.87,
-      "Recall_classe1@0.5": 0.32,
-      "Seuil_F1_optimal": 0.24,
-      "F1_classe1@Seuil_F1": 0.4976,
-      "Seuil_Financier_optimal": 0.35,
-      "Cout_total_FCFA@Seuil_Financier": 6613460,
-      "Gain_vs_seuil_0.5_FCFA": 1047680,
-      "Recall_Defaut@Seuil_Financier": 0.5467
-    },
-    "LightGBM (F1)": {
-      "AUC-ROC": 0.8425,
-      "Gini": 0.6849,
-      "Accuracy@0.5": 0.8717,
-      "Recall_classe1@0.5": 0.44,
-      "Seuil_F1_optimal": 0.324,
-      "F1_classe1@Seuil_F1": 0.5131,
-      "Seuil_Financier_optimal": 0.32,
-      "Cout_total_FCFA@Seuil_Financier": 6383220,
-      "Gain_vs_seuil_0.5_FCFA": 904270,
-      "Recall_Defaut@Seuil_Financier": 0.6533
-    },
-    "LightGBM (Financier)": {
-      "AUC-ROC": 0.8425,
-      "Gini": 0.6849,
-      "Accuracy@0.5": 0.8717,
-      "Recall_classe1@0.5": 0.44,
-      "Seuil_F1_optimal": 0.324,
-      "F1_classe1@Seuil_F1": 0.5131,
-      "Seuil_Financier_optimal": 0.32,
-      "Cout_total_FCFA@Seuil_Financier": 6383220,
-      "Gain_vs_seuil_0.5_FCFA": 904270,
-      "Recall_Defaut@Seuil_Financier": 0.6533
-    },
-    "CatBoost (F1)": {
-      "AUC-ROC": 0.8444,
-      "Gini": 0.6888,
-      "Accuracy@0.5": 0.8633,
-      "Recall_classe1@0.5": 0.28,
-      "Seuil_F1_optimal": 0.39,
-      "F1_classe1@Seuil_F1": 0.5185,
-      "Seuil_Financier_optimal": 0.39,
-      "Cout_total_FCFA@Seuil_Financier": 6409020,
-      "Gain_vs_seuil_0.5_FCFA": 1625360,
-      "Recall_Defaut@Seuil_Financier": 0.56
-    },
-    "CatBoost (Financier)": {
-      "AUC-ROC": 0.8387,
-      "Gini": 0.6774,
-      "Accuracy@0.5": 0.87,
-      "Recall_classe1@0.5": 0.3333,
-      "Seuil_F1_optimal": 0.398,
-      "F1_classe1@Seuil_F1": 0.5091,
-      "Seuil_Financier_optimal": 0.4,
-      "Cout_total_FCFA@Seuil_Financier": 6423690,
-      "Gain_vs_seuil_0.5_FCFA": 1107540,
-      "Recall_Defaut@Seuil_Financier": 0.5467
-    },
-    "Stacking": {
-      "AUC-ROC": 0.8418,
-      "Gini": 0.6835,
-      "Accuracy@0.5": 0.8717,
-      "Recall_classe1@0.5": 0.2133,
-      "Seuil_F1_optimal": 0.227,
-      "F1_classe1@Seuil_F1": 0.5055,
-      "Seuil_Financier_optimal": 0.22,
-      "Cout_total_FCFA@Seuil_Financier": 6452920,
-      "Gain_vs_seuil_0.5_FCFA": 1899200,
-      "Recall_Defaut@Seuil_Financier": 0.6133
+      "AUC-ROC": 0.9188,
+      "Gini": 0.8376,
+      "Accuracy@0.5": 0.89,
+      "Recall_classe1@0.5": 0.6582,
+      "Seuil_F1_optimal": 0.593,
+      "F1_classe1@Seuil_F1": 0.6331,
+      "Seuil_Financier_optimal": 0.43,
+      "Cout_total_FCFA@Seuil_Financier": 4640470,
+      "Gain_vs_seuil_0.5_FCFA": 954130,
+      "Recall_Defaut@Seuil_Financier": 0.7722
     }
   },
   "results_test_final_honnete": {
-    "AUC-ROC": 0.8211,
-    "Gini": 0.6423,
-    "Accuracy@0.5": 0.8417,
-    "Recall_classe1@0.5": 0.4133,
-    "Seuil_deploye": 0.34,
-    "F1_classe1@Seuil_deploye": 0.4408,
-    "Recall_Defaut@Seuil_deploye": 0.72,
-    "Cout_total_FCFA@Seuil_deploye": 8037300,
-    "Gain_vs_seuil_0.5_FCFA": 873440
+    "AUC-ROC": 0.8729,
+    "Gini": 0.7457,
+    "Accuracy@0.5": 0.8583,
+    "Recall_classe1@0.5": 0.5823,
+    "Seuil_deploye": 0.43,
+    "F1_classe1@Seuil_deploye": 0.5116,
+    "Recall_Defaut@Seuil_deploye": 0.6962,
+    "Cout_total_FCFA@Seuil_deploye": 6150170,
+    "Gain_vs_seuil_0.5_FCFA": 376100
   },
-  "seuil_deploye": 0.34,
-  "seuil_vert_max": 0.19,
-  "seuil_rouge_min": 0.44,
+  "seuil_deploye": 0.43,
+  "seuil_vert_max": 0.28,
+  "seuil_rouge_min": 0.53,
   "n_train": 2800,
   "n_val": 600,
   "n_test": 600,
-  "taux_defaut_global": 0.125,
+  "taux_defaut_global": 0.1318,
   "environnement_entrainement": {
     "python_version": "3.12.14",
     "scikit_learn": "1.8.0",

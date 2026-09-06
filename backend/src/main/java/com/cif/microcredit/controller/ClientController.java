@@ -115,18 +115,74 @@ public class ClientController {
 
     @GetMapping("/clients/{clientId}/demandes")
     public ResponseEntity<List<DemandeCredit>> getDemandes(@PathVariable Long clientId) {
-        List<DemandeCredit> demandes = demandeCreditRepository.findByClientIdOrderByDateCreationDesc(clientId);
-        return ResponseEntity.ok(demandes);
+        return ResponseEntity.ok(
+                demandeCreditRepository.findByClientIdAndSupprimeFalseOrderByDateCreationDesc(clientId));
     }
 
     /**
-     * Toutes les demandes de crédit (plus récentes d'abord), client inclus.
-     * Utilisé par le frontend pour reconstituer les dossiers : /api/clients ne
-     * renvoie pas la collection `demandes` (marquée @JsonIgnore côté entité).
+     * Toutes les demandes de crédit ACTIVES (corbeille exclue), plus récentes
+     * d'abord, client inclus. Utilisé par le frontend pour reconstituer les
+     * dossiers : /api/clients ne renvoie pas la collection `demandes`.
      */
     @GetMapping("/demandes")
     public ResponseEntity<List<DemandeCredit>> getAllDemandes() {
-        return ResponseEntity.ok(demandeCreditRepository.findAllWithClient());
+        return ResponseEntity.ok(demandeCreditRepository.findAllActivesWithClient());
+    }
+
+    /** Dossiers de la corbeille (suppression logique), les plus récemment supprimés d'abord. */
+    @GetMapping("/demandes/corbeille")
+    public ResponseEntity<List<DemandeCredit>> getCorbeille() {
+        return ResponseEntity.ok(demandeCreditRepository.findCorbeilleWithClient());
+    }
+
+    /** Envoie un dossier à la corbeille (suppression logique, réversible). */
+    @DeleteMapping("/demandes/{id}")
+    public ResponseEntity<?> supprimerDemande(@PathVariable Long id,
+                                              @RequestParam(required = false) String par) {
+        return demandeCreditRepository.findById(id).map(d -> {
+            d.setSupprime(true);
+            d.setDateSuppression(java.time.LocalDateTime.now());
+            d.setSupprimePar(par);
+            demandeCreditRepository.save(d);
+            return ResponseEntity.noContent().build();
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    /** Restaure un dossier depuis la corbeille. */
+    @PostMapping("/demandes/{id}/restaurer")
+    public ResponseEntity<DemandeCredit> restaurerDemande(@PathVariable Long id) {
+        return demandeCreditRepository.findById(id).map(d -> {
+            d.setSupprime(false);
+            d.setDateSuppression(null);
+            d.setSupprimePar(null);
+            return ResponseEntity.ok(demandeCreditRepository.save(d));
+        }).orElse(ResponseEntity.notFound().build());
+    }
+
+    /** Suppression DÉFINITIVE (physique) d'un dossier de la corbeille. */
+    @DeleteMapping("/demandes/{id}/definitif")
+    public ResponseEntity<?> supprimerDefinitivement(@PathVariable Long id) {
+        if (!demandeCreditRepository.existsById(id)) {
+            return ResponseEntity.notFound().build();
+        }
+        demandeCreditRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    /**
+     * Enregistre l'appréciation manuelle de l'agent sur un dossier déjà scoré.
+     * INFORMATIF : ne relance pas le moteur, n'altère ni le score ni la zone.
+     */
+    @PutMapping("/demandes/{id}/avis")
+    public ResponseEntity<DemandeCredit> enregistrerAvisAgent(@PathVariable Long id,
+                                                             @RequestBody java.util.Map<String, String> body) {
+        return demandeCreditRepository.findById(id).map(d -> {
+            d.setAvisAgent(body.get("avis"));
+            d.setAvisAgentCommentaire(body.get("commentaire"));
+            d.setAvisAgentMotifs(body.get("motifs"));
+            d.setAvisAgentDate(java.time.LocalDateTime.now());
+            return ResponseEntity.ok(demandeCreditRepository.save(d));
+        }).orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping("/clients/{clientId}/demandes")

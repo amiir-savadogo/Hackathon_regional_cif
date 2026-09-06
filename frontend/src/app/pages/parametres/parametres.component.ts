@@ -1,7 +1,7 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { ActivatedRoute, Router, RouterLink } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
 import { SettingsService, CategorieCreditItem, ObjetCreditItem, GarantieItem, NatureJuridiqueItem } from '../../services/settings.service';
 import { AgentRole, AgenceCIF, CorbeilleItem } from '../../models/user.model';
@@ -11,24 +11,17 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
 @Component({
   selector: 'app-parametres',
   standalone: true,
-  imports: [CommonModule, FormsModule, RouterLink],
+  imports: [CommonModule, FormsModule],
   template: `
     <div class="max-w-7xl mx-auto space-y-6">
 
       <!-- ========================================================================= -->
-      <!-- BARRE SUPÉRIEURE ÉPURÉE AVEC FIL D'ARIANE PROPRE & RETOUR HUB             -->
+      <!-- BARRE DE NAVIGATION INTERNE DES PARAMÈTRES (HUB <-> section) & RETOUR HUB -->
       <!-- ========================================================================= -->
       <div class="bg-white rounded-2xl border border-gray-200/80 px-4 sm:px-5 py-3.5 shadow-sm flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
-        <!-- Fil d'Ariane élégant et clair -->
-        <nav class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm font-medium text-gray-500 min-w-0" aria-label="Breadcrumb">
-          <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors group">
-            <svg class="w-4 h-4 mr-1.5 text-gray-400 group-hover:text-[#147c76] transition-colors" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-            <span>Accueil</span>
-          </a>
-          
-          <svg class="w-4 h-4 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-          
-          <button type="button" (click)="goToSection('HUB')" 
+        <!-- Navigation interne : retour au HUB puis section courante -->
+        <nav class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm font-medium text-gray-500 min-w-0" aria-label="Navigation des paramètres">
+          <button type="button" (click)="goToSection('HUB')"
             class="transition-colors cursor-pointer inline-flex items-center gap-1.5"
             [ngClass]="currentSection === 'HUB' ? 'text-gray-900 font-bold' : 'text-gray-500 hover:text-[#147c76]'">
             <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37.996.608 2.296.07 2.572-1.065z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/></svg>

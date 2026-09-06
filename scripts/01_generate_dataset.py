@@ -380,32 +380,180 @@ montant_max_credit_anterieur_fcfa = _agg_hist(
 
 # ===========================================================================
 # 5. Bureau d'Information sur le Crédit (BIC / centrale des risques UEMOA)
+#    "Base téléchargée" : chaque sociétaire a une consultation BIC, avec le
+#    DÉTAIL de ses engagements dans les autres institutions (une ligne par
+#    crédit externe). Le statut_bic (feature catégorielle) et les agrégats
+#    consommés par le modèle sont dérivés de cette liste -> cohérence garantie.
 # ===========================================================================
-interroge_bic = RNG.choice([1, 0], N, p=[0.85, 0.15])
-statut_bic = np.where(
-    interroge_bic == 1,
-    RNG.choice(STATUTS_BIC_SI_CONSULTE, N, p=STATUTS_BIC_SI_CONSULTE_PROBAS),
-    BIC_NON_CONSULTE,
-)
-nombre_prets_actifs_autres_institutions = np.where(
-    statut_bic == BIC_PRET_EN_COURS, RNG.choice([1, 2, 3], N, p=[0.65, 0.25, 0.10]), 0
-)
-encours_credit_autres_institutions_fcfa = np.where(
-    statut_bic == BIC_PRET_EN_COURS,
-    np.clip(RNG.lognormal(12.0, 0.6, N), 20000, 2_000_000),
-    0.0,
-).round(-3)
-mensualite_externe_estimee = (encours_credit_autres_institutions_fcfa * 0.09).round(-2)
+interroge_bic = np.ones(N, dtype=int)      # base BIC systématiquement consultée
+statut_bic = RNG.choice(STATUTS_BIC_SI_CONSULTE, N, p=STATUTS_BIC_SI_CONSULTE_PROBAS)
 
-lam_soldes = np.where(statut_bic == BIC_JAMAIS, 0.05, 1.1)
-bic_nombre_credits_soldes_ailleurs = np.where(
-    interroge_bic == 1, RNG.poisson(lam_soldes).astype(float), np.nan
-)
-# 999 = "aucun incident recensé" (plutôt que NaN : évite qu'une imputation par
-# la médiane transforme un dossier propre en "incident récent").
+_ETABLIS_BIC = ["BOA", "Ecobank", "Coris Bank", "UBA", "SGBF", "BSIC",
+                "Banque Atlantique", "SFD RCPB", "SFD Micro Start", "SFD Fidelis"]
+_TYPES_CREDIT_BIC = ["Crédit court terme", "Crédit moyen terme", "Découvert autorisé",
+                     "Crédit-bail", "Crédit consommation", "Crédit équipement"]
+
+bic_engagements_par_client = [[] for _ in range(N)]
+bic_interdiction_bancaire = np.zeros(N, dtype=int)
+bic_nombre_cheques_impayes_12m = np.zeros(N, dtype=int)
+
+for _i in range(N):
+    _s = statut_bic[_i]
+    _disc = float(discipline[_i])
+    if _s == BIC_JAMAIS:
+        _n_act, _n_sold = 0, int(RNG.random() < 0.15)
+    elif _s == BIC_BON_PAYEUR:
+        _n_act, _n_sold = int(RNG.integers(0, 3)), int(RNG.integers(1, 4))
+    elif _s == BIC_PRET_EN_COURS:
+        _n_act, _n_sold = int(RNG.choice([1, 2, 3], p=[0.6, 0.3, 0.1])), int(RNG.integers(0, 3))
+    elif _s == BIC_INCIDENT:
+        _n_act, _n_sold = int(RNG.choice([1, 2, 3], p=[0.45, 0.35, 0.20])), int(RNG.integers(0, 2))
+        bic_interdiction_bancaire[_i] = int(RNG.random() < 0.35)
+        bic_nombre_cheques_impayes_12m[_i] = int(RNG.poisson(0.8))
+    else:  # BIC_NON_CONSULTE (ne devrait pas arriver ici)
+        _n_act, _n_sold = 0, 0
+
+    for _j in range(_n_act + _n_sold):
+        _actif = _j < _n_act
+        _montant_init = float(np.clip(RNG.lognormal(12.0, 0.7), 30000, 3_000_000).round(-3))
+        _duree = int(RNG.choice([6, 12, 18, 24, 36, 48]))
+        _taux = round(float(RNG.uniform(9, 22)), 2)
+        _octroi = DATE_JOUR - timedelta(days=int(RNG.integers(60, 1800)))
+        _mensualite = round(_montant_init * ((_taux / 100) / 12) /
+                            (1 - (1 + (_taux / 100) / 12) ** (-_duree)), -2) if _taux > 0 else round(_montant_init / _duree, -2)
+        if _actif:
+            _part = float(np.clip(RNG.random() * 0.9 + 0.05, 0.05, 0.95))
+            _encours = round(_montant_init * (1 - _part), -3)
+            if _s == BIC_INCIDENT and _j == 0:
+                _st = str(RNG.choice(["Souffrance", "Contentieux"], p=[0.6, 0.4]))
+                _retard_max_e = int(RNG.integers(90, 400))
+                _nb_impayes_e = int(RNG.integers(3, 12))
+            elif RNG.random() < np.clip(0.12 - 0.08 * _disc, 0.01, 0.4):
+                _st, _retard_max_e, _nb_impayes_e = "Impayé", int(RNG.integers(30, 120)), int(RNG.integers(1, 4))
+            else:
+                _st, _retard_max_e, _nb_impayes_e = "Sain", int(np.clip(RNG.exponential(6) - 3 * _disc, 0, 25)), 0
+            _montant_retard = round(_mensualite * _nb_impayes_e, -2)
+        else:
+            _encours, _st = 0.0, "Soldé"
+            _retard_max_e, _nb_impayes_e, _montant_retard = int(np.clip(RNG.exponential(8), 0, 60)), 0, 0.0
+
+        bic_engagements_par_client[_i].append({
+            "etablissement": str(RNG.choice(_ETABLIS_BIC)),
+            "typeCredit": str(RNG.choice(_TYPES_CREDIT_BIC)),
+            "dateOctroi": _octroi.strftime("%Y-%m-%d"),
+            "montantInitialFcfa": int(_montant_init),
+            "encoursRestantFcfa": int(_encours),
+            "mensualiteFcfa": int(_mensualite),
+            "dureeMois": _duree,
+            "tauxInteretAnnuelPct": _taux,
+            "statut": _st,
+            "nombreImpayes": _nb_impayes_e,
+            "montantEnRetardFcfa": int(_montant_retard),
+            "joursRetardMax": _retard_max_e,
+            "garantie": str(RNG.choice(GARANTIES, p=GARANTIES_PROBAS)),
+        })
+
+
+def _agg_bic(fn, defaut):
+    return np.array([fn(bic_engagements_par_client[i]) for i in range(N)], dtype="float64")
+
+
+_ACTIFS_BIC = ("Sain", "Impayé", "Souffrance", "Contentieux")
+nombre_prets_actifs_autres_institutions = _agg_bic(
+    lambda L: sum(1 for e in L if e["statut"] in _ACTIFS_BIC), 0.0)
+encours_credit_autres_institutions_fcfa = _agg_bic(
+    lambda L: float(sum(e["encoursRestantFcfa"] for e in L)), 0.0).round(-3)
+bic_mensualites_totales_fcfa = _agg_bic(
+    lambda L: float(sum(e["mensualiteFcfa"] for e in L if e["statut"] in _ACTIFS_BIC)), 0.0).round(-2)
+mensualite_externe_estimee = bic_mensualites_totales_fcfa
+bic_nombre_credits_soldes_ailleurs = _agg_bic(
+    lambda L: float(sum(1 for e in L if e["statut"] == "Soldé")), 0.0)
+bic_nombre_impayes_total = _agg_bic(
+    lambda L: float(sum(e["nombreImpayes"] for e in L)), 0.0)
+bic_jours_retard_max = _agg_bic(
+    lambda L: float(max([e["joursRetardMax"] for e in L], default=0)), 0.0)
+bic_nombre_contentieux = _agg_bic(
+    lambda L: float(sum(1 for e in L if e["statut"] in ("Souffrance", "Contentieux"))), 0.0)
+bic_montant_retard_total_fcfa = _agg_bic(
+    lambda L: float(sum(e["montantEnRetardFcfa"] for e in L)), 0.0).round(-2)
+
+# Score BIC 0-100 (100 = excellent) : discipline - incidents - contentieux.
+bic_score = np.clip(
+    72 + 12 * discipline
+    - 6.0 * np.clip(bic_nombre_impayes_total, 0, 6)
+    - 15.0 * (bic_nombre_contentieux > 0)
+    - 10.0 * bic_interdiction_bancaire
+    + RNG.normal(0, 5, N),
+    5, 99,
+).round().astype("int64")
+
+# 999 = "aucun incident recensé" (comme avant).
 bic_anciennete_dernier_incident_mois = np.where(
-    statut_bic == BIC_INCIDENT, RNG.integers(1, 36, N).astype(float), 999.0
+    bic_nombre_contentieux > 0, RNG.integers(1, 36, N).astype(float), 999.0
 )
+
+# ===========================================================================
+# 5b. Factures de services publics : ONEA (eau) + SONABEL (électricité).
+#     Historique de paiement -> excellent proxy de discipline pour la
+#     clientèle peu bancarisée. Une ligne = une facture.
+# ===========================================================================
+factures_par_client = [[] for _ in range(N)]
+for _i in range(N):
+    _disc = float(discipline[_i])
+    _n_mois = int(RNG.integers(8, 19))               # 8 à 18 mois d'historique
+    _p_paiement = float(np.clip(0.90 + 0.09 * _disc, 0.45, 0.999))
+    _base_onea = float(np.clip(revenu_mensuel[_i] * RNG.uniform(0.008, 0.03), 1500, 25000))
+    _base_sonabel = float(np.clip(revenu_mensuel[_i] * RNG.uniform(0.015, 0.05), 2500, 60000))
+    for _k in range(_n_mois):
+        _periode = (DATE_JOUR - timedelta(days=(_n_mois - _k) * 30))
+        for _fournisseur, _base in (("ONEA", _base_onea), ("SONABEL", _base_sonabel)):
+            _montant = round(float(_base * RNG.uniform(0.7, 1.4)), -1)
+            _emission = _periode.replace(day=min(5, 28))
+            _echeance = _emission + timedelta(days=20)
+            _payee = RNG.random() < _p_paiement
+            if _payee:
+                _retard = max(0, int(RNG.exponential(4) - 2 * _disc))
+                _date_paiement = (_echeance + timedelta(days=_retard)).strftime("%Y-%m-%d")
+                _montant_impaye = 0
+            else:
+                _retard = int(RNG.integers(15, 120))
+                _date_paiement = None
+                _montant_impaye = int(_montant)
+            factures_par_client[_i].append({
+                "fournisseur": _fournisseur,
+                "periode": _periode.strftime("%Y-%m"),
+                "montantFcfa": int(_montant),
+                "dateEmission": _emission.strftime("%Y-%m-%d"),
+                "dateEcheance": _echeance.strftime("%Y-%m-%d"),
+                "statut": "Payée" if _payee else "Impayée",
+                "datePaiement": _date_paiement,
+                "joursRetard": int(_retard),
+                "montantImpayeFcfa": _montant_impaye,
+            })
+
+
+def _agg_fact(fn, defaut):
+    return np.array([fn(factures_par_client[i]) for i in range(N)], dtype="float64")
+
+
+factures_nombre_12m = _agg_fact(lambda L: float(len(L)), 0.0)
+factures_taux_paiement_pct = _agg_fact(
+    lambda L: round(100.0 * sum(1 for f in L if f["statut"] == "Payée") / len(L), 1) if L else 100.0, 100.0)
+factures_nombre_impayees = _agg_fact(
+    lambda L: float(sum(1 for f in L if f["statut"] == "Impayée")), 0.0)
+factures_retard_moyen_jours = _agg_fact(
+    lambda L: round(float(np.mean([f["joursRetard"] for f in L])), 1) if L else 0.0, 0.0)
+factures_montant_impaye_total_fcfa = _agg_fact(
+    lambda L: float(sum(f["montantImpayeFcfa"] for f in L)), 0.0).round(-2)
+
+# ===========================================================================
+# 5c. Moralité / civisme (INFORMATIF : jamais dans le modèle - biais / légalité).
+# ===========================================================================
+_CASIERS = ["Vierge", "Vierge", "Vierge", "Vierge", "Mentions mineures", "Condamnation"]
+casier_judiciaire = RNG.choice(_CASIERS, N)
+nombre_infractions_routieres_24m = RNG.poisson(np.clip(1.2 - 0.4 * discipline, 0.1, 4.0)).clip(0, 15)
+nombre_litiges_civils = RNG.poisson(np.clip(0.4 - 0.2 * discipline, 0.02, 2.0)).clip(0, 8)
+presence_liste_sanctions = (RNG.random(N) < 0.01).astype(int)
 
 # ===========================================================================
 # 6. Mobile Money (données alternatives : proxy de revenu et de discipline
@@ -548,7 +696,7 @@ z = (
     # Intercept calibré pour un taux de défaut cible ~10-13 % (microfinance UEMOA).
     # Sensibilité : environ -0.10 d'intercept => -1.5 à -2 points de défaut dans
     # cette zone. Ajuster ici si le taux affiché sort de [8 % ; 15 %].
-    -4.35
+    -6.05
     # --- capacité de remboursement (termes CONTINUS, jamais plafonnés) ---
     # Un ratio d'endettement de 191 % ou un reste à vivre très négatif restent
     # structurellement plus risqués qu'un cas limite à 81 % / RAV proche de zéro.
@@ -597,14 +745,23 @@ z = (
     + 0.30 * saisonnalite_activite
     + 0.45 * indice_vulnerabilite_zone * np.isin(secteur_activite, [SECT_AGRICULTURE, SECT_ELEVAGE])
     + 0.12 * indice_vulnerabilite_zone
-    # --- BIC ---
+    # --- BIC (centrale des risques UEMOA, dérivé du détail des engagements) ---
     + 1.05 * (statut_bic == BIC_INCIDENT)
     - 0.40 * (statut_bic == BIC_BON_PAYEUR)
     + 0.30 * (nombre_prets_actifs_autres_institutions >= 2)
     + 0.15 * (statut_bic == BIC_PRET_EN_COURS)
-    + np.where(np.isnan(bic_anciennete_dernier_incident_mois), 0.0,
-               0.35 * (np.nan_to_num(bic_anciennete_dernier_incident_mois) < 12))
+    + 0.35 * (np.nan_to_num(bic_anciennete_dernier_incident_mois, nan=999.0) < 12)
     + 0.10 * np.clip(np.nan_to_num(bic_nombre_credits_soldes_ailleurs) - 2.0, 0.0, 5.0)
+    + 0.90 * (bic_nombre_contentieux > 0)
+    + 0.50 * bic_interdiction_bancaire
+    + 0.06 * np.clip(bic_nombre_impayes_total, 0.0, 8.0)
+    + 0.004 * np.clip(bic_jours_retard_max - 30.0, 0.0, 200.0)
+    - 0.010 * (bic_score - 70.0)
+    + 0.15 * np.clip(bic_nombre_cheques_impayes_12m, 0.0, 4.0)
+    # --- Factures ONEA / SONABEL (discipline de paiement) ---
+    - 0.012 * (factures_taux_paiement_pct - 90.0)
+    + 0.15 * np.clip(factures_nombre_impayees, 0.0, 6.0)
+    + 0.005 * np.clip(factures_retard_moyen_jours - 10.0, 0.0, 60.0)
     # --- Mobile Money ---
     - 0.12 * possede_mobile_money
     - 0.008 * np.clip(frequence_transactions_mm_mois, 0, 30)
@@ -658,6 +815,11 @@ COLONNES_MODELE = [
     "interroge_bic", "statut_bic", "nombre_prets_actifs_autres_institutions",
     "encours_credit_autres_institutions_fcfa", "bic_nombre_credits_soldes_ailleurs",
     "bic_anciennete_dernier_incident_mois",
+    "bic_score", "bic_mensualites_totales_fcfa", "bic_nombre_impayes_total",
+    "bic_jours_retard_max", "bic_nombre_contentieux", "bic_montant_retard_total_fcfa",
+    "bic_interdiction_bancaire", "bic_nombre_cheques_impayes_12m",
+    "factures_nombre_12m", "factures_taux_paiement_pct", "factures_nombre_impayees",
+    "factures_retard_moyen_jours", "factures_montant_impaye_total_fcfa",
     "categorie_credit", "montant_credit_demande_fcfa", "duree_credit_mois",
     "taux_interet_nominal_annuel_pct", "garantie",
     "future_echeance_credit_fcfa", "ratio_endettement", "ratio_reste_a_vivre_absolu_fcfa",
@@ -675,11 +837,16 @@ _INT_MONEY = {
     "encours_credit_autres_institutions_fcfa", "montant_credit_demande_fcfa",
     "future_echeance_credit_fcfa", "ratio_reste_a_vivre_absolu_fcfa",
     "montant_max_credit_anterieur_fcfa",
+    "bic_mensualites_totales_fcfa", "bic_montant_retard_total_fcfa",
+    "factures_montant_impaye_total_fcfa",
 }
 # Compteurs entiers sans valeur manquante (0 pour un primo-emprunteur).
 _INT_COUNT = {
     "nombre_credits_soldes", "a_deja_defaut_interne",
     "nombre_incidents_paiement_total", "nombre_reechelonnements_total",
+    "bic_score", "bic_nombre_impayes_total", "bic_jours_retard_max",
+    "bic_nombre_contentieux", "bic_interdiction_bancaire", "bic_nombre_cheques_impayes_12m",
+    "factures_nombre_12m", "factures_nombre_impayees",
 }
 
 # Alias : quelques variables portent un nom "métier" plus court en amont ;
@@ -753,6 +920,23 @@ _lignes_credits = [
 pd.DataFrame(_lignes_credits).to_csv(
     os.path.join(REPO, "data", "credits_internes.csv"), index=False, encoding="utf-8-sig")
 
+# BIC détaillé : une ligne = un engagement dans une autre institution (AUDIT /
+# affichage). Le modèle n'utilise que les agrégats (bic_*).
+_lignes_bic = [
+    {"id_client": str(id_client[i]), "id_societaire": i + 1, **_e}
+    for i in range(N) for _e in bic_engagements_par_client[i]
+]
+pd.DataFrame(_lignes_bic).to_csv(
+    os.path.join(REPO, "data", "bic_engagements.csv"), index=False, encoding="utf-8-sig")
+
+# Factures ONEA/SONABEL : une ligne = une facture (AUDIT / affichage).
+_lignes_fact = [
+    {"id_client": str(id_client[i]), "id_societaire": i + 1, **_f}
+    for i in range(N) for _f in factures_par_client[i]
+]
+pd.DataFrame(_lignes_fact).to_csv(
+    os.path.join(REPO, "data", "factures_services_publics.csv"), index=False, encoding="utf-8-sig")
+
 
 def _client_base(i):
     return {
@@ -783,6 +967,10 @@ def _client_base(i):
         "activite": str(activite[i]),
         "secteurActivite": str(secteur_activite[i]),
         "ancienneteActiviteAnnees": float(anciennete_activite_annees[i]),
+        # Date d'ADHÉSION à la coopérative (ouverture du compte sociétaire).
+        # Distincte de dateCreation, qui est l'horodatage technique de la ligne
+        # en base (posé par @PrePersist et ignoré par le seeder).
+        "dateAdhesionCooperative": str(date_creation[i]),
         "dateCreation": str(date_creation[i]),
         "ancienneteCooperativeMois": int(anciennete_cooperative_mois[i]),
         "revenuMensuelFcfa": int(revenu_mensuel[i]),
@@ -791,6 +979,15 @@ def _client_base(i):
         # Historique interne détaillé : une carte par crédit CIF passé, affichée
         # en lecture seule dans le wizard. Liste vide = primo-emprunteur.
         "creditsInternesAnterieurs": list(credits_par_client[i]),
+        # Détail BIC : une ligne par engagement dans une autre institution.
+        "bicEngagementsExternes": list(bic_engagements_par_client[i]),
+        # Factures ONEA (eau) + SONABEL (électricité).
+        "facturesServicesPublics": list(factures_par_client[i]),
+        # Moralité / civisme (INFORMATIF, jamais dans le modèle).
+        "casierJudiciaire": str(casier_judiciaire[i]),
+        "nombreInfractionsRoutieres24m": int(nombre_infractions_routieres_24m[i]),
+        "nombreLitigesCivils": int(nombre_litiges_civils[i]),
+        "presenceListeSanctions": bool(presence_liste_sanctions[i]),
         "demandes": [],
     }
 
@@ -805,6 +1002,26 @@ def _client_complet(i):
         "sousSecteurActivite": str(sous_secteur_activite[i]),
         "saisonaliteActivite": bool(saisonnalite_activite[i]),
         "indiceVulnerabiliteZone": float(indice_vulnerabilite_zone[i]),
+        # BIC : agrégats dérivés du détail des engagements externes.
+        "interrogeBic": True,
+        "statutBic": str(statut_bic[i]),
+        "bicScore": int(bic_score[i]),
+        "nombrePretsActifsAutresInstitutions": int(nombre_prets_actifs_autres_institutions[i]),
+        "encoursCreditAutresInstitutionsFcfa": int(encours_credit_autres_institutions_fcfa[i]),
+        "bicMensualitesTotalesFcfa": int(bic_mensualites_totales_fcfa[i]),
+        "bicNombreCreditsSoldesAilleurs": _nan_to_none(float(bic_nombre_credits_soldes_ailleurs[i])),
+        "bicNombreImpayesTotal": int(bic_nombre_impayes_total[i]),
+        "bicJoursRetardMax": int(bic_jours_retard_max[i]),
+        "bicNombreContentieux": int(bic_nombre_contentieux[i]),
+        "bicMontantRetardTotalFcfa": int(bic_montant_retard_total_fcfa[i]),
+        "bicInterdictionBancaire": bool(bic_interdiction_bancaire[i]),
+        "bicNombreChequesImpayes12m": int(bic_nombre_cheques_impayes_12m[i]),
+        "bicAncienneteDernierIncidentMois": _nan_to_none(float(bic_anciennete_dernier_incident_mois[i])),
+        "facturesNombre12m": int(factures_nombre_12m[i]),
+        "facturesTauxPaiementPct": float(factures_taux_paiement_pct[i]),
+        "facturesNombreImpayees": int(factures_nombre_impayees[i]),
+        "facturesRetardMoyenJours": float(factures_retard_moyen_jours[i]),
+        "facturesMontantImpayeTotalFcfa": int(factures_montant_impaye_total_fcfa[i]),
         "nombreCreditsAnterieurs": int(nombre_credits_anterieurs[i]),
         "tauxRemboursementHistoriquePct": _nan_to_none(float(taux_remboursement_historique[i])),
         "joursRetardMoyenHistorique": _nan_to_none(float(jours_retard_moyen_historique[i])),
@@ -872,11 +1089,12 @@ print(f"  dataset_entrainement.csv : {df_entrainement.shape[0]} lignes x "
       f"{len(COLONNES_MODELE)} features (+ id_client + defaut_credit)")
 print(f"  societaires.json         : {len(clients_banque)} sociétaires (BASE A)")
 print(f"  Taux de défaut global    : {taux_defaut:.2%}")
+_INTERCEPT_Z = -6.05   # doit rester synchronisé avec la 1re constante de la formule z (section 10)
 if not (0.08 <= taux_defaut <= 0.15):
     _cible = 0.115
     _delta = float(np.log(_cible / (1 - _cible)) - np.log(taux_defaut / (1 - taux_defaut)))
     print(f"  ⚠️  hors plage cible [8% ; 15%] -> dans la formule z, remplacer "
-          f"l'intercept -4.35 par ~{-4.35 + _delta:.2f} et relancer 01.")
+          f"l'intercept {_INTERCEPT_Z} par ~{_INTERCEPT_Z + _delta:.2f} et relancer 01.")
 print(f"  Nouveaux clients (0 crédit antérieur) : {(nombre_credits_anterieurs == 0).mean():.1%}")
 print(f"  Possède Mobile Money                  : {(possede_mobile_money == 1).mean():.1%}")
 print(f"  BIC consulté                          : {(interroge_bic == 1).mean():.1%}")

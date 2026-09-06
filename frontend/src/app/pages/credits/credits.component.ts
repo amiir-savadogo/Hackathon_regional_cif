@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Client, DemandeCredit } from '../../models/client.model';
+import { couleurScore } from '../../models/scoring-zones';
 
 interface CreditDossierItem {
   demande: DemandeCredit;
@@ -17,36 +18,37 @@ interface CreditDossierItem {
   template: `
     <div class="space-y-6">
 
-      <!-- Fil d'Ariane -->
-      <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm" aria-label="Breadcrumb">
-        <a routerLink="/dashboard" class="inline-flex items-center text-[#147c76] hover:text-[#0e625e] font-semibold transition-colors">
-          <svg class="w-3.5 h-3.5 mr-1.5 text-[#147c76]" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-          Accueil
-        </a>
-        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-gray-800 font-semibold">Crédits</span>
-        <span *ngIf="dossiers.length > 0" class="ml-2 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
-          {{ dossiers.length }} dossier{{ dossiers.length > 1 ? 's' : '' }}
-        </span>
-      </nav>
-
       <!-- En-tête avec bouton vers la nouvelle page d'instruction -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Gestion des Crédits</h1>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Gestion des Crédits</h1>
+            <span *ngIf="dossiers.length > 0" class="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
+              {{ dossiers.length }} dossier{{ dossiers.length > 1 ? 's' : '' }}
+            </span>
+          </div>
           <p class="text-sm text-gray-500 mt-0.5">Dossiers de microcrédit instruits et scorés par le moteur d'IA</p>
         </div>
-        <a routerLink="/credits/nouveau"
-          class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-all flex items-center space-x-2 self-start sm:self-auto">
-          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
-          </svg>
-          <span>Nouveau Crédit</span>
-        </a>
+        <div class="flex items-center gap-2 self-start sm:self-auto">
+          <button type="button" (click)="toggleCorbeille()"
+            [ngClass]="vueCorbeille ? 'bg-[#147c76] text-white border-[#147c76]' : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'"
+            class="text-sm font-semibold px-3 py-2.5 rounded-xl border transition-all flex items-center gap-1.5">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+            <span>Corbeille</span>
+            <span *ngIf="corbeille.length > 0" class="px-1.5 py-0.5 text-[10px] font-bold rounded-full" [ngClass]="vueCorbeille ? 'bg-white/25' : 'bg-gray-100 text-gray-500'">{{ corbeille.length }}</span>
+          </button>
+          <a routerLink="/credits/nouveau"
+            class="bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-semibold px-4 py-2.5 rounded-xl shadow-sm hover:shadow transition-all flex items-center space-x-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/>
+            </svg>
+            <span>Nouveau Crédit</span>
+          </a>
+        </div>
       </div>
 
       <!-- Métriques synthétiques -->
-      <div class="grid grid-cols-2 lg:grid-cols-4 gap-4">
+      <div *ngIf="!vueCorbeille" class="grid grid-cols-2 lg:grid-cols-4 gap-4">
         <div class="bg-white rounded-xl border border-gray-200 p-4 shadow-sm">
           <p class="text-xs text-gray-500 font-medium uppercase">Total Dossiers</p>
           <p class="text-2xl font-bold text-gray-900 mt-1">{{ dossiers.length }}</p>
@@ -70,7 +72,7 @@ interface CreditDossierItem {
       </div>
 
       <!-- Filtres & Recherche -->
-      <div class="bg-white rounded-xl border border-gray-200 p-3.5 shadow-sm flex flex-col sm:flex-row gap-3">
+      <div *ngIf="!vueCorbeille" class="bg-white rounded-xl border border-gray-200 p-3.5 shadow-sm flex flex-col sm:flex-row gap-3">
         <div class="relative flex-1">
           <div class="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none text-gray-400">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/></svg>
@@ -88,80 +90,79 @@ interface CreditDossierItem {
         </select>
       </div>
 
-      <!-- Table des dossiers de crédit -->
-      <div class="bg-white rounded-2xl border border-gray-200/90 shadow-sm overflow-x-auto">
-        <table class="w-full min-w-[900px] text-left text-sm" *ngIf="filteredDossiers.length > 0">
-          <thead class="bg-gray-50/90 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
-            <tr>
-              <th class="px-5 py-3.5">Sociétaire (Client)</th>
-              <th class="px-5 py-3.5">N° CNIB</th>
-              <th class="px-5 py-3.5">Montant & Durée</th>
-              <th class="px-5 py-3.5">Objet du prêt</th>
-              <th class="px-5 py-3.5">Score IA</th>
-              <th class="px-5 py-3.5">Décision</th>
-              <th class="px-5 py-3.5">Date</th>
-              <th class="px-5 py-3.5 text-right">Actions</th>
-            </tr>
-          </thead>
-          <tbody class="divide-y divide-gray-100">
-            <tr *ngFor="let item of filteredDossiers"
-              [routerLink]="['/credits', item.demande.id]"
-              class="hover:bg-[#e5f3f1]/40 transition-colors cursor-pointer">
-              <td class="px-5 py-3.5">
-                <div class="flex items-center space-x-3">
-                  <div class="w-9 h-9 rounded-xl bg-[#e5f3f1] text-[#147c76] font-bold text-xs flex items-center justify-center border border-[#b9ded9]">
-                    {{ item.client.prenom ? item.client.prenom[0] : '' }}{{ item.client.nom ? item.client.nom[0] : '' }}
-                  </div>
-                  <div>
-                    <div class="flex items-center space-x-2">
-                      <span class="font-bold text-gray-900 leading-tight">{{ item.client.prenom }} {{ item.client.nom }}</span>
-                      <span class="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-[#e5f3f1] text-[#147c76] rounded border border-[#b9ded9]">
-                        {{ item.client.numeroCompte }}
-                      </span>
-                    </div>
-                    <span class="text-xs text-gray-400 block mt-0.5">{{ item.client.activite }} · {{ item.client.ville }} ({{ item.client.agence }})</span>
-                  </div>
+      <!-- ============ CORBEILLE ============ -->
+      <div *ngIf="vueCorbeille" class="bg-white rounded-2xl border border-gray-200/90 shadow-sm overflow-hidden">
+        <div class="px-5 py-3 bg-gray-50 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase">
+          Dossiers supprimés ({{ corbeille.length }})
+        </div>
+        <div *ngIf="corbeille.length === 0" class="p-10 text-center text-sm text-gray-400">La corbeille est vide.</div>
+        <div *ngIf="corbeille.length > 0" class="divide-y divide-gray-100">
+          <div *ngFor="let d of corbeille" class="p-4 sm:px-5 sm:py-4 flex flex-col sm:flex-row sm:items-center gap-3">
+            <div class="min-w-0 flex-1">
+              <span class="font-bold text-gray-900">{{ d.client?.prenom }} {{ d.client?.nom }}</span>
+              <span class="text-xs text-gray-400 block">{{ d.montantDemandeFcfa | number }} FCFA · {{ d.dureeMois }} mois · {{ d.objetCredit }}</span>
+              <span class="text-[11px] text-gray-400 block mt-0.5">Supprimé le {{ d.dateSuppression | date:'dd/MM/yyyy HH:mm' }}</span>
+            </div>
+            <div class="flex items-center gap-2 flex-shrink-0">
+              <button type="button" (click)="restaurer(d)" class="px-3 py-1.5 rounded-lg bg-[#e5f3f1] text-[#147c76] text-xs font-semibold hover:bg-[#cce9e5]">Restaurer</button>
+              <button type="button" (click)="supprimerDefinitif(d)" class="px-3 py-1.5 rounded-lg bg-red-50 text-red-600 text-xs font-semibold hover:bg-red-100">Supprimer définitivement</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Liste des dossiers (cartes responsives) -->
+      <div *ngIf="!vueCorbeille" class="bg-white rounded-2xl border border-gray-200/90 shadow-sm overflow-hidden">
+
+        <div *ngIf="filteredDossiers.length > 0" class="divide-y divide-gray-100">
+          <div *ngFor="let item of filteredDossiers"
+            [routerLink]="['/credits', item.demande.id]"
+            class="group relative p-4 sm:px-5 sm:py-4 hover:bg-[#e5f3f1]/30 transition-colors cursor-pointer">
+
+            <div class="flex items-start gap-3">
+              <!-- avatar -->
+              <div class="w-10 h-10 flex-shrink-0 rounded-xl bg-[#e5f3f1] text-[#147c76] font-bold text-xs flex items-center justify-center border border-[#b9ded9]">
+                {{ (item.client.prenom || '?')[0] }}{{ (item.client.nom || '?')[0] }}
+              </div>
+
+              <!-- infos -->
+              <div class="min-w-0 flex-1">
+                <div class="flex flex-wrap items-center gap-x-2 gap-y-1">
+                  <span class="font-bold text-gray-900 leading-tight truncate">{{ item.client.prenom }} {{ item.client.nom }}</span>
+                  <span class="px-1.5 py-0.5 text-[10px] font-mono font-bold bg-[#e5f3f1] text-[#147c76] rounded border border-[#b9ded9]">{{ item.client.numeroCompte }}</span>
+                  <span [ngClass]="getStatusBadgeClass(item.demande.statut)" class="px-2 py-0.5 rounded-full text-[11px] font-bold border inline-flex items-center gap-1">
+                    <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getStatusDotClass(item.demande.statut)"></span>
+                    {{ getStatusLabel(item.demande.statut) }}
+                  </span>
                 </div>
-              </td>
-              <td class="px-5 py-3.5">
-                <span class="px-2 py-0.5 text-xs font-mono font-bold bg-amber-50 text-amber-900 rounded border border-amber-200 block w-max">
-                  CNIB: {{ item.client.numeroCnib }}
-                </span>
-              </td>
-              <td class="px-5 py-3.5">
-                <span class="font-bold text-gray-900 block">{{ item.demande.montantDemandeFcfa | number }} FCFA</span>
-                <span class="text-xs text-gray-400">{{ item.demande.dureeMois }} mois</span>
-              </td>
-              <td class="px-5 py-3.5 text-gray-700">
-                <span class="px-2.5 py-1 rounded-lg bg-gray-100 text-gray-700 text-xs font-medium inline-block">
-                  {{ item.demande.objetCredit || 'Commerce / Activité' }}
-                </span>
-              </td>
-              <td class="px-5 py-3.5">
-                <div class="flex items-center space-x-1.5" *ngIf="item.demande.scoreCredit">
-                  <span class="font-bold text-sm" [ngClass]="getScoreColor(item.demande.scoreCredit)">{{ item.demande.scoreCredit }}</span>
-                  <span class="text-[11px] text-gray-400 font-mono">/ 100</span>
+                <p class="text-xs text-gray-400 mt-0.5 truncate">
+                  CNIB {{ item.client.numeroCnib }} · {{ item.client.activite }} · {{ item.client.ville }}
+                </p>
+                <div class="flex flex-wrap items-center gap-x-3 gap-y-1 mt-2 text-xs">
+                  <span class="font-bold text-gray-900">{{ item.demande.montantDemandeFcfa | number }} FCFA</span>
+                  <span class="text-gray-400">{{ item.demande.dureeMois }} mois</span>
+                  <span class="px-2 py-0.5 rounded-md bg-gray-100 text-gray-600 font-medium">{{ item.demande.objetCredit || 'Commerce / Activité' }}</span>
+                  <span class="text-gray-400">{{ item.demande.dateCreation | date:'dd/MM/yyyy' }}</span>
                 </div>
-                <span *ngIf="!item.demande.scoreCredit" class="text-xs text-gray-400">-</span>
-              </td>
-              <td class="px-5 py-3.5">
-                <span [ngClass]="getStatusBadgeClass(item.demande.statut)" class="px-2.5 py-1 rounded-full text-xs font-bold border inline-flex items-center gap-1">
-                  <span class="w-1.5 h-1.5 rounded-full" [ngClass]="getStatusDotClass(item.demande.statut)"></span>
-                  {{ getStatusLabel(item.demande.statut) }}
-                </span>
-              </td>
-              <td class="px-5 py-3.5 text-xs text-gray-400">
-                {{ item.demande.dateCreation | date:'dd/MM/yyyy' }}
-              </td>
-              <td class="px-5 py-3.5 text-right whitespace-nowrap">
-                <span class="px-3 py-1.5 rounded-lg bg-[#e5f3f1] text-[#147c76] text-xs font-semibold inline-flex items-center gap-1">
-                  Ouvrir le dossier
-                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-                </span>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+              </div>
+
+              <!-- score + actions -->
+              <div class="flex flex-col items-end gap-2 flex-shrink-0">
+                <div *ngIf="scoreAffiche(item.demande.scoreCredit) !== null"
+                  [ngClass]="getScoreChipClass(item.demande.scoreCredit)"
+                  class="px-2.5 py-1 rounded-xl border text-center leading-none">
+                  <span class="text-lg font-extrabold">{{ scoreAffiche(item.demande.scoreCredit) }}</span><span class="text-[10px] font-semibold opacity-60">/100</span>
+                </div>
+                <span *ngIf="scoreAffiche(item.demande.scoreCredit) === null" class="text-[11px] text-gray-300">score n/d</span>
+                <button type="button" title="Envoyer à la corbeille"
+                  (click)="$event.stopPropagation(); $event.preventDefault(); supprimer(item.demande)"
+                  class="p-1.5 rounded-lg text-gray-300 hover:text-red-600 hover:bg-red-50 transition-colors">
+                  <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <!-- État vide ou Résultats trouvés dans la base bancaire globale -->
         <div *ngIf="filteredDossiers.length === 0" class="p-8">
@@ -237,9 +238,45 @@ export class CreditsComponent implements OnInit {
   dossiers: CreditDossierItem[] = [];
   searchQuery = '';
   selectedStatusFilter = 'ALL';
+  vueCorbeille = false;
+  corbeille: DemandeCredit[] = [];
 
   ngOnInit() {
     this.loadData();
+    this.chargerCorbeille();
+  }
+
+  chargerCorbeille() {
+    this.apiService.getCorbeille().subscribe({ next: (l) => this.corbeille = l || [] });
+  }
+
+  toggleCorbeille() {
+    this.vueCorbeille = !this.vueCorbeille;
+    if (this.vueCorbeille) this.chargerCorbeille();
+  }
+
+  supprimer(demande: DemandeCredit) {
+    if (!demande.id || !confirm('Envoyer ce dossier à la corbeille ?')) return;
+    this.apiService.supprimerDemande(demande.id).subscribe({
+      next: () => { this.loadData(); this.chargerCorbeille(); },
+      error: (e) => console.error('Suppression :', e),
+    });
+  }
+
+  restaurer(demande: DemandeCredit) {
+    if (!demande.id) return;
+    this.apiService.restaurerDemande(demande.id).subscribe({
+      next: () => { this.loadData(); this.chargerCorbeille(); },
+      error: (e) => console.error('Restauration :', e),
+    });
+  }
+
+  supprimerDefinitif(demande: DemandeCredit) {
+    if (!demande.id || !confirm('Supprimer DÉFINITIVEMENT ce dossier ? Cette action est irréversible.')) return;
+    this.apiService.supprimerDefinitivement(demande.id).subscribe({
+      next: () => this.chargerCorbeille(),
+      error: (e) => console.error('Suppression définitive :', e),
+    });
   }
 
   loadData() {
@@ -333,12 +370,26 @@ export class CreditsComponent implements OnInit {
     return Math.round((approved / this.dossiers.length) * 100);
   }
 
-  // Score de solvabilité 0-100, couleurs alignées sur les zones de décision.
+  // Score de solvabilité 0-100, couleurs alignées sur les zones du modèle
+  // déployé (cf. models/scoring-zones.ts).
   getScoreColor(score?: number): string {
-    if (score === null || score === undefined) return 'text-gray-700';
-    if (score > 81) return 'text-emerald-600';
-    if (score > 56) return 'text-amber-600';
-    return 'text-red-600';
+    const c = couleurScore(score);
+    return c === 'gris' ? 'text-gray-700' : c === 'vert' ? 'text-emerald-600' : c === 'orange' ? 'text-amber-600' : 'text-red-600';
+  }
+
+  /** Score à afficher : null si absent ou hors échelle 0-100 (ancienne donnée 300-900). */
+  scoreAffiche(score?: number): number | null {
+    return (score !== null && score !== undefined && score >= 0 && score <= 100)
+      ? Math.round(score) : null;
+  }
+
+  /** Pastille de score : fond + texte + bordure selon la zone de décision. */
+  getScoreChipClass(score?: number): string {
+    const c = couleurScore(this.scoreAffiche(score));
+    if (c === 'gris') return 'bg-gray-50 text-gray-400 border-gray-200';
+    if (c === 'vert') return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+    if (c === 'orange') return 'bg-amber-50 text-amber-700 border-amber-200';
+    return 'bg-red-50 text-red-700 border-red-200';
   }
 
   getStatusBadgeClass(statut?: string): string {

@@ -3,10 +3,10 @@ API Scoring Microcrédit — Moteur IA
 Hackathon National d'Innovation CIF — Projet DigiCoop-WA+ (Thématique 02)
 
 Expose le modèle entraîné par scripts/02_train_model.py sur
-data/dataset_entrainement.csv (71 variables : cf. scripts/01_generate_dataset.py,
+data/dataset_entrainement.csv (84 variables : cf. scripts/01_generate_dataset.py,
 liste COLONNES_MODELE).
 
-Le client (backend Spring) envoie les 65 variables BRUTES ; le service calcule
+Le client (backend Spring) envoie les 78 variables BRUTES ; le service calcule
 lui-même les 6 variables DÉRIVÉES avec exactement les mêmes formules que le
 générateur du dataset :
   - indice_vulnerabilite_zone
@@ -164,12 +164,27 @@ class ClientData(BaseModel):
     nombre_rejets_prelevements_cheques_12m: int = Field(0, ge=0)
 
     # --- Bureau d'Information sur le Crédit (BIC) ---
-    interroge_bic: int = Field(0, ge=0, le=1)
+    interroge_bic: int = Field(1, ge=0, le=1)
     statut_bic: str = BIC_NON_CONSULTE
     nombre_prets_actifs_autres_institutions: int = Field(0, ge=0)
     encours_credit_autres_institutions_fcfa: float = Field(0, ge=0)
     bic_nombre_credits_soldes_ailleurs: Optional[float] = Field(None, ge=0)
     bic_anciennete_dernier_incident_mois: Optional[float] = Field(None, ge=0)
+    bic_score: Optional[float] = Field(None, ge=0, le=100)
+    bic_mensualites_totales_fcfa: float = Field(0, ge=0)
+    bic_nombre_impayes_total: int = Field(0, ge=0)
+    bic_jours_retard_max: Optional[float] = Field(None, ge=0)
+    bic_nombre_contentieux: int = Field(0, ge=0)
+    bic_montant_retard_total_fcfa: float = Field(0, ge=0)
+    bic_interdiction_bancaire: int = Field(0, ge=0, le=1)
+    bic_nombre_cheques_impayes_12m: int = Field(0, ge=0)
+
+    # --- Factures ONEA (eau) / SONABEL (électricité) ---
+    factures_nombre_12m: int = Field(0, ge=0)
+    factures_taux_paiement_pct: float = Field(100.0, ge=0, le=100)
+    factures_nombre_impayees: int = Field(0, ge=0)
+    factures_retard_moyen_jours: float = Field(0, ge=0)
+    factures_montant_impaye_total_fcfa: float = Field(0, ge=0)
 
     # --- Demande de crédit ---
     categorie_credit: str
@@ -207,6 +222,7 @@ _NUMERIC_NULLABLE = (
     "delai_utilisation_credit_apres_deblocage_jours",
     "part_credits_soldes_pct", "taux_remboursement_dernier_credit_pct",
     "jours_retard_max_historique", "anciennete_dernier_credit_mois",
+    "bic_score", "bic_jours_retard_max",
     "mm_anciennete_compte_mois", "mm_anciennete_sim_mois", "mm_nombre_mois_actifs_12m",
     "mm_evolution_solde_pct", "mm_volatilite_flux_pct", "mm_ratio_depenses_credit_appel_data_pct",
     "bic_nombre_credits_soldes_ailleurs",
@@ -228,7 +244,7 @@ def _echeance_annuite(montant: float, taux_annuel_pct: float, duree_mois: int) -
 
 def _preparer_row(data: ClientData) -> dict:
     """Applique les mêmes règles de cohérence 'valeur absente' que le générateur
-    du dataset, puis calcule les 6 variables dérivées. Renvoie un dict des 71
+    du dataset, puis calcule les 6 variables dérivées. Renvoie un dict des 84
     colonnes attendues par le préprocesseur."""
     row = data.model_dump()
     row.pop("objet_credit", None)
@@ -266,19 +282,24 @@ def _preparer_row(data: ClientData) -> dict:
             row[k] = 0.0
         row["nombre_rejets_prelevements_cheques_12m"] = 0
 
-    # 1d. BIC non consulté
+    # 1d. BIC non consulté (rare : la base BIC est normalement pré-chargée)
     if int(data.interroge_bic) == 0:
         row["statut_bic"] = BIC_NON_CONSULTE
-        row["bic_nombre_credits_soldes_ailleurs"] = np.nan
-
-    # 1e. Engagements externes uniquement si "Prêt en cours ailleurs"
-    if row["statut_bic"] != BIC_PRET_EN_COURS:
-        row["nombre_prets_actifs_autres_institutions"] = 0
+        for k in ("bic_nombre_credits_soldes_ailleurs", "bic_score",
+                  "bic_jours_retard_max"):
+            row[k] = np.nan
+        for k in ("nombre_prets_actifs_autres_institutions", "bic_mensualites_totales_fcfa",
+                  "bic_nombre_impayes_total", "bic_nombre_contentieux",
+                  "bic_montant_retard_total_fcfa", "bic_interdiction_bancaire",
+                  "bic_nombre_cheques_impayes_12m"):
+            row[k] = 0
         row["encours_credit_autres_institutions_fcfa"] = 0.0
 
     # 1f. Ancienneté du dernier incident BIC : 999 = aucun (comme le générateur)
-    if row["statut_bic"] == BIC_INCIDENT and data.bic_anciennete_dernier_incident_mois is not None:
+    if data.bic_anciennete_dernier_incident_mois is not None:
         row["bic_anciennete_dernier_incident_mois"] = float(data.bic_anciennete_dernier_incident_mois)
+    elif int(row.get("bic_nombre_contentieux") or 0) > 0:
+        row["bic_anciennete_dernier_incident_mois"] = 12.0
     else:
         row["bic_anciennete_dernier_incident_mois"] = 999.0
 
@@ -302,7 +323,13 @@ def _preparer_row(data: ClientData) -> dict:
     echeance = _echeance_annuite(
         data.montant_credit_demande_fcfa, data.taux_interet_nominal_annuel_pct, data.duree_credit_mois
     )
-    mensualite_externe = row["encours_credit_autres_institutions_fcfa"] * 0.09
+    # Mensualités des crédits externes : total BIC réel si disponible,
+    # sinon estimation à 9% de l'encours (comme l'ancien générateur).
+    mensualite_externe = (
+        data.bic_mensualites_totales_fcfa
+        if data.bic_mensualites_totales_fcfa and data.bic_mensualites_totales_fcfa > 0
+        else row["encours_credit_autres_institutions_fcfa"] * 0.09
+    )
     revenu = max(data.revenu_mensuel_fcfa, 1.0)
 
     row["future_echeance_credit_fcfa"] = round(echeance, -2)

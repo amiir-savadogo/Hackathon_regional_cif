@@ -150,6 +150,19 @@ public class DemandeCredit {
 
     private LocalDateTime dateCreation;
 
+    // --- Appréciation de l'agent (INFORMATIF : n'entre pas dans le score) ---
+    private String avisAgent;              // FAVORABLE | FAVORABLE_SOUS_RESERVE | RESERVE | DEFAVORABLE
+    @Column(columnDefinition = "TEXT")
+    private String avisAgentCommentaire;
+    @Column(columnDefinition = "TEXT")
+    private String avisAgentMotifs;        // motifs cochés, séparés par des virgules
+    private LocalDateTime avisAgentDate;
+
+    // --- Corbeille (suppression logique) ---
+    private boolean supprime = false;
+    private LocalDateTime dateSuppression;
+    private String supprimePar;             // matricule / nom de l'agent, pour la traçabilité
+
     @PrePersist
     protected void onCreate() {
         this.dateCreation = LocalDateTime.now();
@@ -345,4 +358,25 @@ public class DemandeCredit {
 
     public LocalDateTime getDateCreation() { return dateCreation; }
     public void setDateCreation(LocalDateTime v) { this.dateCreation = v; }
+
+    public String getAvisAgent() { return avisAgent; }
+    public void setAvisAgent(String v) { this.avisAgent = v; }
+
+    public String getAvisAgentCommentaire() { return avisAgentCommentaire; }
+    public void setAvisAgentCommentaire(String v) { this.avisAgentCommentaire = v; }
+
+    public String getAvisAgentMotifs() { return avisAgentMotifs; }
+    public void setAvisAgentMotifs(String v) { this.avisAgentMotifs = v; }
+
+    public LocalDateTime getAvisAgentDate() { return avisAgentDate; }
+    public void setAvisAgentDate(LocalDateTime v) { this.avisAgentDate = v; }
+
+    public boolean isSupprime() { return supprime; }
+    public void setSupprime(boolean v) { this.supprime = v; }
+
+    public LocalDateTime getDateSuppression() { return dateSuppression; }
+    public void setDateSuppression(LocalDateTime v) { this.dateSuppression = v; }
+
+    public String getSupprimePar() { return supprimePar; }
+    public void setSupprimePar(String v) { this.supprimePar = v; }
 }

@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.model';
+import { couleurScore } from '../../models/scoring-zones';
 
 /**
  * EvaluationDetailComponent - page dédiée d'une évaluation passée (/credits/:id).
@@ -18,12 +19,6 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
   imports: [CommonModule, RouterLink],
   template: `
     <div class="max-w-4xl mx-auto space-y-5 pb-16">
-
-      <nav class="flex items-center gap-2 text-xs font-medium text-gray-500 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm">
-        <a routerLink="/credits" class="text-[#147c76] font-semibold hover:underline">Crédits</a>
-        <span class="text-gray-300">/</span>
-        <span class="text-gray-800 font-semibold">Évaluation n°{{ demandeId }}</span>
-      </nav>
 
       <div *ngIf="loading" class="p-10 text-center text-sm text-gray-400">Chargement…</div>
 
@@ -113,6 +108,15 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
             <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Groupe solidaire</span><span class="font-semibold">{{ demande.membreGroupeSolidaire ? 'Oui' : 'Non' }}</span></div>
           </div>
         </div>
+
+        <a [routerLink]="['/credits', demandeId, 'explication']"
+          class="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#e5f3f1] border border-[#b9ded9] text-[#147c76] text-xs font-bold hover:bg-[#cce9e5] transition-colors">
+          <span class="flex items-center gap-2">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+            Pourquoi ce résultat ? Voir l'explication détaillée
+          </span>
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+        </a>
 
         <!-- Actions -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
@@ -219,8 +223,8 @@ export class EvaluationDetailComponent implements OnInit {
   }
 
   scoreColor(s?: number) {
-    if (s === null || s === undefined) return 'text-gray-700';
-    return s > 81 ? 'text-emerald-600' : s > 56 ? 'text-amber-600' : 'text-red-600';
+    const c = couleurScore(s);
+    return c === 'gris' ? 'text-gray-700' : c === 'vert' ? 'text-emerald-600' : c === 'orange' ? 'text-amber-600' : 'text-red-600';
   }
 
   badgeClass(s?: string) {

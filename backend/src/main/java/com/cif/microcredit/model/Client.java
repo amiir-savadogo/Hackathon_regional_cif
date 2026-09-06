@@ -25,6 +25,7 @@ public class Client {
     private Double partsSocialesFcfa;
     private String agence;
     private Integer ancienneteCooperativeMois;
+    private String dateAdhesionCooperative;     // date d'ouverture du compte sociétaire (ISO), != dateCreation (horodatage ligne)
     private Double soldeEpargneActuelFcfa;
 
     // Informations d'identité du sociétaire
@@ -108,6 +109,41 @@ public class Client {
     private Double soldeCompteBancaireFcfa;
     private Integer nombreRejetsPrelevementsCheques12m;
 
+    // --- BIC (centrale des risques UEMOA) : "base téléchargée", lecture seule ---
+    private Boolean interrogeBic;
+    private String statutBic;
+    private Integer bicScore;
+    private Integer nombrePretsActifsAutresInstitutions;
+    private Double encoursCreditAutresInstitutionsFcfa;
+    private Double bicMensualitesTotalesFcfa;
+    private Double bicNombreCreditsSoldesAilleurs;
+    private Integer bicNombreImpayesTotal;
+    private Double bicJoursRetardMax;
+    private Integer bicNombreContentieux;
+    private Double bicMontantRetardTotalFcfa;
+    private Boolean bicInterdictionBancaire;
+    private Integer bicNombreChequesImpayes12m;
+    private Double bicAncienneteDernierIncidentMois;
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private java.util.List<BicEngagementExterne> bicEngagementsExternes = new ArrayList<>();
+
+    // --- Factures services publics (ONEA / SONABEL) : pré-chargé, lecture seule ---
+    private Integer facturesNombre12m;
+    private Double facturesTauxPaiementPct;
+    private Integer facturesNombreImpayees;
+    private Double facturesRetardMoyenJours;
+    private Double facturesMontantImpayeTotalFcfa;
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private java.util.List<FactureServicePublic> facturesServicesPublics = new ArrayList<>();
+
+    // --- Moralité / civisme : INFORMATIF, jamais transmis au modèle ---
+    private String casierJudiciaire;                // Vierge | Mentions mineures | Condamnation
+    private Integer nombreInfractionsRoutieres24m;
+    private Integer nombreLitigesCivils;
+    private Boolean presenceListeSanctions;
+
     private LocalDateTime dateCreation;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -141,6 +177,9 @@ public class Client {
 
     public Integer getAncienneteCooperativeMois() { return ancienneteCooperativeMois; }
     public void setAncienneteCooperativeMois(Integer ancienneteCooperativeMois) { this.ancienneteCooperativeMois = ancienneteCooperativeMois; }
+
+    public String getDateAdhesionCooperative() { return dateAdhesionCooperative; }
+    public void setDateAdhesionCooperative(String v) { this.dateAdhesionCooperative = v; }
 
     public Double getSoldeEpargneActuelFcfa() { return soldeEpargneActuelFcfa; }
     public void setSoldeEpargneActuelFcfa(Double soldeEpargneActuelFcfa) { this.soldeEpargneActuelFcfa = soldeEpargneActuelFcfa; }
@@ -261,6 +300,59 @@ public class Client {
 
     public java.util.List<CreditInterneAnterieur> getCreditsInternesAnterieurs() { return creditsInternesAnterieurs; }
     public void setCreditsInternesAnterieurs(java.util.List<CreditInterneAnterieur> v) { this.creditsInternesAnterieurs = v; }
+
+    public Boolean getInterrogeBic() { return interrogeBic; }
+    public void setInterrogeBic(Boolean v) { this.interrogeBic = v; }
+    public String getStatutBic() { return statutBic; }
+    public void setStatutBic(String v) { this.statutBic = v; }
+    public Integer getBicScore() { return bicScore; }
+    public void setBicScore(Integer v) { this.bicScore = v; }
+    public Integer getNombrePretsActifsAutresInstitutions() { return nombrePretsActifsAutresInstitutions; }
+    public void setNombrePretsActifsAutresInstitutions(Integer v) { this.nombrePretsActifsAutresInstitutions = v; }
+    public Double getEncoursCreditAutresInstitutionsFcfa() { return encoursCreditAutresInstitutionsFcfa; }
+    public void setEncoursCreditAutresInstitutionsFcfa(Double v) { this.encoursCreditAutresInstitutionsFcfa = v; }
+    public Double getBicMensualitesTotalesFcfa() { return bicMensualitesTotalesFcfa; }
+    public void setBicMensualitesTotalesFcfa(Double v) { this.bicMensualitesTotalesFcfa = v; }
+    public Double getBicNombreCreditsSoldesAilleurs() { return bicNombreCreditsSoldesAilleurs; }
+    public void setBicNombreCreditsSoldesAilleurs(Double v) { this.bicNombreCreditsSoldesAilleurs = v; }
+    public Integer getBicNombreImpayesTotal() { return bicNombreImpayesTotal; }
+    public void setBicNombreImpayesTotal(Integer v) { this.bicNombreImpayesTotal = v; }
+    public Double getBicJoursRetardMax() { return bicJoursRetardMax; }
+    public void setBicJoursRetardMax(Double v) { this.bicJoursRetardMax = v; }
+    public Integer getBicNombreContentieux() { return bicNombreContentieux; }
+    public void setBicNombreContentieux(Integer v) { this.bicNombreContentieux = v; }
+    public Double getBicMontantRetardTotalFcfa() { return bicMontantRetardTotalFcfa; }
+    public void setBicMontantRetardTotalFcfa(Double v) { this.bicMontantRetardTotalFcfa = v; }
+    public Boolean getBicInterdictionBancaire() { return bicInterdictionBancaire; }
+    public void setBicInterdictionBancaire(Boolean v) { this.bicInterdictionBancaire = v; }
+    public Integer getBicNombreChequesImpayes12m() { return bicNombreChequesImpayes12m; }
+    public void setBicNombreChequesImpayes12m(Integer v) { this.bicNombreChequesImpayes12m = v; }
+    public Double getBicAncienneteDernierIncidentMois() { return bicAncienneteDernierIncidentMois; }
+    public void setBicAncienneteDernierIncidentMois(Double v) { this.bicAncienneteDernierIncidentMois = v; }
+    public java.util.List<BicEngagementExterne> getBicEngagementsExternes() { return bicEngagementsExternes; }
+    public void setBicEngagementsExternes(java.util.List<BicEngagementExterne> v) { this.bicEngagementsExternes = v; }
+
+    public Integer getFacturesNombre12m() { return facturesNombre12m; }
+    public void setFacturesNombre12m(Integer v) { this.facturesNombre12m = v; }
+    public Double getFacturesTauxPaiementPct() { return facturesTauxPaiementPct; }
+    public void setFacturesTauxPaiementPct(Double v) { this.facturesTauxPaiementPct = v; }
+    public Integer getFacturesNombreImpayees() { return facturesNombreImpayees; }
+    public void setFacturesNombreImpayees(Integer v) { this.facturesNombreImpayees = v; }
+    public Double getFacturesRetardMoyenJours() { return facturesRetardMoyenJours; }
+    public void setFacturesRetardMoyenJours(Double v) { this.facturesRetardMoyenJours = v; }
+    public Double getFacturesMontantImpayeTotalFcfa() { return facturesMontantImpayeTotalFcfa; }
+    public void setFacturesMontantImpayeTotalFcfa(Double v) { this.facturesMontantImpayeTotalFcfa = v; }
+    public java.util.List<FactureServicePublic> getFacturesServicesPublics() { return facturesServicesPublics; }
+    public void setFacturesServicesPublics(java.util.List<FactureServicePublic> v) { this.facturesServicesPublics = v; }
+
+    public String getCasierJudiciaire() { return casierJudiciaire; }
+    public void setCasierJudiciaire(String v) { this.casierJudiciaire = v; }
+    public Integer getNombreInfractionsRoutieres24m() { return nombreInfractionsRoutieres24m; }
+    public void setNombreInfractionsRoutieres24m(Integer v) { this.nombreInfractionsRoutieres24m = v; }
+    public Integer getNombreLitigesCivils() { return nombreLitigesCivils; }
+    public void setNombreLitigesCivils(Integer v) { this.nombreLitigesCivils = v; }
+    public Boolean getPresenceListeSanctions() { return presenceListeSanctions; }
+    public void setPresenceListeSanctions(Boolean v) { this.presenceListeSanctions = v; }
 
     public Integer getTotalTransactions() { return totalTransactions; }
     public void setTotalTransactions(Integer v) { this.totalTransactions = v; }

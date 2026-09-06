@@ -128,13 +128,42 @@ public class ScoringService {
         r.put("flux_retraits_bancaires_mensuel_fcfa", demande.getFluxRetraitsBancairesMensuelFcfa());
         r.put("nombre_rejets_prelevements_cheques_12m", demande.getNombreRejetsPrelevementsCheques12m());
 
-        // --- Bureau d'Information sur le Crédit (BIC) ---
-        r.put("interroge_bic", bit(demande.isInterrogeBic()));
-        r.put("statut_bic", orDefault(demande.getStatutBic(), "Non consulté"));
-        r.put("nombre_prets_actifs_autres_institutions", demande.getNombrePretsActifsAutresInstitutions());
-        r.put("encours_credit_autres_institutions_fcfa", demande.getEncoursCreditAutresInstitutionsFcfa());
-        r.put("bic_nombre_credits_soldes_ailleurs", demande.getBicNombreCreditsSoldesAilleurs());
-        r.put("bic_anciennete_dernier_incident_mois", demande.getBicAncienneteDernierIncidentMois());
+        // --- Bureau d'Information sur le Crédit (BIC) : lu sur le dossier interne
+        //     du sociétaire ("base téléchargée"), plus saisi par l'agent. ---
+        r.put("interroge_bic", 1);
+        r.put("statut_bic", orDefault(client.getStatutBic(),
+                orDefault(demande.getStatutBic(), "Non consulté")));
+        r.put("nombre_prets_actifs_autres_institutions",
+                client.getNombrePretsActifsAutresInstitutions() != null
+                        ? client.getNombrePretsActifsAutresInstitutions()
+                        : demande.getNombrePretsActifsAutresInstitutions());
+        r.put("encours_credit_autres_institutions_fcfa",
+                client.getEncoursCreditAutresInstitutionsFcfa() != null
+                        ? client.getEncoursCreditAutresInstitutionsFcfa()
+                        : demande.getEncoursCreditAutresInstitutionsFcfa());
+        r.put("bic_nombre_credits_soldes_ailleurs",
+                client.getBicNombreCreditsSoldesAilleurs() != null
+                        ? client.getBicNombreCreditsSoldesAilleurs()
+                        : demande.getBicNombreCreditsSoldesAilleurs());
+        r.put("bic_anciennete_dernier_incident_mois",
+                client.getBicAncienneteDernierIncidentMois() != null
+                        ? client.getBicAncienneteDernierIncidentMois()
+                        : demande.getBicAncienneteDernierIncidentMois());
+        r.put("bic_score", client.getBicScore());
+        r.put("bic_mensualites_totales_fcfa", client.getBicMensualitesTotalesFcfa());
+        r.put("bic_nombre_impayes_total", client.getBicNombreImpayesTotal() != null ? client.getBicNombreImpayesTotal() : 0);
+        r.put("bic_jours_retard_max", client.getBicJoursRetardMax());
+        r.put("bic_nombre_contentieux", client.getBicNombreContentieux() != null ? client.getBicNombreContentieux() : 0);
+        r.put("bic_montant_retard_total_fcfa", client.getBicMontantRetardTotalFcfa() != null ? client.getBicMontantRetardTotalFcfa() : 0.0);
+        r.put("bic_interdiction_bancaire", Boolean.TRUE.equals(client.getBicInterdictionBancaire()) ? 1 : 0);
+        r.put("bic_nombre_cheques_impayes_12m", client.getBicNombreChequesImpayes12m() != null ? client.getBicNombreChequesImpayes12m() : 0);
+
+        // --- Factures ONEA / SONABEL (lu sur le dossier du sociétaire) ---
+        r.put("factures_nombre_12m", client.getFacturesNombre12m() != null ? client.getFacturesNombre12m() : 0);
+        r.put("factures_taux_paiement_pct", client.getFacturesTauxPaiementPct() != null ? client.getFacturesTauxPaiementPct() : 100.0);
+        r.put("factures_nombre_impayees", client.getFacturesNombreImpayees() != null ? client.getFacturesNombreImpayees() : 0);
+        r.put("factures_retard_moyen_jours", client.getFacturesRetardMoyenJours() != null ? client.getFacturesRetardMoyenJours() : 0.0);
+        r.put("factures_montant_impaye_total_fcfa", client.getFacturesMontantImpayeTotalFcfa() != null ? client.getFacturesMontantImpayeTotalFcfa() : 0.0);
 
         // --- Demande de crédit ---
         r.put("categorie_credit", orDefault(demande.getCategorieCredit(), "Crédit commerce - fonds de roulement"));

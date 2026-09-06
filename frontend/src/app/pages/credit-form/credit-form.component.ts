@@ -4,7 +4,8 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { SettingsService, ObjetCreditItem, GarantieItem, CategorieCreditItem } from '../../services/settings.service';
-import { Client, DemandeCredit, FacteurExplicatif, CreditInterneAnterieur } from '../../models/client.model';
+import { Client, DemandeCredit, FacteurExplicatif, CreditInterneAnterieur, BicEngagementExterne, FactureServicePublic } from '../../models/client.model';
+import { couleurScore } from '../../models/scoring-zones';
 import {
   SECTEURS_ACTIVITE, SOUS_SECTEURS_FORMELS, SOUS_SECTEUR_NON_APPLICABLE,
   REGULARITES_EPARGNE, STATUTS_BIC, BIC_PRET_EN_COURS, BIC_INCIDENT,
@@ -20,16 +21,9 @@ interface Volet { n: number; titre: string; sous: string; }
   template: `
     <div class="space-y-6 max-w-5xl mx-auto pb-16">
 
-      <!-- Fil d'Ariane -->
-      <div class="flex items-center justify-between bg-white px-4 py-3 rounded-2xl border border-gray-200 shadow-sm">
-        <nav class="flex items-center gap-2 text-xs font-medium text-gray-500">
-          <a routerLink="/dashboard" class="text-[#147c76] font-semibold hover:underline">Accueil</a>
-          <span class="text-gray-300">/</span>
-          <a routerLink="/credits" class="text-[#147c76] font-semibold hover:underline">Crédits</a>
-          <span class="text-gray-300">/</span>
-          <span class="text-gray-800 font-semibold">Instruction d'un dossier</span>
-        </nav>
-        <a routerLink="/credits" class="text-xs font-bold text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">← Retour</a>
+      <!-- Retour vers la liste des dossiers -->
+      <div class="flex justify-end">
+        <a routerLink="/credits" class="text-xs font-bold text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">← Retour aux crédits</a>
       </div>
 
       <!-- ============ CAS 1 : recherche sociétaire ============ -->
@@ -80,7 +74,7 @@ interface Volet { n: number; titre: string; sous: string; }
             class="p-2.5 sm:p-3 rounded-xl border flex items-center justify-center sm:justify-start gap-2 font-bold transition-all">
             <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-white text-[11px]"
               [ngClass]="step>2 ? 'bg-emerald-600' : (step===2 ? 'bg-[#147c76]' : 'bg-gray-300')">{{ step>2 ? '✓' : '2' }}</span>
-            <span class="hidden sm:inline">Historique interne</span>
+            <span class="hidden sm:inline">Historique de crédit</span>
           </button>
           <button type="button" (click)="step = 3"
             [ngClass]="step===3 ? 'bg-[#e5f3f1] border-[#147c76] text-[#147c76]' : (step>3 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200')"
@@ -109,7 +103,7 @@ interface Volet { n: number; titre: string; sous: string; }
                 <h1 class="text-xl font-bold">{{ selectedClient.prenom }} {{ selectedClient.nom }}</h1>
                 <p class="text-xs text-emerald-100 mt-0.5">
                   CNIB {{ selectedClient.numeroCnib }} · Compte {{ selectedClient.numeroCompte }} ·
-                  Sociétaire depuis {{ selectedClient.dateCreation }} ({{ ancienneteCoopMois }} mois)
+                  Sociétaire depuis {{ dateAdhesion || '-' }} ({{ ancienneteCoopMois }} mois)
                 </p>
               </div>
             </div>
@@ -146,17 +140,17 @@ interface Volet { n: number; titre: string; sous: string; }
           </div>
         </div>
 
-        <!-- ---------- ÉTAPE 2 : HISTORIQUE INTERNE (lecture seule) ---------- -->
+        <!-- ---------- ÉTAPE 2 : HISTORIQUE DE CRÉDIT (interne + BIC, lecture seule) ---------- -->
         <div *ngIf="step === 2" class="space-y-5">
           <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-5">
             <div>
               <span class="text-xs font-bold text-[#147c76] uppercase tracking-wider">Historique de crédit interne CIF</span>
               <h2 class="text-lg font-bold text-gray-900">{{ selectedClient.prenom }} {{ selectedClient.nom }}</h2>
-              <p class="text-xs text-gray-400 mt-0.5">Données issues du système de la coopérative — non modifiables par l'agent.</p>
+              <p class="text-xs text-gray-400 mt-0.5">Données issues du système de la coopérative - non modifiables par l'agent.</p>
             </div>
 
             <div *ngIf="creditsInternes().length === 0" class="p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-600">
-              Aucun crédit interne CIF antérieur — <strong>primo-emprunteur</strong>.
+              Aucun crédit interne CIF antérieur - <strong>primo-emprunteur</strong>.
             </div>
 
             <ng-container *ngIf="creditsInternes().length > 0">
@@ -189,7 +183,7 @@ interface Volet { n: number; titre: string; sous: string; }
                     <div><span class="text-gray-400 block">Coût total du crédit</span><span class="font-medium">{{ c.coutTotalCreditFcfa | number:'1.0-0' }} F</span></div>
                     <div><span class="text-gray-400 block">Décaissement</span><span class="font-medium">{{ c.dateDecaissement }}</span></div>
                     <div><span class="text-gray-400 block">Échéance prévue</span><span class="font-medium">{{ c.dateEcheancePrevue }}</span></div>
-                    <div><span class="text-gray-400 block">Date de solde</span><span class="font-medium">{{ c.dateSolde || '—' }}</span></div>
+                    <div><span class="text-gray-400 block">Date de solde</span><span class="font-medium">{{ c.dateSolde || '-' }}</span></div>
                     <div><span class="text-gray-400 block">Total remboursé</span><span class="font-medium">{{ c.montantTotalRembourseFcfa | number:'1.0-0' }} F</span></div>
                     <div><span class="text-gray-400 block">Capital restant dû</span><span class="font-medium">{{ c.capitalRestantDuFcfa | number:'1.0-0' }} F</span></div>
                     <div><span class="text-gray-400 block">% remboursé</span><span class="font-medium" [ngClass]="(c.tauxRembourseePct || 0) < 60 ? 'text-red-600' : ((c.tauxRembourseePct || 0) < 90 ? 'text-amber-600' : 'text-emerald-600')">{{ c.tauxRembourseePct }} %</span></div>
@@ -205,6 +199,101 @@ interface Volet { n: number; titre: string; sous: string; }
                 </div>
               </div>
             </ng-container>
+
+            <!-- BIC : engagements dans les autres institutions -->
+            <div class="pt-4 border-t border-gray-100 space-y-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-bold text-[#147c76] uppercase tracking-wider">BIC · centrale des risques UEMOA</span>
+                <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border" [ngClass]="bicStatutClass(selectedClient.statutBic)">{{ selectedClient.statutBic || 'Non consulté' }}</span>
+                <span *ngIf="selectedClient.bicScore != null" class="text-[11px] text-gray-500">Score BIC : <strong>{{ selectedClient.bicScore }}/100</strong></span>
+                <span *ngIf="selectedClient.bicInterdictionBancaire" class="px-2 py-0.5 rounded-full text-[11px] font-bold bg-red-100 text-red-700">Interdiction bancaire</span>
+              </div>
+
+              <div *ngIf="bicEngagements().length === 0" class="p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-600">
+                Aucun engagement de crédit dans une autre institution.
+              </div>
+
+              <ng-container *ngIf="bicEngagements().length > 0">
+                <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                  <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Engagements</span><span class="font-bold text-sm">{{ bicEngagements().length }}</span></div>
+                  <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Encours total</span><span class="font-bold text-sm">{{ bicEncoursTotal() | number:'1.0-0' }} F</span></div>
+                  <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Mensualités externes</span><span class="font-bold text-sm">{{ bicMensualitesTotal() | number:'1.0-0' }} F</span></div>
+                  <div class="p-3 rounded-xl" [ngClass]="(selectedClient.bicNombreContentieux || 0) > 0 ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'">
+                    <span class="block opacity-70">Contentieux</span><span class="font-bold text-sm">{{ selectedClient.bicNombreContentieux || 0 }}</span>
+                  </div>
+                </div>
+
+                <div class="space-y-3">
+                  <div *ngFor="let e of bicEngagements()" class="rounded-xl border border-gray-200 overflow-hidden">
+                    <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-200">
+                      <span class="font-semibold text-sm text-gray-800">{{ e.etablissement }} <span class="text-xs font-normal text-gray-400">· {{ e.typeCredit }}</span></span>
+                      <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border" [ngClass]="bicStatutClass(e.statut)">{{ e.statut }}</span>
+                    </div>
+                    <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 p-4 text-xs">
+                      <div><span class="text-gray-400 block">Octroi</span><span class="font-medium">{{ e.dateOctroi }}</span></div>
+                      <div><span class="text-gray-400 block">Montant initial</span><span class="font-medium">{{ e.montantInitialFcfa | number:'1.0-0' }} F</span></div>
+                      <div><span class="text-gray-400 block">Encours restant</span><span class="font-medium">{{ e.encoursRestantFcfa | number:'1.0-0' }} F</span></div>
+                      <div><span class="text-gray-400 block">Mensualité</span><span class="font-medium">{{ e.mensualiteFcfa | number:'1.0-0' }} F</span></div>
+                      <div><span class="text-gray-400 block">Durée · taux</span><span class="font-medium">{{ e.dureeMois }} mois · {{ e.tauxInteretAnnuelPct }} %</span></div>
+                      <div><span class="text-gray-400 block">Impayés</span><span class="font-medium">{{ e.nombreImpayes }}</span></div>
+                      <div><span class="text-gray-400 block">Montant en retard</span><span class="font-medium">{{ e.montantEnRetardFcfa | number:'1.0-0' }} F</span></div>
+                      <div><span class="text-gray-400 block">Retard max</span><span class="font-medium">{{ e.joursRetardMax }} j</span></div>
+                      <div><span class="text-gray-400 block">Garantie</span><span class="font-medium">{{ e.garantie }}</span></div>
+                    </div>
+                  </div>
+                </div>
+              </ng-container>
+            </div>
+
+            <!-- Factures ONEA / SONABEL -->
+            <div class="pt-4 border-t border-gray-100 space-y-3">
+              <div class="flex flex-wrap items-center gap-2">
+                <span class="text-xs font-bold text-[#147c76] uppercase tracking-wider">Factures ONEA (eau) &amp; SONABEL (électricité)</span>
+                <span *ngIf="selectedClient.facturesTauxPaiementPct != null" class="px-2 py-0.5 rounded-full text-[11px] font-bold border"
+                  [ngClass]="(selectedClient.facturesTauxPaiementPct || 0) >= 90 ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : ((selectedClient.facturesTauxPaiementPct || 0) >= 70 ? 'bg-amber-50 text-amber-700 border-amber-200' : 'bg-red-50 text-red-700 border-red-200')">
+                  {{ selectedClient.facturesTauxPaiementPct | number:'1.0-0' }} % payées
+                </span>
+                <span class="text-[11px] text-gray-500">{{ selectedClient.facturesNombreImpayees || 0 }} impayée(s) · retard moyen {{ selectedClient.facturesRetardMoyenJours | number:'1.0-0' }} j</span>
+              </div>
+              <div *ngIf="factures().length === 0" class="p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-600">Aucune facture ONEA / SONABEL enregistrée.</div>
+              <div *ngIf="factures().length > 0" class="overflow-x-auto">
+                <table class="w-full min-w-[520px] text-xs">
+                  <thead class="text-gray-400 text-left">
+                    <tr><th class="py-1.5 pr-3">Fournisseur</th><th class="py-1.5 pr-3">Période</th><th class="py-1.5 pr-3">Montant</th><th class="py-1.5 pr-3">Échéance</th><th class="py-1.5 pr-3">Statut</th><th class="py-1.5">Payé le / retard</th></tr>
+                  </thead>
+                  <tbody class="divide-y divide-gray-100">
+                    <tr *ngFor="let f of facturesRecentes()">
+                      <td class="py-1.5 pr-3 font-semibold">{{ f.fournisseur }}</td>
+                      <td class="py-1.5 pr-3 text-gray-500">{{ f.periode }}</td>
+                      <td class="py-1.5 pr-3">{{ f.montantFcfa | number:'1.0-0' }} F</td>
+                      <td class="py-1.5 pr-3 text-gray-500">{{ f.dateEcheance }}</td>
+                      <td class="py-1.5 pr-3">
+                        <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border" [ngClass]="f.statut === 'Payée' ? 'bg-emerald-50 text-emerald-700 border-emerald-200' : 'bg-red-50 text-red-700 border-red-200'">{{ f.statut }}</span>
+                      </td>
+                      <td class="py-1.5 text-gray-500">
+                        <span *ngIf="f.statut === 'Payée'">{{ f.datePaiement }}<span *ngIf="(f.joursRetard || 0) > 0" class="text-amber-600"> (+{{ f.joursRetard }} j)</span></span>
+                        <span *ngIf="f.statut !== 'Payée'" class="text-red-600">impayé · {{ f.montantImpayeFcfa | number:'1.0-0' }} F · {{ f.joursRetard }} j</span>
+                      </td>
+                    </tr>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <!-- Moralité / civisme (informatif) -->
+            <div class="pt-4 border-t border-gray-100 space-y-2">
+              <span class="text-xs font-bold text-[#147c76] uppercase tracking-wider">Moralité &amp; civisme <span class="font-normal text-gray-400">(informatif, hors modèle de score)</span></span>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="p-3 rounded-xl border" [ngClass]="casierClass(selectedClient.casierJudiciaire)">
+                  <span class="block opacity-70">Casier judiciaire</span><span class="font-bold">{{ selectedClient.casierJudiciaire || 'Vierge' }}</span>
+                </div>
+                <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Infractions routières (24 m)</span><span class="font-bold text-sm">{{ selectedClient.nombreInfractionsRoutieres24m ?? 0 }}</span></div>
+                <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Litiges civils</span><span class="font-bold text-sm">{{ selectedClient.nombreLitigesCivils ?? 0 }}</span></div>
+                <div class="p-3 rounded-xl" [ngClass]="selectedClient.presenceListeSanctions ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'">
+                  <span class="block opacity-70">Listes de sanctions</span><span class="font-bold text-sm">{{ selectedClient.presenceListeSanctions ? 'Signalé' : 'RAS' }}</span>
+                </div>
+              </div>
+            </div>
 
             <div class="flex justify-between pt-2">
               <button type="button" (click)="step = 1" class="text-xs font-bold text-gray-500 hover:text-gray-800">← Retour à la fiche</button>
@@ -288,7 +377,7 @@ interface Volet { n: number; titre: string; sous: string; }
               <div>
                 <label class="lbl">Ancienneté à la coopérative (mois)</label>
                 <input type="text" class="inp bg-gray-100 text-gray-600 cursor-not-allowed" [value]="ancienneteCoopMois + ' mois'" readonly tabindex="-1" />
-                <p class="text-[11px] text-gray-400 mt-1">Calculé automatiquement à partir de la date d'adhésion ({{ selectedClient.dateCreation || '-' }}).</p>
+                <p class="text-[11px] text-gray-400 mt-1">Calculé automatiquement à partir de la date d'adhésion ({{ dateAdhesion || '-' }}).</p>
               </div>
               <div>
                 <label class="lbl">Solde d'épargne moyen (FCFA)</label>
@@ -321,38 +410,11 @@ interface Volet { n: number; titre: string; sous: string; }
               <p class="text-[11px] text-gray-400">Les autres indicateurs Mobile Money (ancienneté, volatilité, flux détaillés) sont récupérés automatiquement du profil du sociétaire.</p>
             </div>
 
-            <!-- VOLET 4 : BIC + comptes bancaires -->
+            <!-- VOLET 4 : comptes bancaires (le BIC est en étape 2, lecture seule) -->
             <div *ngIf="volet === 4" class="space-y-5">
-              <div>
-                <label class="flex items-center gap-2 text-sm text-gray-700">
-                  <input type="checkbox" [(ngModel)]="demande.interrogeBic" [ngModelOptions]="{standalone:true}" class="w-4 h-4 accent-[#147c76]" />
-                  Le <strong>BIC (centrale des risques UEMOA)</strong> a été consulté
-                </label>
-                <div *ngIf="demande.interrogeBic" class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-3 animate-fade-in">
-                  <div class="md:col-span-2">
-                    <label class="lbl">Résultat BIC</label>
-                    <select class="inp" [(ngModel)]="demande.statutBic" [ngModelOptions]="{standalone:true}">
-                      <option *ngFor="let s of statutsBic" [value]="s">{{ s }}</option>
-                    </select>
-                  </div>
-                  <div *ngIf="demande.statutBic === bicPretEnCours">
-                    <label class="lbl">Nb prêts actifs ailleurs</label>
-                    <input type="number" min="0" class="inp" [(ngModel)]="demande.nombrePretsActifsAutresInstitutions" [ngModelOptions]="{standalone:true}" />
-                  </div>
-                  <div *ngIf="demande.statutBic === bicPretEnCours">
-                    <label class="lbl">Encours crédit ailleurs (FCFA)</label>
-                    <input type="number" step="10000" min="0" class="inp" [(ngModel)]="demande.encoursCreditAutresInstitutionsFcfa" [ngModelOptions]="{standalone:true}" />
-                  </div>
-                  <div *ngIf="demande.statutBic === bicIncident">
-                    <label class="lbl">Ancienneté du dernier incident (mois)</label>
-                    <input type="number" min="0" class="inp" [(ngModel)]="demande.bicAncienneteDernierIncidentMois" [ngModelOptions]="{standalone:true}" />
-                  </div>
-                  <div>
-                    <label class="lbl">Crédits déjà soldés ailleurs</label>
-                    <input type="number" min="0" class="inp" [(ngModel)]="demande.bicNombreCreditsSoldesAilleurs" [ngModelOptions]="{standalone:true}" />
-                  </div>
-                </div>
-              </div>
+              <p class="text-xs text-gray-400">
+                Le résultat BIC (centrale des risques UEMOA) est pré-chargé et consultable à l'étape « Historique de crédit ». Ici : comptes bancaires classiques du sociétaire.
+              </p>
 
               <div class="pt-4 border-t border-gray-100">
                 <label class="lbl">Nombre de comptes bancaires classiques</label>
@@ -517,6 +579,44 @@ interface Volet { n: number; titre: string; sous: string; }
               <p *ngIf="facteursShap().length === 0" class="text-xs text-slate-400">Explication non disponible pour ce dossier.</p>
             </div>
 
+            <!-- Bouton vers la page d'explication détaillée -->
+            <a *ngIf="evaluationResult.id" [routerLink]="['/credits', evaluationResult.id, 'explication']"
+              class="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#e5f3f1] border border-[#b9ded9] text-[#147c76] text-xs font-bold hover:bg-[#cce9e5] transition-colors">
+              <span class="flex items-center gap-2">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Pourquoi ce résultat ? Voir l'explication détaillée
+              </span>
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+            </a>
+
+            <!-- Appréciation de l'agent (informatif) -->
+            <div class="p-4 bg-slate-50 rounded-xl border border-slate-200 space-y-3">
+              <p class="font-bold text-slate-800 text-sm">Appréciation de l'agent <span class="text-[11px] font-normal text-slate-500">(avis manuel, n'influence pas le score)</span></p>
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-2">
+                <button *ngFor="let a of avisOptions" type="button" (click)="avisAgent = a.code; avisSaved = false"
+                  [ngClass]="avisAgent === a.code ? a.actif : 'bg-white text-gray-600 border-gray-300 hover:bg-gray-50'"
+                  class="px-2 py-2 rounded-lg border text-[11px] font-bold transition-all">{{ a.label }}</button>
+              </div>
+              <div>
+                <p class="text-[11px] font-bold text-gray-500 uppercase mb-1.5">Motifs (facultatif)</p>
+                <div class="flex flex-wrap gap-1.5">
+                  <button *ngFor="let m of avisMotifsPossibles" type="button" (click)="toggleMotif(m)"
+                    [ngClass]="avisMotifs.has(m) ? 'bg-[#147c76] text-white border-[#147c76]' : 'bg-white text-gray-600 border-gray-300'"
+                    class="px-2.5 py-1 rounded-full border text-[11px] font-medium transition-all">{{ m }}</button>
+                </div>
+              </div>
+              <textarea [(ngModel)]="avisCommentaire" [ngModelOptions]="{standalone:true}" rows="2"
+                placeholder="Commentaire / motivation de l'avis…"
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm bg-white focus:outline-none focus:ring-2 focus:ring-[#147c76]/30"></textarea>
+              <div class="flex items-center gap-3">
+                <button type="button" (click)="enregistrerAvis()" [disabled]="!avisAgent || avisEnCours"
+                  class="px-4 py-2 bg-[#147c76] hover:bg-[#0e625e] disabled:opacity-40 text-white text-xs font-bold rounded-lg transition-colors">
+                  {{ avisEnCours ? 'Enregistrement…' : 'Enregistrer mon avis' }}
+                </button>
+                <span *ngIf="avisSaved" class="text-xs font-semibold text-emerald-600">✓ Avis enregistré</span>
+              </div>
+            </div>
+
             <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
               <button type="button" (click)="step = 3" class="text-xs font-bold text-gray-500 hover:text-gray-800">← Revoir le dossier</button>
               <a routerLink="/credits" class="px-6 py-2.5 bg-[#147c76] hover:bg-[#0e625e] text-white text-xs font-bold rounded-xl shadow transition-all">Voir dans la liste des crédits →</a>
@@ -547,7 +647,7 @@ export class CreditFormComponent implements OnInit {
     { n: 1, titre: 'Profil & activité', sous: 'Données KYC du sociétaire, sous-secteur et saisonnalité.' },
     { n: 2, titre: 'Revenus & épargne', sous: 'Revenus déclarés pour ce dossier, relation coopérative, épargne.' },
     { n: 3, titre: 'Mobile Money', sous: 'Usage transactionnel Mobile Money (proxy de revenu et de discipline).' },
-    { n: 4, titre: 'BIC & banque', sous: 'Centrale des risques UEMOA et comptes bancaires classiques.' },
+    { n: 4, titre: 'Comptes bancaires', sous: 'Comptes bancaires classiques du sociétaire (le BIC est en étape Historique).' },
     { n: 5, titre: 'Demande & garantie', sous: 'Objet, montant, durée, taux et garantie du prêt sollicité.' },
   ];
 
@@ -557,6 +657,24 @@ export class CreditFormComponent implements OnInit {
   isEvaluating = false;
   evaluationResult: DemandeCredit | null = null;
   erreurServeur = '';
+
+  // Appréciation de l'agent (informatif)
+  avisAgent = '';
+  avisCommentaire = '';
+  avisMotifs = new Set<string>();
+  avisEnCours = false;
+  avisSaved = false;
+  avisOptions = [
+    { code: 'FAVORABLE', label: 'Favorable', actif: 'bg-emerald-50 text-emerald-700 border-emerald-300' },
+    { code: 'FAVORABLE_SOUS_RESERVE', label: 'Favorable sous réserve', actif: 'bg-teal-50 text-teal-700 border-teal-300' },
+    { code: 'RESERVE', label: 'Réservé', actif: 'bg-amber-50 text-amber-700 border-amber-300' },
+    { code: 'DEFAVORABLE', label: 'Défavorable', actif: 'bg-red-50 text-red-700 border-red-300' },
+  ];
+  avisMotifsPossibles = [
+    'Capacité de remboursement', 'Moralité / comportement', 'Garantie insuffisante',
+    'Objet du crédit douteux', 'Saisonnalité de l\'activité', 'Historique interne',
+    'Endettement externe (BIC)',
+  ];
 
   categoriesCredit: CategorieCreditItem[] = [];
   objetsCredit: ObjetCreditItem[] = [];
@@ -657,14 +775,56 @@ export class CreditFormComponent implements OnInit {
     return Math.max(0, mois);
   }
 
-  /** Ancienneté à la coopérative, recalculée en direct depuis la date d'adhésion. */
+  /** Date d'adhésion à la coopérative (repli sur dateCreation pour les jeux de données anciens). */
+  get dateAdhesion(): string | undefined {
+    return this.selectedClient?.dateAdhesionCooperative || this.selectedClient?.dateCreation;
+  }
+
+  /** Ancienneté à la coopérative, recalculée depuis la date d'adhésion.
+   *  Repli sur ancienneteCooperativeMois si aucune date exploitable (base non régénérée). */
   get ancienneteCoopMois(): number {
-    return this.moisDepuis(this.selectedClient?.dateCreation);
+    const d = this.selectedClient?.dateAdhesionCooperative;
+    if (d) return this.moisDepuis(d);
+    return this.selectedClient?.ancienneteCooperativeMois ?? 0;
   }
 
   // --- Historique interne (lecture seule, étape 2) ---
   creditsInternes(): CreditInterneAnterieur[] {
     return this.selectedClient?.creditsInternesAnterieurs || [];
+  }
+  bicEngagements(): BicEngagementExterne[] {
+    return this.selectedClient?.bicEngagementsExternes || [];
+  }
+  bicEncoursTotal(): number {
+    return this.bicEngagements()
+      .filter(e => e.statut !== 'Soldé')
+      .reduce((s, e) => s + (e.encoursRestantFcfa || 0), 0);
+  }
+  bicMensualitesTotal(): number {
+    return this.bicEngagements()
+      .filter(e => e.statut !== 'Soldé')
+      .reduce((s, e) => s + (e.mensualiteFcfa || 0), 0);
+  }
+  bicStatutClass(statut?: string): string {
+    switch (statut) {
+      case 'Sain': return 'bg-[#e5f3f1] text-[#147c76] border-[#b9ded9]';
+      case 'Soldé': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'Impayé': return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'Souffrance':
+      case 'Contentieux': return 'bg-red-50 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-600 border-gray-200';
+    }
+  }
+  factures(): FactureServicePublic[] {
+    return this.selectedClient?.facturesServicesPublics || [];
+  }
+  facturesRecentes(): FactureServicePublic[] {
+    return [...this.factures()].reverse().slice(0, 12);
+  }
+  casierClass(c?: string): string {
+    if (c === 'Condamnation') return 'bg-red-50 text-red-700 border-red-200';
+    if (c === 'Mentions mineures') return 'bg-amber-50 text-amber-700 border-amber-200';
+    return 'bg-emerald-50 text-emerald-700 border-emerald-200';
   }
   histTotalEmprunte(): number {
     return this.creditsInternes().reduce((s, c) => s + (c.montantAccordeFcfa || 0), 0);
@@ -682,6 +842,22 @@ export class CreditFormComponent implements OnInit {
       case 'En défaut': return 'bg-red-50 text-red-700 border-red-200';
       default: return 'bg-gray-100 text-gray-600 border-gray-200';
     }
+  }
+
+  // --- Appréciation de l'agent ---
+  toggleMotif(m: string) {
+    this.avisMotifs.has(m) ? this.avisMotifs.delete(m) : this.avisMotifs.add(m);
+    this.avisSaved = false;
+  }
+  enregistrerAvis() {
+    const id = this.evaluationResult?.id;
+    if (!id || !this.avisAgent) return;
+    this.avisEnCours = true;
+    this.apiService.enregistrerAvisAgent(id, this.avisAgent, this.avisCommentaire, [...this.avisMotifs].join(', '))
+      .subscribe({
+        next: (res) => { this.avisEnCours = false; this.avisSaved = true; if (this.evaluationResult) this.evaluationResult = res; },
+        error: () => { this.avisEnCours = false; },
+      });
   }
 
   selectClient(c: Client) {
@@ -712,7 +888,9 @@ export class CreditFormComponent implements OnInit {
    *  La saisie de l'agent (this.demande) le complète et prime dessus. */
   private fondDossier(c: Client): Partial<DemandeCredit> {
     return {
-      ancienneteCooperativeMois: this.moisDepuis(c.dateCreation),
+      ancienneteCooperativeMois: c.dateAdhesionCooperative
+        ? this.moisDepuis(c.dateAdhesionCooperative)
+        : (c.ancienneteCooperativeMois ?? 0),
       epargneSoldeMoyenFcfa: c.soldeEpargneActuelFcfa ?? 0,
       nombreCreditsAnterieurs: c.nombreCreditsAnterieurs ?? 0,
       tauxRemboursementHistoriquePct: c.tauxRemboursementHistoriquePct ?? null,
@@ -760,7 +938,9 @@ export class CreditFormComponent implements OnInit {
   ratioEndettementEstime(): number {
     const rev = this.demande.revenuMensuelFcfa || 0;
     if (rev <= 0) return 0;
-    const mensExt = (this.demande.encoursCreditAutresInstitutionsFcfa || 0) * 0.09;
+    // Mensualités externes : total BIC pré-chargé si dispo, sinon 9% de l'encours saisi.
+    const mensExt = this.selectedClient?.bicMensualitesTotalesFcfa
+      || (this.demande.encoursCreditAutresInstitutionsFcfa || 0) * 0.09;
     return Math.round(((this.demande.chargesMensuellesFcfa || 0) + this.echeanceEstimee() + mensExt) / rev * 100) / 100;
   }
 
@@ -887,9 +1067,12 @@ export class CreditFormComponent implements OnInit {
   }
 
   // --- affichage statut ---
-  // Couleurs alignées sur les zones de décision du moteur : score = (1 - PD) x 100.
-  // > 81 => accord (PD < 19 %) · 57-81 => examen · <= 56 => risque élevé (PD >= 44 %).
-  scoreColor(s?: number) { return (s === null || s === undefined) ? 'text-gray-700' : s > 81 ? 'text-emerald-600' : s > 56 ? 'text-amber-600' : 'text-red-600'; }
+  // Couleurs alignées sur les zones de décision du modèle déployé
+  // (cf. models/scoring-zones.ts). score = (1 - PD) x 100.
+  scoreColor(s?: number) {
+    const c = couleurScore(s);
+    return c === 'gris' ? 'text-gray-700' : c === 'vert' ? 'text-emerald-600' : c === 'orange' ? 'text-amber-600' : 'text-red-600';
+  }
   badgeClass(s?: string) {
     return s === 'APPROUVE' ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
       : s === 'A_L_ETUDE' ? 'bg-amber-50 text-amber-700 border-amber-200'

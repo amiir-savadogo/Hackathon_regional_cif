@@ -10,16 +10,6 @@ import { DashboardStats } from '../../models/client.model';
   imports: [CommonModule, RouterLink],
   template: `
     <div>
-      <!-- Fil d'Ariane -->
-      <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 mb-5 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm" aria-label="Breadcrumb">
-        <span class="inline-flex items-center text-[#147c76] font-semibold">
-          <svg class="w-3.5 h-3.5 mr-1.5 text-[#147c76]" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-          Accueil
-        </span>
-        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-gray-800 font-semibold">Tableau de bord</span>
-      </nav>
-
       <!-- En-tête de page -->
       <div class="mb-6 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>

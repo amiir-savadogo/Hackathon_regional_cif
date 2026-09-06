@@ -1,8 +1,11 @@
 import { Component, inject } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterOutlet, RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterOutlet, RouterLink, RouterLinkActive, NavigationEnd } from '@angular/router';
+import { filter } from 'rxjs/operators';
 import { AuthService } from './services/auth.service';
 import { AgentUser } from './models/user.model';
+
+interface Crumb { label: string; link?: string[]; }
 
 // SAMDE - CIF Microcrédit v1.0 (Sidebar mise à jour)
 @Component({
@@ -15,11 +18,13 @@ import { AgentUser } from './models/user.model';
 
       <!-- HEADER MOBILE -->
       <div class="md:hidden absolute top-0 left-0 right-0 h-14 bg-[#123b41] text-white flex items-center justify-between px-4 z-20 shadow-md">
-        <div class="flex items-center space-x-2">
-          <div class="w-8 h-8 bg-[#147c76] rounded-lg flex items-center justify-center">
+        <div class="flex items-center space-x-2 min-w-0">
+          <div class="w-8 h-8 bg-[#147c76] rounded-lg flex items-center justify-center flex-shrink-0">
             <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 6l3 1m0 0l-3 9a5.002 5.002 0 006.001 0M6 7l3 9M6 7l6-2m6 2l3-1m-3 1l-3 9a5.002 5.002 0 006.001 0M18 7l3 9m-3-9l-6-2m0-2v2m0 16V5m0 16H9m3 0h3"/></svg>
           </div>
-          <span class="font-bold text-sm">SAMDE</span>
+          <span class="font-bold text-sm flex-shrink-0">SAMDE</span>
+          <span *ngIf="currentPageLabel" class="text-[#9cb4b4] text-sm flex-shrink-0">/</span>
+          <span *ngIf="currentPageLabel" class="text-[#e6eeee] text-sm font-medium truncate">{{ currentPageLabel }}</span>
         </div>
         <button (click)="toggleSidebar()" class="p-2 text-[#b9cbca] hover:text-white focus:outline-none">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/></svg>
@@ -109,21 +114,35 @@ import { AgentUser } from './models/user.model';
       <!-- CONTENU PRINCIPAL -->
       <div class="flex-1 min-w-0 flex flex-col overflow-hidden w-full pt-14 md:pt-0">
 
-        <!-- TOPBAR BUREAU AVEC BOUTON BURGER / TOGGLE -->
-        <header class="hidden md:flex h-16 bg-white border-b border-gray-200 items-center justify-between px-6 z-10 flex-shrink-0">
-          <div class="flex items-center space-x-3">
+        <!-- TOPBAR BUREAU AVEC BOUTON BURGER / TOGGLE + FIL D'ARIANE -->
+        <header class="hidden md:flex h-16 bg-white border-b border-gray-200 items-center justify-between px-6 z-10 flex-shrink-0 gap-4">
+          <div class="flex items-center space-x-3 min-w-0">
             <!-- Bouton basculer sidebar desktop -->
-            <button (click)="toggleDesktopSidebar()" 
-              class="p-2 rounded-lg text-gray-500 hover:text-[#147c76] hover:bg-[#e5f3f1] transition-colors focus:outline-none" 
+            <button (click)="toggleDesktopSidebar()"
+              class="p-2 rounded-lg text-gray-500 hover:text-[#147c76] hover:bg-[#e5f3f1] transition-colors focus:outline-none flex-shrink-0"
               [title]="isDesktopCollapsed ? 'Agrandir la barre latérale' : 'Réduire la barre latérale'">
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                 <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
               </svg>
             </button>
+
+            <!-- Fil d'Ariane (piloté par la route) -->
+            <nav class="flex items-center gap-1.5 text-sm font-medium text-gray-500 min-w-0 overflow-hidden" aria-label="Fil d'Ariane">
+              <ng-container *ngFor="let crumb of breadcrumb; let last = last; let first = first">
+                <svg *ngIf="!first" class="w-3.5 h-3.5 text-gray-300 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                <a *ngIf="crumb.link && !last" [routerLink]="crumb.link"
+                  class="inline-flex items-center gap-1.5 text-gray-500 hover:text-[#147c76] transition-colors flex-shrink-0">
+                  <svg *ngIf="first" class="w-4 h-4 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
+                  <span>{{ crumb.label }}</span>
+                </a>
+                <span *ngIf="!crumb.link && !last" class="text-gray-400 flex-shrink-0">{{ crumb.label }}</span>
+                <span *ngIf="last" class="text-gray-800 font-semibold truncate">{{ crumb.label }}</span>
+              </ng-container>
+            </nav>
           </div>
 
           <!-- Profil Agent Dynamique + Actions Header -->
-          <div class="flex items-center space-x-3">
+          <div class="flex items-center space-x-3 flex-shrink-0">
             <a routerLink="/agents" class="flex items-center space-x-2.5 p-1.5 rounded-xl hover:bg-gray-50 transition-colors group cursor-pointer" title="Gérer les agents / Affecter un collaborateur">
               <div class="w-8 h-8 rounded-full bg-[#147c76] flex items-center justify-center text-white text-xs font-bold shadow-sm">
                 {{ getInitials(currentAgent) }}
@@ -161,10 +180,43 @@ export class AppComponent {
   isDesktopCollapsed = false;  // État réduit/étendu sur bureau
   currentAgent: AgentUser | null = null;
 
+  /** Fil d'Ariane courant, recalculé à chaque navigation. */
+  breadcrumb: Crumb[] = [];
+  /** Dernier segment du fil d'Ariane, pour l'en-tête mobile. */
+  currentPageLabel = '';
+
   constructor() {
     this.authService.currentUser$.subscribe(agent => {
       this.currentAgent = agent;
     });
+    this.majFilAriane(this.router.url);
+    this.router.events
+      .pipe(filter((e): e is NavigationEnd => e instanceof NavigationEnd))
+      .subscribe(e => this.majFilAriane(e.urlAfterRedirects));
+  }
+
+  private majFilAriane(rawUrl: string): void {
+    const url = (rawUrl || '').split('?')[0].split('#')[0];
+    const seg = url.split('/').filter(Boolean);
+    const home: Crumb = { label: 'Accueil', link: ['/dashboard'] };
+    const credits: Crumb = { label: 'Crédits', link: ['/credits'] };
+    let fil: Crumb[] = [home];
+
+    if (seg[0] === 'dashboard') fil = [home, { label: 'Tableau de bord' }];
+    else if (seg[0] === 'agents') fil = [home, { label: 'Agents & Équipe' }];
+    else if (seg[0] === 'parametres') fil = [home, { label: 'Paramètres' }];
+    else if (seg[0] === 'credits' || seg[0] === 'clients') {
+      if (seg[0] === 'credits' && seg.length === 1) fil = [home, { label: 'Crédits' }];
+      else if (seg[1] === 'nouveau') fil = [home, credits, { label: 'Nouvelle évaluation' }];
+      else if (seg[0] === 'clients' && seg[2] === 'credit') fil = [home, credits, { label: 'Nouvelle évaluation' }];
+      else if (seg[0] === 'credits' && seg[2] === 'explication') {
+        fil = [home, credits, { label: 'Évaluation n°' + seg[1], link: ['/credits', seg[1]] }, { label: 'Pourquoi ce résultat ?' }];
+      } else if (seg[0] === 'credits' && seg[1]) fil = [home, credits, { label: 'Évaluation n°' + seg[1] }];
+      else fil = [home, { label: 'Crédits' }];
+    }
+
+    this.breadcrumb = fil;
+    this.currentPageLabel = fil.length > 1 ? fil[fil.length - 1].label : '';
   }
 
   getInitials(agent: AgentUser | null): string {

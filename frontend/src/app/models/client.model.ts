@@ -22,6 +22,7 @@ export interface Client {
   activite?: string;
   ancienneteActiviteAnnees: number;
   dateCreation?: string;
+  dateAdhesionCooperative?: string;   // ouverture du compte sociétaire (sert au calcul de l'ancienneté)
   ancienneteCooperativeMois?: number;
   revenuMensuelFcfa?: number;
   chargesMensuellesFcfa?: number;
@@ -54,6 +55,34 @@ export interface Client {
   ancienneteDernierCreditMois?: number | null;
   montantMaxCreditAnterieurFcfa?: number;
   creditsInternesAnterieurs?: CreditInterneAnterieur[];
+  // BIC (centrale des risques UEMOA) - pré-chargé, lecture seule
+  interrogeBic?: boolean;
+  statutBic?: string;
+  bicScore?: number;
+  nombrePretsActifsAutresInstitutions?: number;
+  encoursCreditAutresInstitutionsFcfa?: number;
+  bicMensualitesTotalesFcfa?: number;
+  bicNombreCreditsSoldesAilleurs?: number | null;
+  bicNombreImpayesTotal?: number;
+  bicJoursRetardMax?: number | null;
+  bicNombreContentieux?: number;
+  bicMontantRetardTotalFcfa?: number;
+  bicInterdictionBancaire?: boolean;
+  bicNombreChequesImpayes12m?: number;
+  bicAncienneteDernierIncidentMois?: number | null;
+  bicEngagementsExternes?: BicEngagementExterne[];
+  // Factures ONEA / SONABEL - pré-chargé, lecture seule
+  facturesNombre12m?: number;
+  facturesTauxPaiementPct?: number;
+  facturesNombreImpayees?: number;
+  facturesRetardMoyenJours?: number;
+  facturesMontantImpayeTotalFcfa?: number;
+  facturesServicesPublics?: FactureServicePublic[];
+  // Moralité / civisme - informatif, hors modèle
+  casierJudiciaire?: string;
+  nombreInfractionsRoutieres24m?: number;
+  nombreLitigesCivils?: number;
+  presenceListeSanctions?: boolean;
   totalTransactions?: number;
   volumeDepotsFcfa?: number;
   volumeRetraitsFcfa?: number;
@@ -105,6 +134,36 @@ export interface CreditInterneAnterieur {
   garantieAppelee?: boolean;
   agence?: string;
   membreGroupeSolidaire?: boolean;
+}
+
+/** Un engagement de crédit dans une AUTRE institution, remonté par le BIC. */
+export interface BicEngagementExterne {
+  etablissement?: string;
+  typeCredit?: string;
+  dateOctroi?: string;
+  montantInitialFcfa?: number;
+  encoursRestantFcfa?: number;
+  mensualiteFcfa?: number;
+  dureeMois?: number;
+  tauxInteretAnnuelPct?: number;
+  statut?: 'Sain' | 'Impayé' | 'Souffrance' | 'Contentieux' | 'Soldé' | string;
+  nombreImpayes?: number;
+  montantEnRetardFcfa?: number;
+  joursRetardMax?: number;
+  garantie?: string;
+}
+
+/** Une facture de service public (ONEA eau, SONABEL électricité). */
+export interface FactureServicePublic {
+  fournisseur?: 'ONEA' | 'SONABEL' | string;
+  periode?: string;
+  montantFcfa?: number;
+  dateEmission?: string;
+  dateEcheance?: string;
+  statut?: 'Payée' | 'Impayée' | string;
+  datePaiement?: string | null;
+  joursRetard?: number;
+  montantImpayeFcfa?: number;
 }
 
 export interface DemandeCredit {
@@ -190,8 +249,19 @@ export interface DemandeCredit {
   explicationJson?: string;           // facteurs SHAP sérialisés (parser avec JSON.parse)
   noteDecision?: string;              // règle métier ayant modifié la zone, le cas échéant
 
+  // Appréciation de l'agent - informatif, hors modèle
+  avisAgent?: 'FAVORABLE' | 'FAVORABLE_SOUS_RESERVE' | 'RESERVE' | 'DEFAVORABLE' | string;
+  avisAgentCommentaire?: string;
+  avisAgentMotifs?: string;           // motifs séparés par des virgules
+  avisAgentDate?: string;
+
   statut?: 'APPROUVE' | 'REJETE' | 'A_L_ETUDE' | 'ERREUR_IA' | string;
   dateCreation?: string;
+
+  // Corbeille (suppression logique)
+  supprime?: boolean;
+  dateSuppression?: string;
+  supprimePar?: string;
 
   // Origine du score : 'IA' = moteur de scoring backend, 'ESTIMATION_LOCALE' = repli
   // calculé côté navigateur quand le backend est injoignable (à ne pas confondre

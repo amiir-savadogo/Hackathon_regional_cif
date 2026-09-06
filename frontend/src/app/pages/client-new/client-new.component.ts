@@ -11,23 +11,9 @@ import { Client } from '../../models/client.model';
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
     <div class="max-w-2xl mx-auto">
-      <!-- Fil d'Ariane -->
-      <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 mb-6 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm" aria-label="Breadcrumb">
-        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors">
-          <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-          Accueil
-        </a>
-        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <a routerLink="/clients" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors">
-          <svg class="w-3.5 h-3.5 mr-1 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z"/></svg>
-          Clients
-        </a>
-        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="inline-flex items-center px-2 py-0.5 rounded-md text-xs font-semibold bg-[#e5f3f1] text-[#147c76] border border-[#cce9e5]">
-          <svg class="w-3 h-3 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"/></svg>
-          Nouveau demandeur
-        </span>
-      </nav>
+      <div class="flex justify-end mb-4">
+        <a routerLink="/clients" class="text-xs font-bold text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">← Retour aux clients</a>
+      </div>
 
       <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
         <h1 class="text-xl font-bold text-gray-900 mb-1">Enregistrement d'un nouveau demandeur</h1>

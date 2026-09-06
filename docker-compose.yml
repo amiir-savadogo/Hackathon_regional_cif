@@ -71,6 +71,16 @@ services:
     volumes:
       - ./frontend:/app
       - /app/node_modules
+    # `ng serve` est forcé en mode navigateur seul (pas de SSR/prerender en dev,
+    # cf. angular.json > build > configurations > development) : le rendu serveur
+    # doublait le travail d'esbuild et gardait un 2e contexte de watch actif, ce
+    # qui finissait par bloquer le builder ("fatal error: all goroutines are
+    # asleep - deadlock!") puis SIGKILL et redémarrage en boucle. Le SSR reste
+    # actif en production (déploiement Vercel), non concerné par ce fichier.
+    stdin_open: true
+    environment:
+      # Marge mémoire pour le builder esbuild sur ce gros bundle de dev.
+      NODE_OPTIONS: "--max-old-space-size=4096"
     depends_on:
       - backend
     restart: unless-stopped

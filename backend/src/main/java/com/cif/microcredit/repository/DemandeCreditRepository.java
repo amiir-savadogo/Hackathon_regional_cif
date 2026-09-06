@@ -10,22 +10,22 @@ import java.util.List;
  * Spring génère automatiquement les requêtes SQL de base.
  */
 public interface DemandeCreditRepository extends JpaRepository<DemandeCredit, Long> {
-    List<DemandeCredit> findByClientIdOrderByDateCreationDesc(Long clientId);
+
+    // --- Dossiers actifs (corbeille exclue) ---
+    List<DemandeCredit> findByClientIdAndSupprimeFalseOrderByDateCreationDesc(Long clientId);
 
     /**
-     * Toutes les demandes, plus récentes d'abord, avec le client déjà chargé
-     * (JOIN FETCH) : évite le N+1 et la LazyInitializationException lors de la
-     * sérialisation JSON de `demande.client` pour l'endpoint /api/demandes.
+     * Toutes les demandes actives, plus récentes d'abord, avec le client déjà
+     * chargé (JOIN FETCH) : évite le N+1 et la LazyInitializationException lors
+     * de la sérialisation JSON de `demande.client` pour l'endpoint /api/demandes.
      */
-    @Query("SELECT d FROM DemandeCredit d JOIN FETCH d.client ORDER BY d.dateCreation DESC")
-    List<DemandeCredit> findAllWithClient();
+    @Query("SELECT d FROM DemandeCredit d JOIN FETCH d.client WHERE d.supprime = false ORDER BY d.dateCreation DESC")
+    List<DemandeCredit> findAllActivesWithClient();
 
-    /**
-     * Compte le nombre de demandes par statut directement en base
-     * (agrégation SQL "GROUP BY", exécutée côté PostgreSQL) plutôt que
-     * de charger toutes les lignes en mémoire pour les filtrer côté Java.
-     * Chaque ligne du résultat est un tableau [statut, count].
-     */
-    @Query("SELECT d.statut, COUNT(d) FROM DemandeCredit d GROUP BY d.statut")
+    @Query("SELECT d.statut, COUNT(d) FROM DemandeCredit d WHERE d.supprime = false GROUP BY d.statut")
     List<Object[]> countByStatutGroup();
+
+    // --- Corbeille ---
+    @Query("SELECT d FROM DemandeCredit d JOIN FETCH d.client WHERE d.supprime = true ORDER BY d.dateSuppression DESC")
+    List<DemandeCredit> findCorbeilleWithClient();
 }

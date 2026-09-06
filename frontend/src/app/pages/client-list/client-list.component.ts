@@ -11,23 +11,15 @@ import { Client } from '../../models/client.model';
   imports: [CommonModule, RouterLink, FormsModule],
   template: `
     <div>
-      <!-- Fil d'Ariane -->
-      <nav class="flex items-center space-x-2 text-xs font-medium text-gray-500 mb-5 bg-white px-4 py-2.5 rounded-xl border border-gray-200/80 shadow-sm" aria-label="Breadcrumb">
-        <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors">
-          <svg class="w-3.5 h-3.5 mr-1.5 text-gray-400 hover:text-[#147c76]" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
-          Accueil
-        </a>
-        <svg class="w-3.5 h-3.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
-        <span class="text-gray-800 font-semibold">Répertoire Clients</span>
-        <span *ngIf="clients.length > 0" class="ml-2 px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
-          {{ clients.length }} adhérent{{ clients.length > 1 ? 's' : '' }}
-        </span>
-      </nav>
-
       <!-- En-tête -->
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 mb-6">
         <div>
-          <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Répertoire des Clients</h1>
+          <div class="flex items-center gap-2.5">
+            <h1 class="text-2xl font-bold text-gray-900 tracking-tight">Répertoire des Clients</h1>
+            <span *ngIf="clients.length > 0" class="px-2.5 py-0.5 text-[11px] font-bold rounded-full bg-[#e5f3f1] text-[#147c76] border border-[#b9ded9]">
+              {{ clients.length }} adhérent{{ clients.length > 1 ? 's' : '' }}
+            </span>
+          </div>
           <p class="text-sm text-gray-500 mt-0.5">Base de données des emprunteurs et adhérents de la coopérative</p>
         </div>
         <a routerLink="/clients/nouveau"
