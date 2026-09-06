@@ -53,7 +53,6 @@ export interface Client {
   mmAncienneteCompteMois?: number | null;
   mmSoldeMoyenFcfa?: number;
   mmFluxEntrantsMensuelFcfa?: number;
-  mmNombreIncidentsCreditMm?: number;
   nombreComptesBancaires?: number;
   typeComptePrincipal?: string;
   soldeCompteBancaireFcfa?: number;
@@ -109,7 +108,6 @@ export interface DemandeCredit {
   mmFluxEntrantsMensuelFcfa?: number;
   mmFluxSortantsMensuelFcfa?: number;
   mmMontantRemboursementsMmFcfa?: number;
-  mmNombreIncidentsCreditMm?: number;
   mmSoldeMoyenFcfa?: number;
   mmSoldeMinimumFcfa?: number;
   mmEvolutionSoldePct?: number | null;
@@ -138,7 +136,6 @@ export interface DemandeCredit {
   montantDemandeFcfa: number;
   dureeMois: number;
   tauxInteretNominalAnnuelPct?: number;
-  fraisDossierFcfa?: number;
   garantie?: string;
 
   // Résultat du moteur IA

@@ -70,10 +70,10 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
           </div>
           <input type="text" [(ngModel)]="searchQuery"
             placeholder="Rechercher par nom, matricule ou agence..."
-            class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-gray-50/50" />
+            class="w-full pl-9 pr-4 py-2 border border-gray-200 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 bg-gray-50/50" />
         </div>
         <select [(ngModel)]="selectedRoleFilter"
-          class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 text-gray-700">
+          class="px-3 py-2 border border-gray-200 rounded-lg text-sm bg-gray-50/50 focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 text-gray-700">
           <option value="ALL">Tous les rôles</option>
           <option *ngFor="let r of roles" [value]="r.code">{{ r.label }}</option>
         </select>
@@ -204,33 +204,33 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
           </div>
 
           <form (ngSubmit)="submitAgentForm()" #agentForm="ngForm" class="space-y-4">
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Prénom *</label>
                 <input type="text" [(ngModel)]="newAgent.prenom" name="prenom" required
                   placeholder="Prénom"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30" />
               </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Nom *</label>
                 <input type="text" [(ngModel)]="newAgent.nom" name="nom" required
                   placeholder="Nom de famille"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30" />
               </div>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Matricule CIF *</label>
                 <input type="text" [(ngModel)]="newAgent.matricule" name="matricule" required
                   placeholder="Matricule"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm uppercase font-mono focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm uppercase font-mono focus:outline-none focus:ring-2 focus:ring-[#147c76]/30" />
               </div>
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Téléphone</label>
                 <input type="text" [(ngModel)]="newAgent.telephone" name="telephone"
                   placeholder="Numéro de téléphone"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30" />
               </div>
             </div>
 
@@ -238,7 +238,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <label class="block text-xs font-semibold text-gray-700 mb-1">Email professionnel</label>
               <input type="email" [(ngModel)]="newAgent.email" name="email"
                 placeholder="Email professionnel"
-                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
+                class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30" />
             </div>
 
             <div>
@@ -252,7 +252,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <div class="relative">
                 <input [type]="showPassword ? 'text' : 'password'" [(ngModel)]="newAgent.motDePasse" name="motDePasse" [required]="!editingAgentId" [minlength]="editingAgentId ? 0 : 4"
                   [placeholder]="editingAgentId ? 'Laisser vide pour conserver le mot de passe actuel' : 'Définir un mot de passe (min. 4 car.)'"
-                  class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0" />
+                  class="w-full px-3 py-2 pr-10 border border-gray-300 rounded-lg text-sm font-mono focus:outline-none focus:ring-2 focus:ring-[#147c76]/30" />
                 <button type="button" (click)="showPassword = !showPassword"
                   class="absolute inset-y-0 right-0 pr-3 flex items-center text-gray-400 hover:text-gray-600">
                   <svg *ngIf="!showPassword" class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"/></svg>
@@ -263,11 +263,11 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <p class="text-[11px] text-gray-400 mt-1" *ngIf="!editingAgentId">Requis pour que le collaborateur puisse se connecter et valider ses opérations.</p>
             </div>
 
-            <div class="grid grid-cols-2 gap-3">
+            <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Rôle d'habilitation *</label>
                 <select *ngIf="roles.length > 0" [(ngModel)]="newAgent.roleCode" name="roleCode" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 bg-white">
                   <option *ngFor="let r of roles" [value]="r.code">{{ r.label }}</option>
                 </select>
                 <div *ngIf="roles.length === 0" class="p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">
@@ -278,7 +278,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
               <div>
                 <label class="block text-xs font-semibold text-gray-700 mb-1">Agence CIF *</label>
                 <select *ngIf="agences.length > 0" [(ngModel)]="newAgent.agence" name="agence" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#e5f3f1]0 bg-white">
+                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 bg-white">
                   <option *ngFor="let ag of agences" [value]="ag.nom">{{ ag.nom }} ({{ ag.ville }}{{ ag.pays ? ' · ' + ag.pays : '' }})</option>
                 </select>
                 <div *ngIf="agences.length === 0" class="p-2 bg-amber-50 border border-amber-200 rounded-lg text-xs text-amber-800">

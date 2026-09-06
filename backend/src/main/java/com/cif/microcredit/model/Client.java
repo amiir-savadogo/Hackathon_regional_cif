@@ -89,7 +89,6 @@ public class Client {
     private Double mmAncienneteCompteMois;
     private Double mmSoldeMoyenFcfa;
     private Double mmFluxEntrantsMensuelFcfa;
-    private Integer mmNombreIncidentsCreditMm;
     private Integer nombreComptesBancaires;
     private String typeComptePrincipal;
     private Double soldeCompteBancaireFcfa;
@@ -245,9 +244,6 @@ public class Client {
 
     public Double getMmFluxEntrantsMensuelFcfa() { return mmFluxEntrantsMensuelFcfa; }
     public void setMmFluxEntrantsMensuelFcfa(Double v) { this.mmFluxEntrantsMensuelFcfa = v; }
-
-    public Integer getMmNombreIncidentsCreditMm() { return mmNombreIncidentsCreditMm; }
-    public void setMmNombreIncidentsCreditMm(Integer v) { this.mmNombreIncidentsCreditMm = v; }
 
     public Integer getNombreComptesBancaires() { return nombreComptesBancaires; }
     public void setNombreComptesBancaires(Integer v) { this.nombreComptesBancaires = v; }

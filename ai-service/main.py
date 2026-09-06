@@ -3,10 +3,10 @@ API Scoring Microcrédit — Moteur IA
 Hackathon National d'Innovation CIF — Projet DigiCoop-WA+ (Thématique 02)
 
 Expose le modèle entraîné par scripts/02_train_model.py sur
-data/dataset_entrainement.csv (63 variables : cf. scripts/01_generate_dataset.py,
+data/dataset_entrainement.csv (61 variables : cf. scripts/01_generate_dataset.py,
 liste COLONNES_MODELE).
 
-Le client (backend Spring) envoie les 58 variables BRUTES ; le service calcule
+Le client (backend Spring) envoie les 56 variables BRUTES ; le service calcule
 lui-même les 5 variables DÉRIVÉES avec exactement les mêmes formules que le
 générateur du dataset :
   - indice_vulnerabilite_zone
@@ -139,7 +139,6 @@ class ClientData(BaseModel):
     mm_flux_entrants_mensuel_fcfa: float = Field(0, ge=0)
     mm_flux_sortants_mensuel_fcfa: float = Field(0, ge=0)
     mm_montant_remboursements_mm_fcfa: float = Field(0, ge=0)
-    mm_nombre_incidents_credit_mm: int = Field(0, ge=0)
     mm_solde_moyen_fcfa: float = Field(0, ge=0)
     mm_solde_minimum_fcfa: float = Field(0, ge=0)
     mm_evolution_solde_pct: Optional[float] = None
@@ -168,7 +167,6 @@ class ClientData(BaseModel):
     montant_credit_demande_fcfa: float = Field(..., gt=0)
     duree_credit_mois: int = Field(..., ge=1, le=60)
     taux_interet_nominal_annuel_pct: float = Field(14.0, gt=0, le=60)
-    frais_dossier_fcfa: float = Field(0, ge=0)
     garantie: str
 
 
@@ -236,7 +234,6 @@ def _preparer_row(data: ClientData) -> dict:
             row[k] = np.nan
         for k in _MM_MONTANTS_ZERO:
             row[k] = 0.0
-        row["mm_nombre_incidents_credit_mm"] = 0
         row["frequence_transactions_mm_mois"] = 0
         row["tx_mobile_money"] = 0
 

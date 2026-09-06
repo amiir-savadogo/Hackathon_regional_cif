@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
-import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.model';
+import { Client, DemandeCredit } from '../../models/client.model';
 
 interface CreditDossierItem {
   demande: DemandeCredit;
@@ -89,8 +89,8 @@ interface CreditDossierItem {
       </div>
 
       <!-- Table des dossiers de crédit -->
-      <div class="bg-white rounded-2xl border border-gray-200/90 shadow-sm overflow-hidden">
-        <table class="w-full text-left text-sm" *ngIf="filteredDossiers.length > 0">
+      <div class="bg-white rounded-2xl border border-gray-200/90 shadow-sm overflow-x-auto">
+        <table class="w-full min-w-[900px] text-left text-sm" *ngIf="filteredDossiers.length > 0">
           <thead class="bg-gray-50/90 border-b border-gray-200 text-xs font-semibold text-gray-500 uppercase tracking-wide">
             <tr>
               <th class="px-5 py-3.5">Sociétaire (Client)</th>
@@ -104,7 +104,9 @@ interface CreditDossierItem {
             </tr>
           </thead>
           <tbody class="divide-y divide-gray-100">
-            <tr *ngFor="let item of filteredDossiers" class="hover:bg-[#e5f3f1]/40 transition-colors">
+            <tr *ngFor="let item of filteredDossiers"
+              [routerLink]="['/credits', item.demande.id]"
+              class="hover:bg-[#e5f3f1]/40 transition-colors cursor-pointer">
               <td class="px-5 py-3.5">
                 <div class="flex items-center space-x-3">
                   <div class="w-9 h-9 rounded-xl bg-[#e5f3f1] text-[#147c76] font-bold text-xs flex items-center justify-center border border-[#b9ded9]">
@@ -151,11 +153,11 @@ interface CreditDossierItem {
               <td class="px-5 py-3.5 text-xs text-gray-400">
                 {{ item.demande.dateCreation | date:'dd/MM/yyyy' }}
               </td>
-              <td class="px-5 py-3.5 text-right">
-                <button (click)="openDetailModal(item)"
-                  class="px-3 py-1.5 rounded-lg bg-[#e5f3f1] hover:bg-[#cce9e5] text-[#147c76] text-xs font-semibold transition-all border border-[#b9ded9]">
-                  Voir le scoring
-                </button>
+              <td class="px-5 py-3.5 text-right whitespace-nowrap">
+                <span class="px-3 py-1.5 rounded-lg bg-[#e5f3f1] text-[#147c76] text-xs font-semibold inline-flex items-center gap-1">
+                  Ouvrir le dossier
+                  <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/></svg>
+                </span>
               </td>
             </tr>
           </tbody>
@@ -225,55 +227,6 @@ interface CreditDossierItem {
         </div>
       </div>
 
-      <!-- MODALE DE DÉTAIL DU SCORING IA -->
-      <div *ngIf="selectedDetailDossier" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4">
-        <div class="bg-white rounded-2xl max-w-xl w-full p-6 shadow-2xl relative animate-fade-in max-h-[90vh] overflow-y-auto">
-          
-          <div class="flex items-center justify-between pb-3 border-b border-gray-100 mb-4">
-            <div>
-              <h2 class="text-base font-bold text-gray-900">Résultat du Scoring IA</h2>
-              <p class="text-xs text-gray-500">Dossier de {{ selectedDetailDossier.client.prenom }} {{ selectedDetailDossier.client.nom }}</p>
-            </div>
-            <button (click)="selectedDetailDossier = null" class="text-gray-400 hover:text-gray-600 p-1 rounded-lg">
-              ✕
-            </button>
-          </div>
-
-          <div class="text-center py-4 bg-gray-50 rounded-xl mb-4 border border-gray-200">
-            <span [ngClass]="getStatusBadgeClass(selectedDetailDossier.demande.statut)" class="px-3.5 py-1 rounded-full text-xs font-bold border inline-block mb-2">
-              {{ getStatusLabel(selectedDetailDossier.demande.statut) }}
-            </span>
-            <div class="flex items-center justify-center space-x-2 mt-1">
-              <span class="text-3xl font-extrabold" [ngClass]="getScoreColor(selectedDetailDossier.demande.scoreCredit)">
-                {{ selectedDetailDossier.demande.scoreCredit || '720' }}
-              </span>
-              <span class="text-xs text-gray-400 font-mono">/ 900</span>
-            </div>
-            <p class="text-xs text-gray-500 mt-1">
-              Probabilité de défaut : <strong>{{ (selectedDetailDossier.demande.scoreRisque || 12.5) | number:'1.1-1' }}%</strong>
-            </p>
-          </div>
-
-          <div class="grid grid-cols-2 gap-3 text-xs mb-4">
-            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-              <span class="text-gray-400 block">Montant demandé :</span>
-              <span class="font-bold text-gray-900 text-sm">{{ selectedDetailDossier.demande.montantDemandeFcfa | number }} FCFA</span>
-            </div>
-            <div class="p-3 bg-gray-50 rounded-xl border border-gray-100">
-              <span class="text-gray-400 block">Durée :</span>
-              <span class="font-bold text-gray-900 text-sm">{{ selectedDetailDossier.demande.dureeMois }} mois</span>
-            </div>
-          </div>
-
-          <div class="pt-3 border-t border-gray-100 flex justify-end">
-            <button (click)="selectedDetailDossier = null"
-              class="px-4 py-2 bg-[#147c76] text-white text-xs font-bold rounded-xl shadow-sm">
-              Fermer
-            </button>
-          </div>
-        </div>
-      </div>
-
     </div>
   `
 })
@@ -284,7 +237,6 @@ export class CreditsComponent implements OnInit {
   dossiers: CreditDossierItem[] = [];
   searchQuery = '';
   selectedStatusFilter = 'ALL';
-  selectedDetailDossier: CreditDossierItem | null = null;
 
   ngOnInit() {
     this.loadData();
@@ -369,10 +321,6 @@ export class CreditsComponent implements OnInit {
       const matchStatus = this.selectedStatusFilter === 'ALL' || item.demande.statut === this.selectedStatusFilter;
       return matchQuery && matchStatus;
     });
-  }
-
-  openDetailModal(item: CreditDossierItem) {
-    this.selectedDetailDossier = item;
   }
 
   countStatus(status: string): number {

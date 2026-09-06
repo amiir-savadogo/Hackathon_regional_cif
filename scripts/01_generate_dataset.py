@@ -321,9 +321,6 @@ mm_utilise_credit_mm = mm & (RNG.random(N) < 0.55)
 mm_montant_remboursements_mm_fcfa = np.where(
     mm_utilise_credit_mm, np.clip(RNG.lognormal(9.0, 0.6, N), 1000, 100000).round(-2), 0.0
 )
-lam_inc_mm = np.clip(0.4 - 0.25 * discipline, 0.02, 2.0)
-mm_nombre_incidents_credit_mm = np.where(mm_utilise_credit_mm, RNG.poisson(lam_inc_mm), 0)
-
 taux_solde_mm = np.clip(0.15 + 0.12 * discipline + 0.10 * richesse, 0.02, 0.9)
 mm_solde_moyen_fcfa = np.where(mm, np.clip(mm_flux_entrants_mensuel_fcfa * taux_solde_mm, 500, None).round(-2), 0.0)
 mm_solde_minimum_fcfa = np.where(mm, (mm_solde_moyen_fcfa * RNG.uniform(0.05, 0.6, N)).round(-2), 0.0)
@@ -390,7 +387,6 @@ def _tirer_duree(dmin, dmax):
 duree_credit_mois = np.array([_tirer_duree(_dmin[i], _dmax[i]) for i in range(N)], dtype=int)
 montant_credit_demande_fcfa = np.clip(revenu_mensuel * RNG.uniform(0.8, 5.5, N), 30000, 3_000_000).round(-3)
 garantie = RNG.choice(GARANTIES, N, p=GARANTIES_PROBAS)
-frais_dossier_fcfa = np.clip(montant_credit_demande_fcfa * RNG.uniform(0.01, 0.03, N), 500, 25000).round(-2)
 
 # ===========================================================================
 # 9. Ratios de capacité de remboursement (échéance = vraie formule d'annuité)
@@ -471,7 +467,6 @@ z = (
                0.35 * (np.nan_to_num(bic_anciennete_dernier_incident_mois) < 12))
     + 0.10 * np.clip(np.nan_to_num(bic_nombre_credits_soldes_ailleurs) - 2.0, 0.0, 5.0)
     # --- Mobile Money ---
-    + 0.30 * (mm_nombre_incidents_credit_mm >= 1)
     - 0.12 * possede_mobile_money
     - 0.008 * np.clip(frequence_transactions_mm_mois, 0, 30)
     + np.where(mm, 0.010 * np.clip(np.nan_to_num(mm_volatilite_flux_pct) - 35.0, 0.0, 85.0) / 10.0, 0.0)
@@ -518,7 +513,7 @@ COLONNES_MODELE = [
     "possede_mobile_money", "frequence_transactions_mm_mois", "mm_anciennete_compte_mois",
     "mm_anciennete_sim_mois", "mm_nombre_mois_actifs_12m", "mm_volume_transactions_mensuel_fcfa",
     "mm_flux_entrants_mensuel_fcfa", "mm_flux_sortants_mensuel_fcfa", "mm_montant_remboursements_mm_fcfa",
-    "mm_nombre_incidents_credit_mm", "mm_solde_moyen_fcfa", "mm_solde_minimum_fcfa",
+    "mm_solde_moyen_fcfa", "mm_solde_minimum_fcfa",
     "mm_evolution_solde_pct", "mm_volatilite_flux_pct", "mm_ratio_depenses_credit_appel_data_pct",
     "nombre_comptes_bancaires", "type_compte_principal", "solde_compte_bancaire_fcfa",
     "flux_depots_bancaires_mensuel_fcfa", "flux_retraits_bancaires_mensuel_fcfa",
@@ -527,7 +522,7 @@ COLONNES_MODELE = [
     "encours_credit_autres_institutions_fcfa", "bic_nombre_credits_soldes_ailleurs",
     "bic_anciennete_dernier_incident_mois",
     "categorie_credit", "montant_credit_demande_fcfa", "duree_credit_mois",
-    "taux_interet_nominal_annuel_pct", "frais_dossier_fcfa", "garantie",
+    "taux_interet_nominal_annuel_pct", "garantie",
     "future_echeance_credit_fcfa", "ratio_endettement", "ratio_reste_a_vivre_absolu_fcfa",
     "ratio_couverture_echeance_epargne",
 ]
@@ -541,7 +536,7 @@ _INT_MONEY = {
     "mm_solde_moyen_fcfa", "mm_solde_minimum_fcfa", "solde_compte_bancaire_fcfa",
     "flux_depots_bancaires_mensuel_fcfa", "flux_retraits_bancaires_mensuel_fcfa",
     "encours_credit_autres_institutions_fcfa", "montant_credit_demande_fcfa",
-    "frais_dossier_fcfa", "future_echeance_credit_fcfa", "ratio_reste_a_vivre_absolu_fcfa",
+    "future_echeance_credit_fcfa", "ratio_reste_a_vivre_absolu_fcfa",
 }
 
 # Alias : quelques variables portent un nom "métier" plus court en amont ;
@@ -670,7 +665,6 @@ def _client_complet(i):
         "mmAncienneteCompteMois": _nan_to_none(float(mm_anciennete_compte_mois[i])),
         "mmSoldeMoyenFcfa": int(mm_solde_moyen_fcfa[i]),
         "mmFluxEntrantsMensuelFcfa": int(mm_flux_entrants_mensuel_fcfa[i]),
-        "mmNombreIncidentsCreditMm": int(mm_nombre_incidents_credit_mm[i]),
         "nombreComptesBancaires": int(nombre_comptes_bancaires[i]),
         "typeComptePrincipal": str(type_compte_principal[i]),
         "soldeCompteBancaireFcfa": int(solde_compte_bancaire_fcfa[i]),

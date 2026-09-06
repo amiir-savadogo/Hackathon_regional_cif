@@ -36,8 +36,10 @@ services:
       test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:8000/health', timeout=3)"]
       interval: 10s
       timeout: 5s
-      retries: 5
-      start_period: 10s
+      retries: 10
+      # Chargement RandomForest + SHAP au démarrage à froid : ~1 min. Sans cette
+      # marge, Docker déclare le service "unhealthy" et abandonne backend/frontend.
+      start_period: 60s
     restart: unless-stopped
 
   # 3. Backend Spring Boot (règles métier, validation, persistance)

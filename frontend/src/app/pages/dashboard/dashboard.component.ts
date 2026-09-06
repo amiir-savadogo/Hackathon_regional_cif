@@ -95,7 +95,7 @@ import { DashboardStats } from '../../models/client.model';
             {{ stats.totalDemandes > 0 ? (stats.approuvees / stats.totalDemandes * 100 | number:'1.0-0') : 0 }}%
           </span>
         </div>
-        <div class="flex space-x-6 mt-3 text-xs text-gray-500">
+        <div class="flex flex-wrap gap-x-6 gap-y-1 mt-3 text-xs text-gray-500">
           <span class="flex items-center space-x-1"><span class="w-2 h-2 rounded-full bg-green-500 inline-block"></span><span>Approuvé: {{ stats.approuvees }}</span></span>
           <span class="flex items-center space-x-1"><span class="w-2 h-2 rounded-full bg-yellow-500 inline-block"></span><span>En étude: {{ stats.enEtude }}</span></span>
           <span class="flex items-center space-x-1"><span class="w-2 h-2 rounded-full bg-red-500 inline-block"></span><span>Rejeté: {{ stats.rejetees }}</span></span>

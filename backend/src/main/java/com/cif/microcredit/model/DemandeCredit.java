@@ -83,8 +83,6 @@ public class DemandeCredit {
     @PositiveOrZero
     private double mmMontantRemboursementsMmFcfa;
     @PositiveOrZero
-    private int mmNombreIncidentsCreditMm;
-    @PositiveOrZero
     private double mmSoldeMoyenFcfa;
     @PositiveOrZero
     private double mmSoldeMinimumFcfa;
@@ -130,8 +128,6 @@ public class DemandeCredit {
 
     @Positive
     private Double tauxInteretNominalAnnuelPct;
-    @PositiveOrZero
-    private double fraisDossierFcfa;
 
     @NotBlank(message = "Le type de garantie est obligatoire")
     private String garantie;
@@ -243,9 +239,6 @@ public class DemandeCredit {
     public double getMmMontantRemboursementsMmFcfa() { return mmMontantRemboursementsMmFcfa; }
     public void setMmMontantRemboursementsMmFcfa(double v) { this.mmMontantRemboursementsMmFcfa = v; }
 
-    public int getMmNombreIncidentsCreditMm() { return mmNombreIncidentsCreditMm; }
-    public void setMmNombreIncidentsCreditMm(int v) { this.mmNombreIncidentsCreditMm = v; }
-
     public double getMmSoldeMoyenFcfa() { return mmSoldeMoyenFcfa; }
     public void setMmSoldeMoyenFcfa(double v) { this.mmSoldeMoyenFcfa = v; }
 
@@ -311,9 +304,6 @@ public class DemandeCredit {
 
     public Double getTauxInteretNominalAnnuelPct() { return tauxInteretNominalAnnuelPct; }
     public void setTauxInteretNominalAnnuelPct(Double v) { this.tauxInteretNominalAnnuelPct = v; }
-
-    public double getFraisDossierFcfa() { return fraisDossierFcfa; }
-    public void setFraisDossierFcfa(double v) { this.fraisDossierFcfa = v; }
 
     public String getGarantie() { return garantie; }
     public void setGarantie(String v) { this.garantie = v; }

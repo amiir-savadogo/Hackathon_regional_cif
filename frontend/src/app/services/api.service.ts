@@ -144,6 +144,37 @@ export class ApiService {
   }
 
   /**
+   * Une évaluation passée + son sociétaire, retrouvés par l'id de la demande.
+   * S'appuie sur getClients() (qui rattache déjà chaque demande à son client),
+   * donc fonctionne aussi en repli hors-ligne.
+   */
+  getDemandeById(id: number): Observable<{ demande: DemandeCredit; client: Client } | null> {
+    return this.getClients().pipe(
+      map(list => {
+        for (const c of list || []) {
+          const d = (c.demandes || []).find(x => x.id === id);
+          if (d) return { demande: d, client: c };
+        }
+        return null;
+      })
+    );
+  }
+
+  // Dossier mémorisé le temps de naviguer de la page détail vers le formulaire
+  // ("Refaire cette évaluation"). Consommé une seule fois par le formulaire.
+  private dossierARefaire: DemandeCredit | null = null;
+
+  setDossierARefaire(demande: DemandeCredit): void {
+    this.dossierARefaire = demande;
+  }
+
+  consumeDossierARefaire(): DemandeCredit | null {
+    const d = this.dossierARefaire;
+    this.dossierARefaire = null;
+    return d;
+  }
+
+  /**
    * Soumet la demande au backend, qui appelle le moteur IA (Régression
    * Logistique + SHAP). Si le backend est injoignable, on produit une
    * ESTIMATION LOCALE de repli, explicitement marquée `source: 'ESTIMATION_LOCALE'`

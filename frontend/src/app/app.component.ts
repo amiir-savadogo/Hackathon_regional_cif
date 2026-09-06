@@ -107,7 +107,7 @@ import { AgentUser } from './models/user.model';
       </aside>
 
       <!-- CONTENU PRINCIPAL -->
-      <div class="flex-1 flex flex-col overflow-hidden w-full pt-14 md:pt-0">
+      <div class="flex-1 min-w-0 flex flex-col overflow-hidden w-full pt-14 md:pt-0">
 
         <!-- TOPBAR BUREAU AVEC BOUTON BURGER / TOGGLE -->
         <header class="hidden md:flex h-16 bg-white border-b border-gray-200 items-center justify-between px-6 z-10 flex-shrink-0">
@@ -144,7 +144,7 @@ import { AgentUser } from './models/user.model';
           </div>
         </header>
 
-        <main class="flex-1 overflow-y-auto p-4 md:p-6 w-full">
+        <main class="flex-1 min-w-0 overflow-x-hidden overflow-y-auto p-4 md:p-6 w-full">
           <router-outlet></router-outlet>
         </main>
       </div>

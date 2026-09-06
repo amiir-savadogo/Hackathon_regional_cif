@@ -18,9 +18,9 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
       <!-- ========================================================================= -->
       <!-- BARRE SUPÉRIEURE ÉPURÉE AVEC FIL D'ARIANE PROPRE & RETOUR HUB             -->
       <!-- ========================================================================= -->
-      <div class="bg-white rounded-2xl border border-gray-200/80 px-5 py-3.5 shadow-sm flex items-center justify-between gap-4">
+      <div class="bg-white rounded-2xl border border-gray-200/80 px-4 sm:px-5 py-3.5 shadow-sm flex flex-wrap items-center justify-between gap-x-4 gap-y-2">
         <!-- Fil d'Ariane élégant et clair -->
-        <nav class="flex items-center space-x-2 text-sm font-medium text-gray-500" aria-label="Breadcrumb">
+        <nav class="flex flex-wrap items-center gap-x-2 gap-y-1 text-xs sm:text-sm font-medium text-gray-500 min-w-0" aria-label="Breadcrumb">
           <a routerLink="/dashboard" class="inline-flex items-center text-gray-500 hover:text-[#147c76] transition-colors group">
             <svg class="w-4 h-4 mr-1.5 text-gray-400 group-hover:text-[#147c76] transition-colors" fill="currentColor" viewBox="0 0 20 20"><path d="M10.707 2.293a1 1 0 00-1.414 0l-7 7a1 1 0 001.414 1.414L4 10.414V17a1 1 0 001 1h2a1 1 0 001-1v-2a1 1 0 011-1h2a1 1 0 011 1v2a1 1 0 001 1h2a1 1 0 001-1v-6.586l.293.293a1 1 0 001.414-1.414l-7-7z"></path></svg>
             <span>Accueil</span>

@@ -19,7 +19,7 @@ import java.util.Map;
 /**
  * ScoringService - pont entre le backend Spring Boot et le moteur IA Python.
  *
- * Envoie les 58 variables BRUTES du dossier (profil client + relation
+ * Envoie les 56 variables BRUTES du dossier (profil client + relation
  * coopérative + historique interne + Mobile Money enrichi + comptes bancaires
  * + BIC + demande de crédit). Le service Python recalcule lui-même les 5
  * variables dérivées (indice de vulnérabilité, échéance d'annuité, ratios) et
@@ -104,7 +104,6 @@ public class ScoringService {
         r.put("mm_flux_entrants_mensuel_fcfa", demande.getMmFluxEntrantsMensuelFcfa());
         r.put("mm_flux_sortants_mensuel_fcfa", demande.getMmFluxSortantsMensuelFcfa());
         r.put("mm_montant_remboursements_mm_fcfa", demande.getMmMontantRemboursementsMmFcfa());
-        r.put("mm_nombre_incidents_credit_mm", demande.getMmNombreIncidentsCreditMm());
         r.put("mm_solde_moyen_fcfa", demande.getMmSoldeMoyenFcfa());
         r.put("mm_solde_minimum_fcfa", demande.getMmSoldeMinimumFcfa());
         r.put("mm_evolution_solde_pct", demande.getMmEvolutionSoldePct());
@@ -134,7 +133,6 @@ public class ScoringService {
         r.put("duree_credit_mois", demande.getDureeMois());
         r.put("taux_interet_nominal_annuel_pct",
                 demande.getTauxInteretNominalAnnuelPct() != null ? demande.getTauxInteretNominalAnnuelPct() : 14.0);
-        r.put("frais_dossier_fcfa", demande.getFraisDossierFcfa());
         r.put("garantie", orDefault(demande.getGarantie(), "Aucune"));
 
         try {

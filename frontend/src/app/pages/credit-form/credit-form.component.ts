@@ -70,24 +70,24 @@ interface Volet { n: number; titre: string; sous: string; }
         <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm grid grid-cols-3 gap-3 text-xs">
           <button type="button" (click)="step = 1"
             [ngClass]="step===1 ? 'bg-[#e5f3f1] border-[#147c76] text-[#147c76]' : (step>1 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200')"
-            class="p-3 rounded-xl border flex items-center gap-2 font-bold transition-all">
-            <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px]"
+            class="p-2.5 sm:p-3 rounded-xl border flex items-center justify-center sm:justify-start gap-2 font-bold transition-all">
+            <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-white text-[11px]"
               [ngClass]="step>1 ? 'bg-emerald-600' : (step===1 ? 'bg-[#147c76]' : 'bg-gray-300')">{{ step>1 ? '✓' : '1' }}</span>
-            Fiche sociétaire
+            <span class="hidden sm:inline">Fiche sociétaire</span>
           </button>
           <button type="button" (click)="step = 2"
             [ngClass]="step===2 ? 'bg-[#e5f3f1] border-[#147c76] text-[#147c76]' : (step>2 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200')"
-            class="p-3 rounded-xl border flex items-center gap-2 font-bold transition-all">
-            <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px]"
+            class="p-2.5 sm:p-3 rounded-xl border flex items-center justify-center sm:justify-start gap-2 font-bold transition-all">
+            <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-white text-[11px]"
               [ngClass]="step>2 ? 'bg-emerald-600' : (step===2 ? 'bg-[#147c76]' : 'bg-gray-300')">{{ step>2 ? '✓' : '2' }}</span>
-            Instruction du dossier
+            <span class="hidden sm:inline">Instruction du dossier</span>
           </button>
           <button type="button" [disabled]="!evaluationResult" (click)="evaluationResult && (step = 3)"
             [ngClass]="step===3 ? 'bg-[#e5f3f1] border-[#147c76] text-[#147c76]' : (evaluationResult ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200 opacity-60 cursor-not-allowed')"
-            class="p-3 rounded-xl border flex items-center gap-2 font-bold transition-all">
-            <span class="w-6 h-6 rounded-full flex items-center justify-center text-white text-[11px] bg-gray-300"
+            class="p-2.5 sm:p-3 rounded-xl border flex items-center justify-center sm:justify-start gap-2 font-bold transition-all">
+            <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-white text-[11px] bg-gray-300"
               [ngClass]="step===3 ? 'bg-[#147c76]' : (evaluationResult ? 'bg-emerald-600' : '')">3</span>
-            Score & décision
+            <span class="hidden sm:inline">Score &amp; décision</span>
           </button>
         </div>
 
@@ -102,7 +102,7 @@ interface Volet { n: number; titre: string; sous: string; }
                 <h1 class="text-xl font-bold">{{ selectedClient.prenom }} {{ selectedClient.nom }}</h1>
                 <p class="text-xs text-emerald-100 mt-0.5">
                   CNIB {{ selectedClient.numeroCnib }} · Compte {{ selectedClient.numeroCompte }} ·
-                  Sociétaire depuis {{ selectedClient.dateCreation }} ({{ selectedClient.ancienneteCooperativeMois }} mois)
+                  Sociétaire depuis {{ selectedClient.dateCreation }} ({{ ancienneteCoopMois }} mois)
                 </p>
               </div>
             </div>
@@ -192,22 +192,33 @@ interface Volet { n: number; titre: string; sous: string; }
             <div *ngIf="volet === 2" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="lbl">Revenu mensuel déclaré (FCFA) *</label>
-                <input type="number" step="5000" class="inp" [(ngModel)]="demande.revenuMensuelFcfa" [ngModelOptions]="{standalone:true}" />
+                <input type="number" step="5000" min="1" class="inp"
+                  [ngClass]="{'border-red-400 bg-red-50': (demande.revenuMensuelFcfa != null && demande.revenuMensuelFcfa <= 0)}"
+                  [(ngModel)]="demande.revenuMensuelFcfa" [ngModelOptions]="{standalone:true}" />
+                <p *ngIf="demande.revenuMensuelFcfa != null && demande.revenuMensuelFcfa <= 0" class="text-[11px] text-red-600 mt-1">
+                  Le revenu doit être supérieur à 0.
+                </p>
               </div>
               <div>
                 <label class="lbl">Charges mensuelles (FCFA) *</label>
-                <input type="number" step="5000" class="inp" [(ngModel)]="demande.chargesMensuellesFcfa" [ngModelOptions]="{standalone:true}" />
+                <input type="number" step="5000" min="0" class="inp"
+                  [ngClass]="{'border-red-400 bg-red-50': (demande.chargesMensuellesFcfa != null && demande.chargesMensuellesFcfa < 0)}"
+                  [(ngModel)]="demande.chargesMensuellesFcfa" [ngModelOptions]="{standalone:true}" />
+                <p *ngIf="demande.chargesMensuellesFcfa != null && demande.chargesMensuellesFcfa < 0" class="text-[11px] text-red-600 mt-1">
+                  Les charges ne peuvent pas être négatives.
+                </p>
               </div>
               <div class="md:col-span-2 p-3 bg-emerald-50 rounded-xl text-sm font-bold text-[#147c76]">
                 Reste à vivre courant : {{ ((demande.revenuMensuelFcfa || 0) - (demande.chargesMensuellesFcfa || 0)) | number }} FCFA
               </div>
               <div>
                 <label class="lbl">Ancienneté à la coopérative (mois)</label>
-                <input type="number" class="inp" [(ngModel)]="demande.ancienneteCooperativeMois" [ngModelOptions]="{standalone:true}" />
+                <input type="text" class="inp bg-gray-100 text-gray-600 cursor-not-allowed" [value]="ancienneteCoopMois + ' mois'" readonly tabindex="-1" />
+                <p class="text-[11px] text-gray-400 mt-1">Calculé automatiquement à partir de la date d'adhésion ({{ selectedClient.dateCreation || '—' }}).</p>
               </div>
               <div>
                 <label class="lbl">Solde d'épargne moyen (FCFA)</label>
-                <input type="number" step="5000" class="inp" [(ngModel)]="demande.epargneSoldeMoyenFcfa" [ngModelOptions]="{standalone:true}" />
+                <input type="number" step="5000" min="0" class="inp" [(ngModel)]="demande.epargneSoldeMoyenFcfa" [ngModelOptions]="{standalone:true}" />
               </div>
               <div>
                 <label class="lbl">Régularité de l'épargne *</label>
@@ -249,10 +260,9 @@ interface Volet { n: number; titre: string; sous: string; }
                 Le sociétaire <strong>possède un compte Mobile Money</strong>
               </label>
               <div *ngIf="demande.possedeMobileMoney" class="grid grid-cols-2 md:grid-cols-3 gap-3 animate-fade-in">
-                <div><label class="lbl">Transactions / mois</label><input type="number" class="inp" [(ngModel)]="demande.frequenceTransactionsMmMois" [ngModelOptions]="{standalone:true}" /></div>
-                <div><label class="lbl">Solde moyen (FCFA)</label><input type="number" step="1000" class="inp" [(ngModel)]="demande.mmSoldeMoyenFcfa" [ngModelOptions]="{standalone:true}" /></div>
-                <div><label class="lbl">Flux entrants / mois (FCFA)</label><input type="number" step="1000" class="inp" [(ngModel)]="demande.mmFluxEntrantsMensuelFcfa" [ngModelOptions]="{standalone:true}" /></div>
-                <div><label class="lbl">Incidents sur crédits Mobile Money</label><input type="number" min="0" class="inp" [(ngModel)]="demande.mmNombreIncidentsCreditMm" [ngModelOptions]="{standalone:true}" /></div>
+                <div><label class="lbl">Transactions / mois</label><input type="number" min="0" class="inp" [(ngModel)]="demande.frequenceTransactionsMmMois" [ngModelOptions]="{standalone:true}" /></div>
+                <div><label class="lbl">Solde moyen (FCFA)</label><input type="number" step="1000" min="0" class="inp" [(ngModel)]="demande.mmSoldeMoyenFcfa" [ngModelOptions]="{standalone:true}" /></div>
+                <div><label class="lbl">Flux entrants / mois (FCFA)</label><input type="number" step="1000" min="0" class="inp" [(ngModel)]="demande.mmFluxEntrantsMensuelFcfa" [ngModelOptions]="{standalone:true}" /></div>
               </div>
               <p class="text-[11px] text-gray-400">Les autres indicateurs Mobile Money (ancienneté, volatilité, flux détaillés) sont récupérés automatiquement du profil du sociétaire.</p>
             </div>
@@ -277,7 +287,7 @@ interface Volet { n: number; titre: string; sous: string; }
                   </div>
                   <div *ngIf="demande.statutBic === bicPretEnCours">
                     <label class="lbl">Encours crédit ailleurs (FCFA)</label>
-                    <input type="number" step="10000" class="inp" [(ngModel)]="demande.encoursCreditAutresInstitutionsFcfa" [ngModelOptions]="{standalone:true}" />
+                    <input type="number" step="10000" min="0" class="inp" [(ngModel)]="demande.encoursCreditAutresInstitutionsFcfa" [ngModelOptions]="{standalone:true}" />
                   </div>
                   <div *ngIf="demande.statutBic === bicIncident">
                     <label class="lbl">Ancienneté du dernier incident (mois)</label>
@@ -300,9 +310,9 @@ interface Volet { n: number; titre: string; sous: string; }
                       <option *ngFor="let t of typesCompteBancaire" [value]="t">{{ t }}</option>
                     </select>
                   </div>
-                  <div><label class="lbl">Solde compte (FCFA)</label><input type="number" step="10000" class="inp" [(ngModel)]="demande.soldeCompteBancaireFcfa" [ngModelOptions]="{standalone:true}" /></div>
-                  <div><label class="lbl">Flux dépôts / mois (FCFA)</label><input type="number" step="10000" class="inp" [(ngModel)]="demande.fluxDepotsBancairesMensuelFcfa" [ngModelOptions]="{standalone:true}" /></div>
-                  <div><label class="lbl">Flux retraits / mois (FCFA)</label><input type="number" step="10000" class="inp" [(ngModel)]="demande.fluxRetraitsBancairesMensuelFcfa" [ngModelOptions]="{standalone:true}" /></div>
+                  <div><label class="lbl">Solde compte (FCFA)</label><input type="number" step="10000" min="0" class="inp" [(ngModel)]="demande.soldeCompteBancaireFcfa" [ngModelOptions]="{standalone:true}" /></div>
+                  <div><label class="lbl">Flux dépôts / mois (FCFA)</label><input type="number" step="10000" min="0" class="inp" [(ngModel)]="demande.fluxDepotsBancairesMensuelFcfa" [ngModelOptions]="{standalone:true}" /></div>
+                  <div><label class="lbl">Flux retraits / mois (FCFA)</label><input type="number" step="10000" min="0" class="inp" [(ngModel)]="demande.fluxRetraitsBancairesMensuelFcfa" [ngModelOptions]="{standalone:true}" /></div>
                   <div><label class="lbl">Rejets prélèvements / chèques (12 mois)</label><input type="number" min="0" class="inp" [(ngModel)]="demande.nombreRejetsPrelevementsCheques12m" [ngModelOptions]="{standalone:true}" /></div>
                 </div>
               </div>
@@ -326,7 +336,12 @@ interface Volet { n: number; titre: string; sous: string; }
               </div>
               <div>
                 <label class="lbl">Montant sollicité (FCFA) *</label>
-                <input type="number" step="10000" class="inp text-lg font-bold" [(ngModel)]="demande.montantDemandeFcfa" [ngModelOptions]="{standalone:true}" (ngModelChange)="onMontantChange()" />
+                <input type="number" step="10000" min="1" class="inp text-lg font-bold"
+                  [ngClass]="{'border-red-400 bg-red-50': (demande.montantDemandeFcfa != null && demande.montantDemandeFcfa <= 0)}"
+                  [(ngModel)]="demande.montantDemandeFcfa" [ngModelOptions]="{standalone:true}" />
+                <p *ngIf="demande.montantDemandeFcfa != null && demande.montantDemandeFcfa <= 0" class="text-[11px] text-red-600 mt-1">
+                  Le montant doit être supérieur à 0.
+                </p>
               </div>
               <div>
                 <label class="lbl">Durée (mois) *</label>
@@ -337,11 +352,7 @@ interface Volet { n: number; titre: string; sous: string; }
               </div>
               <div>
                 <label class="lbl">Taux d'intérêt nominal annuel (%)</label>
-                <input type="number" step="0.1" class="inp" [(ngModel)]="demande.tauxInteretNominalAnnuelPct" [ngModelOptions]="{standalone:true}" />
-              </div>
-              <div>
-                <label class="lbl">Frais de dossier (FCFA)</label>
-                <input type="number" step="500" class="inp" [(ngModel)]="demande.fraisDossierFcfa" [ngModelOptions]="{standalone:true}" />
+                <input type="number" step="0.1" min="0" max="60" class="inp" [(ngModel)]="demande.tauxInteretNominalAnnuelPct" [ngModelOptions]="{standalone:true}" />
               </div>
               <div class="md:col-span-2">
                 <label class="lbl">Garantie proposée *</label>
@@ -354,6 +365,19 @@ interface Volet { n: number; titre: string; sous: string; }
                 <div><span class="text-gray-400 block">Échéance mensuelle estimée</span><span class="font-bold text-gray-900 text-sm">{{ echeanceEstimee() | number:'1.0-0' }} FCFA</span></div>
                 <div><span class="text-gray-400 block">Taux d'endettement estimé</span><span class="font-bold text-sm" [ngClass]="ratioEndettementEstime() > 0.75 ? 'text-red-600' : (ratioEndettementEstime() > 0.5 ? 'text-amber-600' : 'text-emerald-600')">{{ ratioEndettementEstime() * 100 | number:'1.0-0' }} %</span></div>
               </div>
+            </div>
+
+            <!-- Contrôles de cohérence -->
+            <div *ngIf="volet === volets.length && (erreursSaisie().length > 0 || erreurServeur)"
+              class="mt-4 p-3 rounded-xl bg-red-50 border border-red-300 text-red-800 text-xs space-y-1">
+              <p class="font-bold flex items-center gap-1.5">
+                <svg class="w-4 h-4 flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+                Impossible de lancer le scoring
+              </p>
+              <ul class="list-disc list-inside space-y-0.5">
+                <li *ngFor="let msg of erreursSaisie()">{{ msg }}</li>
+                <li *ngIf="erreurServeur">{{ erreurServeur }}</li>
+              </ul>
             </div>
 
             <!-- navigation volets -->
@@ -474,6 +498,7 @@ export class CreditFormComponent implements OnInit {
   selectedClient: Client | null = null;
   isEvaluating = false;
   evaluationResult: DemandeCredit | null = null;
+  erreurServeur = '';
 
   categoriesCredit: CategorieCreditItem[] = [];
   objetsCredit: ObjetCreditItem[] = [];
@@ -510,13 +535,39 @@ export class CreditFormComponent implements OnInit {
   private checkRouteParams() {
     const idParam = this.route.snapshot.paramMap.get('id') || this.route.snapshot.queryParamMap.get('id');
     const cnib = this.route.snapshot.queryParamMap.get('cnib');
+    let c: Client | undefined;
     if (idParam) {
-      const c = this.clients.find(x => x.id === parseInt(idParam, 10));
-      if (c) this.selectClient(c);
+      c = this.clients.find(x => x.id === parseInt(idParam, 10));
     } else if (cnib) {
-      const c = this.clients.find(x => (x.numeroCnib || '').toLowerCase() === cnib.toLowerCase());
-      if (c) this.selectClient(c);
+      c = this.clients.find(x => (x.numeroCnib || '').toLowerCase() === cnib.toLowerCase());
     }
+    if (c) this.selectClient(c);
+
+    // "Refaire cette évaluation" : on repart d'un dossier déjà scoré, pré-rempli.
+    if (this.route.snapshot.queryParamMap.get('refaire')) {
+      const source = this.apiService.consumeDossierARefaire();
+      if (source) this.prefillFromDossier(source);
+    }
+  }
+
+  /** Recopie les CHAMPS SAISIS d'une évaluation passée dans le formulaire, en
+   *  laissant de côté les résultats du moteur (score, proba, SHAP, statut…). */
+  private prefillFromDossier(d: DemandeCredit) {
+    const exclure = new Set([
+      'id', 'client', 'scoreRisque', 'probaDefaut', 'zoneDecision', 'scoreCredit',
+      'perteAttendueFcfa', 'ratioEndettement', 'ratioResteAVivreFcfa',
+      'futureEcheanceCreditFcfa', 'explicationJson', 'statut', 'dateCreation', 'source',
+      'ancienneteCooperativeMois', // toujours recalculée depuis la date d'adhésion
+    ]);
+    const saisie: Record<string, any> = { ...this.demande };
+    for (const [k, v] of Object.entries(d)) {
+      if (!exclure.has(k) && v !== null && v !== undefined) {
+        saisie[k] = v;
+      }
+    }
+    this.demande = saisie as Partial<DemandeCredit>;
+    this.step = 1;
+    this.volet = 1;
   }
 
   get searchedClients(): Client[] {
@@ -535,6 +586,22 @@ export class CreditFormComponent implements OnInit {
     this.demande = {};
     this.step = 1;
     this.volet = 1;
+  }
+
+  /** Nombre de mois entiers écoulés entre une date (ISO) et aujourd'hui. */
+  private moisDepuis(dateStr?: string): number {
+    if (!dateStr) return 0;
+    const debut = new Date(dateStr);
+    if (isNaN(debut.getTime())) return 0;
+    const now = new Date();
+    let mois = (now.getFullYear() - debut.getFullYear()) * 12 + (now.getMonth() - debut.getMonth());
+    if (now.getDate() < debut.getDate()) mois--;   // le mois en cours n'est pas encore complet
+    return Math.max(0, mois);
+  }
+
+  /** Ancienneté à la coopérative, recalculée en direct depuis la date d'adhésion. */
+  get ancienneteCoopMois(): number {
+    return this.moisDepuis(this.selectedClient?.dateCreation);
   }
 
   selectClient(c: Client) {
@@ -565,7 +632,7 @@ export class CreditFormComponent implements OnInit {
    *  La saisie de l'agent (this.demande) le complète et prime dessus. */
   private fondDossier(c: Client): Partial<DemandeCredit> {
     return {
-      ancienneteCooperativeMois: c.ancienneteCooperativeMois ?? 0,
+      ancienneteCooperativeMois: this.moisDepuis(c.dateCreation),
       epargneSoldeMoyenFcfa: c.soldeEpargneActuelFcfa ?? 0,
       nombreCreditsAnterieurs: c.nombreCreditsAnterieurs ?? 0,
       tauxRemboursementHistoriquePct: c.tauxRemboursementHistoriquePct ?? null,
@@ -580,7 +647,6 @@ export class CreditFormComponent implements OnInit {
       mmAncienneteCompteMois: c.mmAncienneteCompteMois ?? null,
       mmSoldeMoyenFcfa: c.mmSoldeMoyenFcfa ?? 0,
       mmFluxEntrantsMensuelFcfa: c.mmFluxEntrantsMensuelFcfa ?? 0,
-      mmNombreIncidentsCreditMm: c.mmNombreIncidentsCreditMm ?? 0,
       nombreComptesBancaires: c.nombreComptesBancaires ?? 0,
       typeComptePrincipal: c.typeComptePrincipal || TYPE_COMPTE_BANCAIRE_AUCUN,
       soldeCompteBancaireFcfa: c.soldeCompteBancaireFcfa ?? 0,
@@ -588,7 +654,6 @@ export class CreditFormComponent implements OnInit {
       nombrePretsActifsAutresInstitutions: 0,
       encoursCreditAutresInstitutionsFcfa: 0,
       tauxInteretNominalAnnuelPct: this.demande.tauxInteretNominalAnnuelPct ?? 14,
-      fraisDossierFcfa: this.demande.fraisDossierFcfa ?? 0,
     };
   }
 
@@ -602,12 +667,6 @@ export class CreditFormComponent implements OnInit {
     this.demande.objetCredit = '';
     const cat = this.categoriesCredit.find(c => c.label === this.demande.categorieCredit);
     if (cat?.tauxInteretMin) this.demande.tauxInteretNominalAnnuelPct = cat.tauxInteretMin;
-  }
-
-  onMontantChange() {
-    if (this.demande.montantDemandeFcfa && !this.demande.fraisDossierFcfa) {
-      this.demande.fraisDossierFcfa = Math.min(25000, Math.max(500, Math.round(this.demande.montantDemandeFcfa * 0.02 / 100) * 100));
-    }
   }
 
   echeanceEstimee(): number {
@@ -631,11 +690,46 @@ export class CreditFormComponent implements OnInit {
   dossierComplet(): boolean {
     return !!(this.demande.revenuMensuelFcfa && this.demande.chargesMensuellesFcfa != null
       && this.demande.regulariteEpargne && this.demande.categorieCredit && this.demande.objetCredit
-      && this.demande.montantDemandeFcfa && this.demande.dureeMois && this.demande.garantie);
+      && this.demande.montantDemandeFcfa && this.demande.dureeMois && this.demande.garantie)
+      && this.erreursSaisie().length === 0;
+  }
+
+  /** Contrôles de cohérence sur les valeurs saisies (mêmes bornes que le
+   *  backend Spring + le moteur Python). Renvoie la liste des messages d'erreur. */
+  erreursSaisie(): string[] {
+    const d = this.demande;
+    const e: string[] = [];
+    const num = (v: unknown): number | null =>
+      v === null || v === undefined || v === '' || isNaN(Number(v)) ? null : Number(v);
+
+    const revenu = num(d.revenuMensuelFcfa);
+    const charges = num(d.chargesMensuellesFcfa);
+    const montant = num(d.montantDemandeFcfa);
+    const taux = num(d.tauxInteretNominalAnnuelPct);
+    const tauxRemb = num(d.tauxRemboursementHistoriquePct);
+
+    if (montant !== null && montant <= 0) e.push('Le montant sollicité doit être supérieur à 0 FCFA.');
+    if (montant !== null && montant > 100_000_000) e.push('Le montant sollicité dépasse le plafond autorisé (100 000 000 FCFA).');
+    if (revenu !== null && revenu <= 0) e.push('Le revenu mensuel déclaré doit être supérieur à 0 FCFA.');
+    if (charges !== null && charges < 0) e.push('Les charges mensuelles ne peuvent pas être négatives.');
+    if (taux !== null && (taux <= 0 || taux > 60)) e.push("Le taux d'intérêt annuel doit être compris entre 0 et 60 %.");
+    if (tauxRemb !== null && (tauxRemb < 0 || tauxRemb > 100)) e.push("Le taux de remboursement historique doit être compris entre 0 et 100 %.");
+
+    // Balayage générique : aucun montant / compteur / délai ne peut être négatif.
+    const negatif = Object.entries(d).some(([k, v]) => {
+      if (!/Fcfa$|^nombre|^total|^frequence|^tx|^volume|Jours$|Pct$|Mois$/.test(k)) return false;
+      const n = num(v);
+      return n !== null && n < 0;
+    });
+    if (negatif && !e.some(m => m.includes('négativ'))) {
+      e.push('Une ou plusieurs valeurs saisies sont négatives : corrigez-les avant de lancer le scoring.');
+    }
+    return e;
   }
 
   submitEvaluation() {
     if (!this.selectedClient?.id || !this.dossierComplet()) return;
+    if (this.erreursSaisie().length > 0) return;
     // saisie de l'agent, débarrassée des valeurs vides
     const saisie: Record<string, any> = {};
     for (const [k, v] of Object.entries(this.demande)) {
@@ -643,9 +737,17 @@ export class CreditFormComponent implements OnInit {
     }
     const payload = { ...this.fondDossier(this.selectedClient), ...saisie } as DemandeCredit;
     this.isEvaluating = true;
+    this.erreurServeur = '';
     this.apiService.evaluerCredit(this.selectedClient.id, payload).subscribe({
       next: (res) => { this.isEvaluating = false; this.evaluationResult = res; this.step = 3; },
-      error: (err) => { this.isEvaluating = false; console.error('Évaluation :', err); },
+      error: (err) => {
+        this.isEvaluating = false;
+        console.error('Évaluation :', err);
+        const champs = err?.error?.champs;
+        this.erreurServeur = champs
+          ? Object.values(champs).join(' ')
+          : (err?.error?.detail || err?.error?.message || "Le serveur a refusé le dossier. Vérifiez les montants saisis.");
+      },
     });
   }
 
@@ -679,7 +781,6 @@ export class CreditFormComponent implements OnInit {
     jours_retard_moyen_historique: 'Retards passés',
     possede_mobile_money: 'Possède Mobile Money',
     frequence_transactions_mm_mois: 'Fréquence Mobile Money',
-    mm_nombre_incidents_credit_mm: 'Incidents crédit Mobile Money',
     mm_volatilite_flux_pct: 'Volatilité des flux',
     nombre_rejets_prelevements_cheques_12m: 'Rejets de prélèvement',
     statut_bic: 'Statut BIC',

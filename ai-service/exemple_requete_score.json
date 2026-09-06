@@ -33,7 +33,6 @@
   "mm_flux_entrants_mensuel_fcfa": 160000,
   "mm_flux_sortants_mensuel_fcfa": 140000,
   "mm_montant_remboursements_mm_fcfa": 8000,
-  "mm_nombre_incidents_credit_mm": 0,
   "mm_solde_moyen_fcfa": 25000,
   "mm_solde_minimum_fcfa": 6000,
   "mm_evolution_solde_pct": 5,
@@ -56,6 +55,5 @@
   "montant_credit_demande_fcfa": 400000,
   "duree_credit_mois": 12,
   "taux_interet_nominal_annuel_pct": 14.5,
-  "frais_dossier_fcfa": 8000,
   "garantie": "Caution solidaire"
 }
