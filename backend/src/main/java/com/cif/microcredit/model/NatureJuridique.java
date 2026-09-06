@@ -5,8 +5,8 @@ import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
 @Entity
-@Table(name = "objets_credit")
-public class ObjetCredit {
+@Table(name = "natures_juridique")
+public class NatureJuridique {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,16 +20,12 @@ public class ObjetCredit {
     @Column(nullable = false)
     private String label;
 
-    @NotBlank
-    private String categorie;
-
     @Column(columnDefinition = "TEXT")
     private String description;
 
-    private Double tauxInteretMin;
-    private Integer dureeMaxMois;
+    private boolean necessiteNotaire = false;
+    private boolean fraisEnregistrement = false;
     private boolean actif = true;
-    private boolean systeme = false;
 
     private LocalDateTime dateCreation;
 
@@ -40,15 +36,14 @@ public class ObjetCredit {
         }
     }
 
-    public ObjetCredit() {}
+    public NatureJuridique() {}
 
-    public ObjetCredit(String code, String label, String categorie, String description, Double tauxInteretMin, Integer dureeMaxMois, boolean actif) {
+    public NatureJuridique(String code, String label, String description, boolean necessiteNotaire, boolean fraisEnregistrement, boolean actif) {
         this.code = code;
         this.label = label;
-        this.categorie = categorie;
         this.description = description;
-        this.tauxInteretMin = tauxInteretMin;
-        this.dureeMaxMois = dureeMaxMois;
+        this.necessiteNotaire = necessiteNotaire;
+        this.fraisEnregistrement = fraisEnregistrement;
         this.actif = actif;
         this.dateCreation = LocalDateTime.now();
     }
@@ -62,23 +57,17 @@ public class ObjetCredit {
     public String getLabel() { return label; }
     public void setLabel(String label) { this.label = label; }
 
-    public String getCategorie() { return categorie; }
-    public void setCategorie(String categorie) { this.categorie = categorie; }
-
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }
 
-    public Double getTauxInteretMin() { return tauxInteretMin; }
-    public void setTauxInteretMin(Double tauxInteretMin) { this.tauxInteretMin = tauxInteretMin; }
+    public boolean isNecessiteNotaire() { return necessiteNotaire; }
+    public void setNecessiteNotaire(boolean necessiteNotaire) { this.necessiteNotaire = necessiteNotaire; }
 
-    public Integer getDureeMaxMois() { return dureeMaxMois; }
-    public void setDureeMaxMois(Integer dureeMaxMois) { this.dureeMaxMois = dureeMaxMois; }
+    public boolean isFraisEnregistrement() { return fraisEnregistrement; }
+    public void setFraisEnregistrement(boolean fraisEnregistrement) { this.fraisEnregistrement = fraisEnregistrement; }
 
     public boolean isActif() { return actif; }
     public void setActif(boolean actif) { this.actif = actif; }
-
-    public boolean isSysteme() { return systeme; }
-    public void setSysteme(boolean systeme) { this.systeme = systeme; }
 
     public LocalDateTime getDateCreation() { return dateCreation; }
     public void setDateCreation(LocalDateTime dateCreation) { this.dateCreation = dateCreation; }

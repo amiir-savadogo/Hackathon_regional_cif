@@ -1,0 +1,1299 @@
+{
+  "categories": [
+    {
+      "code": "CREDIT_AGRICOLE_CAMPAGNE",
+      "label": "Crédit agricole - campagne",
+      "tauxInteretMin": 10.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_ARTISANAT_PRODUCTION",
+      "label": "Crédit artisanat - production",
+      "tauxInteretMin": 11.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_COMMERCE_FONDS_DE_ROULEMENT",
+      "label": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 11.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_CONSOMMATION",
+      "label": "Crédit consommation",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_GROUPE_SOLIDAIRE",
+      "label": "Crédit groupe solidaire",
+      "tauxInteretMin": 9.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_HABITAT_AMELIORATION_LOGEMENT",
+      "label": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 10.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_SALARIE_FONCTIONNAIRE",
+      "label": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 8.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_SANTE",
+      "label": "Crédit santé",
+      "tauxInteretMin": 9.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_SCOLAIRE_EDUCATION",
+      "label": "Crédit scolaire - éducation",
+      "tauxInteretMin": 9.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_SOCIAL_EVENEMENTIEL",
+      "label": "Crédit social - événementiel",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_TRANSPORT",
+      "label": "Crédit transport",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_ELEVAGE",
+      "label": "Crédit élevage",
+      "tauxInteretMin": 11.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CREDIT_EQUIPEMENT_INVESTISSEMENT",
+      "label": "Crédit équipement - investissement",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    }
+  ],
+  "objets": [
+    {
+      "code": "CRE_ACHAT_DE_SEMENCES",
+      "label": "Achat de semences",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_D_ENGRAIS",
+      "label": "Achat d'engrais",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_PRODUITS_PHYTOSANITAIRES",
+      "label": "Achat de produits phytosanitaires",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_LOCATION_DE_TERRE_POUR_LA_CAMPAGNE",
+      "label": "Location de terre pour la campagne",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MAIN_D_OEUVRE_AGRICOLE",
+      "label": "Main d'oeuvre agricole",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_PETIT_MATERIEL_AGRICOLE_MANUEL",
+      "label": "Petit matériel agricole manuel",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_RIZICULTURE_INTRANTS",
+      "label": "Riziculture - intrants",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MARA_CHAGE_INTRANTS",
+      "label": "Maraîchage - intrants",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CULTURE_DU_COTON",
+      "label": "Culture du coton",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CULTURE_DE_L_ARACHIDE",
+      "label": "Culture de l'arachide",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CULTURE_DU_SESAME",
+      "label": "Culture du sésame",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CULTURE_DU_MA_S",
+      "label": "Culture du maïs",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CULTURE_DU_NIEBE",
+      "label": "Culture du niébé",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_IRRIGATION_PETIT_EQUIPEMENT",
+      "label": "Irrigation - petit équipement",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_AVICULTURE_POUSSINS_ET_ALIMENT",
+      "label": "Aviculture - poussins et aliment",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MARA_CHAGE_DE_CONTRE_SAISON",
+      "label": "Maraîchage de contre-saison",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_TRANSFORMATION_POST_RECOLTE",
+      "label": "Transformation post-récolte",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_WARRANTAGE_STOCKAGE_CEREALIER",
+      "label": "Warrantage - stockage céréalier",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_WARRANTAGE_STOCKAGE_ARACHIDE",
+      "label": "Warrantage - stockage arachide",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_WARRANTAGE_STOCKAGE_NIEBE",
+      "label": "Warrantage - stockage niébé",
+      "categorie": "Crédit agricole - campagne",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_EMBOUCHE_BOVINE",
+      "label": "Embouche bovine",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_EMBOUCHE_OVINE",
+      "label": "Embouche ovine",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_EMBOUCHE_PORCINE",
+      "label": "Embouche porcine",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_BETAIL_REPRODUCTEURS",
+      "label": "Achat de bétail (reproducteurs)",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ALIMENT_DE_BETAIL",
+      "label": "Aliment de bétail",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_SANTE_ANIMALE_VACCINATION",
+      "label": "Santé animale / vaccination",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_AVICULTURE_POULETS_DE_CHAIR",
+      "label": "Aviculture - poulets de chair",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_AVICULTURE_POULES_PONDEUSES",
+      "label": "Aviculture - poules pondeuses",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_APICULTURE",
+      "label": "Apiculture",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_PISCICULTURE_AQUACULTURE",
+      "label": "Pisciculture / aquaculture",
+      "categorie": "Crédit élevage",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COMMERCE_GENERAL_DE_DETAIL",
+      "label": "Commerce général de détail",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COMMERCE_DE_GROS",
+      "label": "Commerce de gros",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_BOUTIQUE_KIOSQUE",
+      "label": "Boutique/kiosque",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COMMERCE_AMBULANT",
+      "label": "Commerce ambulant",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MARCHE_DE_NUIT",
+      "label": "Marché de nuit",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_IMPORT_DE_MARCHANDISES_PETIT_VOLUME",
+      "label": "Import de marchandises (petit volume)",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_VENTE_DE_TISSUS_PAGNES",
+      "label": "Vente de tissus/pagnes",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_VENTE_DE_PRODUITS_COSMETIQUES",
+      "label": "Vente de produits cosmétiques",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_VENTE_DE_PRODUITS_ALIMENTAIRES",
+      "label": "Vente de produits alimentaires",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_VENTE_DE_PIECES_DETACHEES",
+      "label": "Vente de pièces détachées",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_QUINCAILLERIE",
+      "label": "Quincaillerie",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_LIBRAIRIE_PAPETERIE",
+      "label": "Librairie/papeterie",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_VENTE_DE_TELEPHONES_ACCESSOIRES",
+      "label": "Vente de téléphones/accessoires",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COMMERCE_DE_BETAIL",
+      "label": "Commerce de bétail",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COMMERCE_DE_CEREALES",
+      "label": "Commerce de céréales",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COMMERCE_DE_POISSON_SECHE_FUME",
+      "label": "Commerce de poisson séché/fumé",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_STATION_SERVICE_VENTE_DE_CARBURANT_AU_DETAIL",
+      "label": "Station-service / vente de carburant au détail",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_PHARMACIE_DEPOT_PHARMACEUTIQUE",
+      "label": "Pharmacie/dépôt pharmaceutique",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COMMERCE_DE_MATERIAUX_DE_CONSTRUCTION",
+      "label": "Commerce de matériaux de construction",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_RESTAURATION_DE_RUE",
+      "label": "Restauration de rue",
+      "categorie": "Crédit commerce - fonds de roulement",
+      "tauxInteretMin": 14.5,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COUTURE_CONFECTION",
+      "label": "Couture/confection",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COIFFURE_TRESSE",
+      "label": "Coiffure/tresse",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MENUISERIE_BOIS",
+      "label": "Menuiserie bois",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MENUISERIE_METALLIQUE_SOUDURE",
+      "label": "Menuiserie métallique/soudure",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MECANIQUE_AUTO_MOTO",
+      "label": "Mécanique auto/moto",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_TEINTURE",
+      "label": "Teinture",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_TRANSFORMATION_AGROALIMENTAIRE_JUS_FARINE",
+      "label": "Transformation agroalimentaire (jus, farine)",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FABRICATION_DE_SAVON",
+      "label": "Fabrication de savon",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_POTERIE_CERAMIQUE",
+      "label": "Poterie/céramique",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_BIJOUTERIE_ORFEVRERIE",
+      "label": "Bijouterie/orfèvrerie",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CORDONNERIE",
+      "label": "Cordonnerie",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_PHOTOGRAPHIE_VIDEO_EVENEMENTIELLE",
+      "label": "Photographie/vidéo événementielle",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_IMPRIMERIE_SERIGRAPHIE",
+      "label": "Imprimerie/sérigraphie",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_VANNERIE_TISSAGE",
+      "label": "Vannerie/tissage",
+      "categorie": "Crédit artisanat - production",
+      "tauxInteretMin": 14.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_MOTO_TAXI",
+      "label": "Achat de moto-taxi",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_TRICYCLE_MOTORISE",
+      "label": "Achat de tricycle motorisé",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_REPARATION_DE_VEHICULE_UTILITAIRE",
+      "label": "Réparation de véhicule utilitaire",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_TAXI",
+      "label": "Achat de taxi",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ASSURANCE_DOCUMENTS_DE_TRANSPORT",
+      "label": "Assurance/documents de transport",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_LOCATION_VENTE_DE_VELO_CARGO",
+      "label": "Location-vente de vélo cargo",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_VELO_UTILITAIRE",
+      "label": "Achat de vélo utilitaire",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_CHARRETTE_ATTELAGE",
+      "label": "Achat de charrette/attelage",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_RENOUVELLEMENT_DE_PIECES_MOTO_TAXI",
+      "label": "Renouvellement de pièces moto-taxi",
+      "categorie": "Crédit transport",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 36,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MACHINE_DE_COUTURE_INDUSTRIELLE",
+      "label": "Machine de couture industrielle",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_GROUPE_ELECTROGENE",
+      "label": "Groupe électrogène",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_KIT_SOLAIRE_DOMESTIQUE_PROFESSIONNEL",
+      "label": "Kit solaire domestique/professionnel",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MATERIEL_INFORMATIQUE_PROFESSIONNEL",
+      "label": "Matériel informatique professionnel",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MATERIEL_DE_TRANSFORMATION_AGROALIMENTAIRE",
+      "label": "Matériel de transformation agroalimentaire",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CONGELATEUR_CHAMBRE_FROIDE",
+      "label": "Congélateur/chambre froide",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MATERIEL_DE_RESTAURATION_FOUR_PLAQUE",
+      "label": "Matériel de restauration (four, plaque)",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_EXTENSION_DE_LOCAL_COMMERCIAL",
+      "label": "Extension de local commercial",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MATERIEL_DE_SOUDURE_MENUISERIE",
+      "label": "Matériel de soudure/menuiserie",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MATERIEL_DE_SONORISATION_EVENEMENTIELLE",
+      "label": "Matériel de sonorisation événementielle",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MATERIEL_DE_COIFFURE_SALON_DE_BEAUTE",
+      "label": "Matériel de coiffure/salon de beauté",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MATERIEL_D_IRRIGATION_GOUTTE_A_GOUTTE",
+      "label": "Matériel d'irrigation goutte-à-goutte",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_BROYEUR_MOULIN_A_CEREALES",
+      "label": "Broyeur/moulin à céréales",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_PRESSE_A_HUILE_ARTISANALE",
+      "label": "Presse à huile artisanale",
+      "categorie": "Crédit équipement - investissement",
+      "tauxInteretMin": 15.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CONSTRUCTION_DE_LOGEMENT",
+      "label": "Construction de logement",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_REPARATION_TOITURE",
+      "label": "Réparation/toiture",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_EXTENSION_DE_LOGEMENT",
+      "label": "Extension de logement",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ADDUCTION_D_EAU",
+      "label": "Adduction d'eau",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ELECTRIFICATION_DOMESTIQUE",
+      "label": "Électrification domestique",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ASSAINISSEMENT_LATRINES",
+      "label": "Assainissement/latrines",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_PARCELLE",
+      "label": "Achat de parcelle",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_PEINTURE_FINITION",
+      "label": "Peinture/finition",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CLOTURE_DE_PARCELLE",
+      "label": "Clôture de parcelle",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_INSTALLATION_DE_PANNEAUX_SOLAIRES_RESIDENTIELS",
+      "label": "Installation de panneaux solaires résidentiels",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_REHABILITATION_DE_PUITS",
+      "label": "Réhabilitation de puits",
+      "categorie": "Crédit habitat - amélioration logement",
+      "tauxInteretMin": 13.0,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ELECTROMENAGER",
+      "label": "Électroménager",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MOBILIER_DE_MAISON",
+      "label": "Mobilier de maison",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_TELEPHONE_TABLETTE",
+      "label": "Téléphone/tablette",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_VETEMENTS_HABILLEMENT",
+      "label": "Vêtements/habillement",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FRAIS_DE_DEMENAGEMENT",
+      "label": "Frais de déménagement",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_LITERIE",
+      "label": "Literie",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_VAISSELLE_USTENSILES_DE_CUISINE",
+      "label": "Vaisselle/ustensiles de cuisine",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_GROUPE_ELECTROGENE_DOMESTIQUE",
+      "label": "Groupe électrogène domestique",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ABONNEMENT_FORFAIT_INTERNET_ANNUEL",
+      "label": "Abonnement/forfait internet annuel",
+      "categorie": "Crédit consommation",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 18,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FRAIS_DE_SCOLARITE",
+      "label": "Frais de scolarité",
+      "categorie": "Crédit scolaire - éducation",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FOURNITURES_SCOLAIRES",
+      "label": "Fournitures scolaires",
+      "categorie": "Crédit scolaire - éducation",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FORMATION_PROFESSIONNELLE_COURTE",
+      "label": "Formation professionnelle courte",
+      "categorie": "Crédit scolaire - éducation",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FRAIS_UNIVERSITAIRES",
+      "label": "Frais universitaires",
+      "categorie": "Crédit scolaire - éducation",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_INTERNAT_LOGEMENT_ETUDIANT",
+      "label": "Internat/logement étudiant",
+      "categorie": "Crédit scolaire - éducation",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_UNIFORMES_SCOLAIRES",
+      "label": "Uniformes scolaires",
+      "categorie": "Crédit scolaire - éducation",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FRAIS_DE_CONCOURS_EXAMENS",
+      "label": "Frais de concours/examens",
+      "categorie": "Crédit scolaire - éducation",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_MATERIEL_INFORMATIQUE_POUR_ETUDES",
+      "label": "Matériel informatique pour études",
+      "categorie": "Crédit scolaire - éducation",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FRAIS_D_HOSPITALISATION",
+      "label": "Frais d'hospitalisation",
+      "categorie": "Crédit santé",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACHAT_DE_MEDICAMENTS",
+      "label": "Achat de médicaments",
+      "categorie": "Crédit santé",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COTISATION_MUTUELLE_DE_SANTE",
+      "label": "Cotisation mutuelle de santé",
+      "categorie": "Crédit santé",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CONSULTATION_SPECIALISEE",
+      "label": "Consultation spécialisée",
+      "categorie": "Crédit santé",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FRAIS_D_ACCOUCHEMENT",
+      "label": "Frais d'accouchement",
+      "categorie": "Crédit santé",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_LUNETTES_APPAREILLAGE_MEDICAL",
+      "label": "Lunettes/appareillage médical",
+      "categorie": "Crédit santé",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FRAIS_D_EVACUATION_SANITAIRE",
+      "label": "Frais d'évacuation sanitaire",
+      "categorie": "Crédit santé",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_SOINS_DENTAIRES",
+      "label": "Soins dentaires",
+      "categorie": "Crédit santé",
+      "tauxInteretMin": 11.5,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CEREMONIE_DE_MARIAGE",
+      "label": "Cérémonie de mariage",
+      "categorie": "Crédit social - événementiel",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FUNERAILLES",
+      "label": "Funérailles",
+      "categorie": "Crédit social - événementiel",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_BAPTEME",
+      "label": "Baptême",
+      "categorie": "Crédit social - événementiel",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FETE_RELIGIEUSE",
+      "label": "Fête religieuse",
+      "categorie": "Crédit social - événementiel",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COTISATION_TONTINE_ASSOCIATION",
+      "label": "Cotisation tontine/association",
+      "categorie": "Crédit social - événementiel",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_PELERINAGE",
+      "label": "Pèlerinage",
+      "categorie": "Crédit social - événementiel",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CEREMONIE_DE_DOT",
+      "label": "Cérémonie de dot",
+      "categorie": "Crédit social - événementiel",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_FETE_DE_FIN_D_ANNEE",
+      "label": "Fête de fin d'année",
+      "categorie": "Crédit social - événementiel",
+      "tauxInteretMin": 16.0,
+      "dureeMaxMois": 12,
+      "systeme": true
+    },
+    {
+      "code": "CRE_AVANCE_SUR_SALAIRE",
+      "label": "Avance sur salaire",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CREDIT_CONSOMMATION_SALARIE_DOMICILIATION",
+      "label": "Crédit consommation salarié (domiciliation)",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CREDIT_VEHICULE_SALARIE",
+      "label": "Crédit véhicule salarié",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CREDIT_EQUIPEMENT_DOMESTIQUE_SALARIE",
+      "label": "Crédit équipement domestique salarié",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CREDIT_SCOLAIRE_SALARIE",
+      "label": "Crédit scolaire salarié",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CREDIT_HABITAT_SALARIE",
+      "label": "Crédit habitat salarié",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CREDIT_SANTE_SALARIE",
+      "label": "Crédit santé salarié",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CREDIT_DE_CAMPAGNE_FONCTIONNAIRE_RURAL",
+      "label": "Crédit de campagne (fonctionnaire rural)",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CREDIT_INVESTISSEMENT_COMPLEMENTAIRE_SALARIE",
+      "label": "Crédit investissement complémentaire salarié",
+      "categorie": "Crédit salarié - fonctionnaire",
+      "tauxInteretMin": 10.5,
+      "dureeMaxMois": 48,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ACTIVITE_GENERATRICE_DE_REVENUS_GROUPE",
+      "label": "Activité génératrice de revenus (groupe)",
+      "categorie": "Crédit groupe solidaire",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_CAISSE_VILLAGEOISE_TOURNANTE",
+      "label": "Caisse villageoise tournante",
+      "categorie": "Crédit groupe solidaire",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_GROUPEMENT_FEMININ_PRODUCTION",
+      "label": "Groupement féminin - production",
+      "categorie": "Crédit groupe solidaire",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_GROUPEMENT_AGRICOLE_INTRANTS_COLLECTIFS",
+      "label": "Groupement agricole - intrants collectifs",
+      "categorie": "Crédit groupe solidaire",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_ASSOCIATION_DE_TRANSFORMATION_COLLECTIVE",
+      "label": "Association de transformation collective",
+      "categorie": "Crédit groupe solidaire",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_GROUPEMENT_D_ELEVEURS_ACHAT_GROUPE",
+      "label": "Groupement d'éleveurs - achat groupé",
+      "categorie": "Crédit groupe solidaire",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    },
+    {
+      "code": "CRE_COOPERATIVE_DE_TRANSFORMATION_EQUIPEMENT_COLLECTIF",
+      "label": "Coopérative de transformation - équipement collectif",
+      "categorie": "Crédit groupe solidaire",
+      "tauxInteretMin": 12.0,
+      "dureeMaxMois": 24,
+      "systeme": true
+    }
+  ],
+  "garanties": [
+    {
+      "code": "CAUTION_SOLIDAIRE",
+      "label": "Caution solidaire",
+      "tauxCouvertureRecommande": 100,
+      "systeme": true
+    },
+    {
+      "code": "BIEN_MATERIEL",
+      "label": "Bien matériel",
+      "tauxCouvertureRecommande": 100,
+      "systeme": true
+    },
+    {
+      "code": "AVAL_D_UN_TIERS",
+      "label": "Aval d'un tiers",
+      "tauxCouvertureRecommande": 100,
+      "systeme": true
+    },
+    {
+      "code": "AUCUNE",
+      "label": "Aucune",
+      "tauxCouvertureRecommande": 100,
+      "systeme": true
+    }
+  ]
+}

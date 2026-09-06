@@ -119,6 +119,16 @@ public class ClientController {
         return ResponseEntity.ok(demandes);
     }
 
+    /**
+     * Toutes les demandes de crédit (plus récentes d'abord), client inclus.
+     * Utilisé par le frontend pour reconstituer les dossiers : /api/clients ne
+     * renvoie pas la collection `demandes` (marquée @JsonIgnore côté entité).
+     */
+    @GetMapping("/demandes")
+    public ResponseEntity<List<DemandeCredit>> getAllDemandes() {
+        return ResponseEntity.ok(demandeCreditRepository.findAllWithClient());
+    }
+
     @PostMapping("/clients/{clientId}/demandes")
     public ResponseEntity<DemandeCredit> evaluerCredit(
             @PathVariable Long clientId,
@@ -141,6 +151,8 @@ public class ClientController {
             demande.setScoreCredit(resultat.getScoreCredit());
             demande.setPerteAttendueFcfa(resultat.getPerteAttendueFcfa());
             demande.setRatioEndettement(resultat.getRatioEndettement());
+            demande.setRatioResteAVivreFcfa(resultat.getRatioResteAVivreFcfa());
+            demande.setFutureEcheanceCreditFcfa(resultat.getFutureEcheanceCreditFcfa());
             demande.setExplicationJson(resultat.getExplicationJson());
 
             // La décision finale suit la zone à 3 niveaux calculée par l'IA

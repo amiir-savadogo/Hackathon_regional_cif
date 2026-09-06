@@ -3,10 +3,10 @@ import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
-import { SettingsService, CategorieItem, ObjetCreditItem, GarantieItem } from '../../services/settings.service';
+import { SettingsService, CategorieCreditItem, ObjetCreditItem, GarantieItem, NatureJuridiqueItem } from '../../services/settings.service';
 import { AgentRole, AgenceCIF, CorbeilleItem } from '../../models/user.model';
 
-export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' | 'AGENCES' | 'ROLES' | 'CORBEILLE';
+export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' | 'NATURES_JURIDIQUES' | 'AGENCES' | 'ROLES' | 'CORBEILLE';
 
 @Component({
   selector: 'app-parametres',
@@ -52,7 +52,7 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
           </button>
 
           <div *ngIf="currentSection === 'HUB'" class="flex items-center space-x-2">
-            <span class="text-xs text-gray-400 font-medium hidden sm:inline">6 modules configurables</span>
+            <span class="text-xs text-gray-400 font-medium hidden sm:inline">7 modules configurables</span>
             <span class="w-2 h-2 rounded-full bg-[#147c76]"></span>
           </div>
         </div>
@@ -252,6 +252,39 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
             </div>
           </div>
 
+          <!-- 6. CARTE NATURES JURIDIQUES -->
+          <div (click)="goToSection('NATURES_JURIDIQUES')"
+            class="bg-white rounded-3xl border-2 border-fuchsia-100 hover:border-fuchsia-500 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
+            <div class="absolute top-0 right-0 w-28 h-28 bg-fuchsia-50/60 rounded-bl-full -z-0 group-hover:scale-110 transition-transform duration-300"></div>
+
+            <div class="relative z-10">
+              <div class="w-12 h-12 rounded-2xl bg-gradient-to-tr from-fuchsia-500 to-purple-600 text-white flex items-center justify-center mb-4 shadow-lg shadow-fuchsia-500/30 group-hover:scale-105 transition-transform">
+                <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/>
+                </svg>
+              </div>
+
+              <div class="flex items-center space-x-2 mb-1.5">
+                <h2 class="text-lg font-bold text-gray-900 group-hover:text-fuchsia-700 transition-colors">Natures Juridiques</h2>
+                <span class="px-2 py-0.5 text-xs font-bold rounded-full bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200">
+                  {{ naturesJuridiques.length }}
+                </span>
+              </div>
+              
+              <p class="text-xs text-gray-500 leading-relaxed">
+                Formes légales des garanties (Acte notarié, sous seing privé, billet à ordre...)
+              </p>
+            </div>
+
+            <div class="pt-5 mt-4 border-t border-gray-100 flex items-center justify-between relative z-10">
+              <span class="text-xs font-bold text-fuchsia-700 group-hover:translate-x-1 transition-transform inline-flex items-center">
+                Gérer les natures
+                <svg class="w-3.5 h-3.5 ml-1" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M9 5l7 7-7 7"/></svg>
+              </span>
+              <span class="text-[10px] text-fuchsia-700 font-semibold bg-fuchsia-50 px-2 py-0.5 rounded-full">Légal</span>
+            </div>
+          </div>
+
           <!-- 6. CARTE CORBEILLE -->
           <div (click)="goToSection('CORBEILLE')"
             class="bg-white rounded-3xl border-2 border-amber-100 hover:border-amber-500 p-6 shadow-sm hover:shadow-xl transition-all duration-300 cursor-pointer group flex flex-col justify-between relative overflow-hidden">
@@ -335,35 +368,34 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
             <div *ngFor="let cat of categories"
               class="bg-white rounded-2xl border border-gray-200 hover:border-[#147c76] p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
-                <div class="flex items-start justify-between mb-2">
-                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold border" [ngClass]="cat.badgeColor || 'bg-emerald-50 text-emerald-800 border-emerald-200'">
+                <div class="flex items-start justify-between mb-2 gap-2">
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold border bg-emerald-50 text-emerald-800 border-emerald-200">
                     {{ cat.label }}
                   </span>
                   <button (click)="toggleCategorieActif(cat)" title="Activer / Désactiver"
-                    class="px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors shrink-0"
                     [ngClass]="cat.actif ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
                     {{ cat.actif ? '✓ Actif' : 'Inactif' }}
                   </button>
                 </div>
 
-                <p class="text-[11px] font-mono text-gray-400 mb-2">{{ cat.code }}</p>
+                <div class="flex items-center gap-2 mb-2">
+                  <p class="text-[11px] font-mono text-gray-400">{{ cat.code }}</p>
+                  <span *ngIf="cat.systeme" class="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded">liée au modèle IA</span>
+                </div>
 
                 <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed min-h-[32px]">
-                  {{ cat.description || 'Aucune description spécifique renseignée.' }}
+                  {{ cat.description || 'Catégorie de crédit du catalogue produits.' }}
                 </p>
 
-                <div class="mt-4 pt-3 border-t border-gray-100 grid grid-cols-3 gap-2 text-center text-xs">
+                <div class="mt-4 pt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-center text-xs">
                   <div class="p-2 bg-slate-50 rounded-xl">
-                    <span class="text-[10px] text-gray-400 block font-medium">Coeff. Risque</span>
-                    <span class="font-bold text-slate-800">{{ cat.coefficientRisque }}x</span>
+                    <span class="text-[10px] text-gray-400 block font-medium">Taux min.</span>
+                    <span class="font-bold text-[#147c76]">{{ cat.tauxInteretMin ?? '—' }}%</span>
                   </div>
                   <div class="p-2 bg-slate-50 rounded-xl">
-                    <span class="text-[10px] text-gray-400 block font-medium">Taux Min</span>
-                    <span class="font-bold text-[#147c76]">{{ cat.tauxMin }}%</span>
-                  </div>
-                  <div class="p-2 bg-slate-50 rounded-xl">
-                    <span class="text-[10px] text-gray-400 block font-medium">Durée Max</span>
-                    <span class="font-bold text-gray-800">{{ cat.dureeMaxMois }}m</span>
+                    <span class="text-[10px] text-gray-400 block font-medium">Durée max.</span>
+                    <span class="font-bold text-gray-800">{{ cat.dureeMaxMois ?? '—' }}m</span>
                   </div>
                 </div>
               </div>
@@ -375,7 +407,7 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
                     class="text-gray-400 hover:text-[#147c76] p-1.5 rounded-lg hover:bg-emerald-50 transition-all cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                   </button>
-                  <button (click)="confirmDeleteCategorie(cat)" title="Déplacer vers la corbeille"
+                  <button *ngIf="!cat.systeme" (click)="confirmDeleteCategorie(cat)" title="Supprimer"
                     class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-all cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   </button>
@@ -504,7 +536,7 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
             <span class="px-3 py-1 bg-teal-50 text-teal-700 border border-teal-200 rounded-full text-xs font-bold font-mono">
               {{ typesGaranties.length }} type(s) configuré(s)
             </span>
-            <button (click)="openCreateGarantieModal()"
+            <button type="button" (click)="openCreateGarantieModal()"
               class="bg-teal-700 hover:bg-teal-800 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-teal-700/20 hover:shadow-lg transition-all flex items-center space-x-2 cursor-pointer">
               <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
               <span>Nouveau Type de Garantie</span>
@@ -520,7 +552,7 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
             </div>
             <h3 class="text-base font-bold text-gray-900 mb-1">Aucune garantie configurée</h3>
             <p class="text-xs text-gray-500 mb-5">Ajoutez des sûretés (Caution solidaire, Aval, Gage...) pour sécuriser les crédits.</p>
-            <button (click)="openCreateGarantieModal()" class="bg-teal-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer">
+            <button type="button" (click)="openCreateGarantieModal()" class="bg-teal-700 hover:bg-teal-800 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer transition-colors">
               Créer une garantie
             </button>
           </div>
@@ -531,14 +563,8 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
               class="bg-white rounded-2xl border border-gray-200 hover:border-teal-500 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
               <div>
                 <div class="flex items-start justify-between mb-2">
-                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold"
-                    [ngClass]="{
-                      'bg-blue-50 text-blue-800 border border-blue-200': gar.typeGarantie === 'PERSONNELLE',
-                      'bg-amber-50 text-amber-800 border border-amber-200': gar.typeGarantie === 'REELLE_MOBILIERE',
-                      'bg-purple-50 text-purple-800 border border-purple-200': gar.typeGarantie === 'REELLE_IMMOBILIERE',
-                      'bg-emerald-50 text-emerald-800 border border-emerald-200': gar.typeGarantie === 'FINANCIERE'
-                    }">
-                    {{ getGarantieCategoryLabel(gar.typeGarantie) }}
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-fuchsia-50 text-fuchsia-800 border border-fuchsia-200">
+                    {{ getNatureLabel(gar.natureJuridiqueId) }}
                   </span>
                   <button (click)="toggleGarantieActif(gar)" title="Activer / Désactiver"
                     class="px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors"
@@ -575,6 +601,98 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
                   </button>
                   <button (click)="confirmDeleteGarantie(gar)" title="Déplacer vers la corbeille"
+                    class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- ========================================================================= -->
+      <!-- VUE : NATURES JURIDIQUES (CRÉATION, MODIFICATION, SUPPRESSION)            -->
+      <!-- ========================================================================= -->
+      <div *ngIf="currentSection === 'NATURES_JURIDIQUES'" class="space-y-6 animate-fade-in">
+        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-white p-6 rounded-3xl border border-gray-200 shadow-sm">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-fuchsia-50 text-fuchsia-700 flex items-center justify-center font-bold">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            </div>
+            <div>
+              <h2 class="text-xl font-extrabold text-gray-900">Natures Juridiques</h2>
+              <p class="text-xs text-gray-500 mt-0.5">Formes légales sous lesquelles les garanties sont formalisées</p>
+            </div>
+          </div>
+
+          <div class="flex items-center space-x-3">
+            <span class="px-3 py-1 bg-fuchsia-50 text-fuchsia-700 border border-fuchsia-200 rounded-full text-xs font-bold font-mono">
+              {{ naturesJuridiques.length }} nature(s) configurée(s)
+            </span>
+            <button type="button" (click)="openCreateNatureModal()"
+              class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-sm font-bold px-5 py-2.5 rounded-2xl shadow-md shadow-fuchsia-600/20 hover:shadow-lg transition-all flex items-center space-x-2 cursor-pointer">
+              <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M12 4v16m8-8H4"/></svg>
+              <span>Nouvelle Nature</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="bg-white rounded-3xl border border-gray-200 p-6 md:p-8 shadow-sm">
+          
+          <div *ngIf="naturesJuridiques.length === 0" class="text-center py-12 max-w-md mx-auto">
+            <div class="w-16 h-16 bg-gray-50 text-gray-400 rounded-3xl flex items-center justify-center mx-auto mb-4">
+              <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            </div>
+            <h3 class="text-base font-bold text-gray-900 mb-1">Aucune nature juridique configurée</h3>
+            <p class="text-xs text-gray-500 mb-5">Ajoutez des natures juridiques (Acte notarié, Billet à ordre...) pour classifier vos garanties.</p>
+            <button type="button" (click)="openCreateNatureModal()" class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-xs font-bold px-5 py-2.5 rounded-xl shadow cursor-pointer transition-colors">
+              Créer une nature
+            </button>
+          </div>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-5" *ngIf="naturesJuridiques.length > 0">
+            <div *ngFor="let nat of naturesJuridiques"
+              class="bg-white rounded-2xl border border-gray-200 hover:border-fuchsia-500 p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between group">
+              <div>
+                <div class="flex items-start justify-between mb-2">
+                  <span class="px-2.5 py-0.5 rounded-lg text-xs font-bold bg-fuchsia-50 text-fuchsia-800 border border-fuchsia-200">
+                    Légal
+                  </span>
+                  <button (click)="toggleNatureActif(nat)" title="Activer / Désactiver"
+                    class="px-2 py-0.5 rounded-full text-[10px] font-extrabold cursor-pointer transition-colors"
+                    [ngClass]="nat.actif ? 'bg-emerald-100 text-emerald-800 hover:bg-emerald-200' : 'bg-gray-100 text-gray-500 hover:bg-gray-200'">
+                    {{ nat.actif ? '✓ Actif' : 'Inactif' }}
+                  </button>
+                </div>
+
+                <h3 class="text-sm font-bold text-gray-900 group-hover:text-fuchsia-700 transition-colors mt-1">
+                  {{ nat.label }}
+                </h3>
+                <p class="text-[11px] font-mono text-gray-400 mb-2">{{ nat.code }}</p>
+
+                <p class="text-xs text-gray-600 line-clamp-2 leading-relaxed min-h-[32px]">
+                  {{ nat.description || 'Aucune description.' }}
+                </p>
+
+                <div class="mt-4 pt-3 border-t border-gray-100 flex items-center justify-between text-xs">
+                  <div class="flex flex-col space-y-1">
+                    <span *ngIf="nat.necessiteNotaire" class="text-[10px] text-indigo-700 font-semibold bg-indigo-50 px-2 py-0.5 rounded-full inline-block w-fit">Notaire requis</span>
+                    <span *ngIf="nat.fraisEnregistrement" class="text-[10px] text-amber-700 font-semibold bg-amber-50 px-2 py-0.5 rounded-full inline-block w-fit">Frais d'enregistrement</span>
+                  </div>
+                </div>
+              </div>
+
+              <div class="pt-4 mt-4 border-t border-gray-100 flex items-center justify-between text-xs">
+                <span class="text-[11px] text-gray-400">Créé le {{ nat.dateCreation | date:'dd/MM/yyyy' }}</span>
+                <div class="flex items-center space-x-1">
+                  <button (click)="openEditNatureModal(nat)" title="Modifier cette nature"
+                    class="text-gray-400 hover:text-fuchsia-700 p-1.5 rounded-lg hover:bg-fuchsia-50 transition-all cursor-pointer">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"/></svg>
+                  </button>
+                  <button (click)="confirmDeleteNature(nat)" title="Déplacer vers la corbeille"
                     class="text-gray-400 hover:text-red-600 p-1.5 rounded-lg hover:bg-red-50 transition-all cursor-pointer">
                     <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                   </button>
@@ -812,7 +930,14 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
                   title="Purger définitivement">
                   <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
                 </button>
-              <!-- ========================================================================= -->
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    <!-- ========================================================================= -->
     <!-- MODAL : CRÉER / MODIFIER UNE CATÉGORIE DE PRÊT                            -->
     <!-- ========================================================================= -->
     <div *ngIf="isCategorieModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
@@ -832,34 +957,33 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
 
         <form (ngSubmit)="submitCategorieForm()" class="flex flex-col flex-1 overflow-hidden">
           <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div *ngIf="editingCategorieSysteme" class="text-[11px] font-bold text-amber-800 bg-amber-50 border border-amber-200 rounded-lg px-3 py-2">
+              Catégorie système : son libellé est consommé par le modèle IA et ne peut pas être renommé. Seuls le taux, la durée et l'état actif sont modifiables.
+            </div>
+
             <div>
               <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Libellé de la Catégorie *</label>
               <input type="text" [(ngModel)]="categorieFormData.label" name="catLabel" (input)="autoGenerateCategorieCode()" required
-                placeholder="Ex: Transport & Logistique"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#147c76]" />
+                [disabled]="editingCategorieSysteme" placeholder="Ex: Crédit transport"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-[#147c76] disabled:bg-gray-100 disabled:text-gray-500" />
             </div>
 
             <div>
               <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Code Technique (Unique) *</label>
               <input type="text" [(ngModel)]="categorieFormData.code" name="catCode" required
-                placeholder="Ex: CAT_TRANSPORT"
-                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:border-[#147c76] bg-gray-50/50" />
+                [disabled]="editingCategorieSysteme" placeholder="Ex: CAT_TRANSPORT"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:border-[#147c76] bg-gray-50/50 disabled:bg-gray-100 disabled:text-gray-500" />
             </div>
 
-            <div class="grid grid-cols-3 gap-3">
+            <div class="grid grid-cols-2 gap-3">
               <div>
-                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Coeff. Risque *</label>
-                <input type="number" [(ngModel)]="categorieFormData.coefficientRisque" name="catCoeff" step="0.05" min="0.1" max="3.0" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm font-bold text-slate-800" />
-              </div>
-              <div>
-                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Taux Min (%) *</label>
-                <input type="number" [(ngModel)]="categorieFormData.tauxMin" name="catTaux" step="0.5" min="1" max="30" required
+                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Taux d'intérêt min. (%)</label>
+                <input type="number" [(ngModel)]="categorieFormData.tauxInteretMin" name="catTaux" step="0.5" min="1" max="40"
                   class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm font-bold text-[#147c76]" />
               </div>
               <div>
-                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Durée Max (m) *</label>
-                <input type="number" [(ngModel)]="categorieFormData.dureeMaxMois" name="catDuree" min="1" max="120" required
+                <label class="block text-[11px] font-bold text-gray-700 uppercase mb-1">Durée max. (mois)</label>
+                <input type="number" [(ngModel)]="categorieFormData.dureeMaxMois" name="catDuree" min="1" max="120"
                   class="w-full px-3 py-2 border border-gray-300 rounded-xl text-sm font-bold text-gray-800" />
               </div>
             </div>
@@ -933,7 +1057,7 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
                 class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-emerald-500 bg-white">
                 <option value="" disabled>-- Sélectionnez une catégorie --</option>
                 <option *ngFor="let cat of categories" [value]="cat.label">
-                  {{ cat.label }} (Coeff: {{ cat.coefficientRisque }}x)
+                  {{ cat.label }}
                 </option>
               </select>
             </div>
@@ -1014,12 +1138,10 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
             <div class="grid grid-cols-2 gap-3">
               <div>
                 <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Nature Juridique *</label>
-                <select [(ngModel)]="garantieFormData.typeGarantie" name="garType" required
+                <select [(ngModel)]="garantieFormData.natureJuridiqueId" name="garNatureId" required
                   class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-teal-500 bg-white">
-                  <option value="PERSONNELLE">Personnelle (Caution/Aval)</option>
-                  <option value="REELLE_MOBILIERE">Réelle Mobilière (Gage/Matériel)</option>
-                  <option value="REELLE_IMMOBILIERE">Réelle Immobilière (Titre/PUH)</option>
-                  <option value="FINANCIERE">Financière (Épargne/DAT)</option>
+                  <option value="" disabled>Sélectionnez une nature juridique...</option>
+                  <option *ngFor="let nat of naturesJuridiques" [value]="nat.id">{{ nat.label }}</option>
                 </select>
               </div>
               <div>
@@ -1196,6 +1318,95 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
       </div>
     </div>
 
+    <!-- ========================================================================= -->
+    <!-- MODAL : CRÉER / MODIFIER UNE NATURE JURIDIQUE                             -->
+    <!-- ========================================================================= -->
+    <div *ngIf="isNatureModalOpen" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-3 sm:p-4 overflow-y-auto animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-lg w-full max-h-[90vh] flex flex-col shadow-2xl border border-gray-100 overflow-hidden my-auto">
+        <div class="flex items-center justify-between px-6 py-4 border-b border-gray-100 flex-shrink-0 bg-white">
+          <div class="flex items-center space-x-3">
+            <div class="w-10 h-10 rounded-2xl bg-fuchsia-50 text-fuchsia-700 flex items-center justify-center font-bold flex-shrink-0">
+              <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"/></svg>
+            </div>
+            <div>
+              <h3 class="text-base sm:text-lg font-bold text-gray-900 leading-tight">{{ isEditingNature ? 'Modifier la Nature Juridique' : 'Nouvelle Nature Juridique' }}</h3>
+              <p class="text-xs text-gray-500 mt-0.5">Paramétrage légal de la garantie</p>
+            </div>
+          </div>
+          <button (click)="closeNatureModal()" class="text-gray-400 hover:text-gray-700 text-lg font-bold p-1.5 rounded-lg hover:bg-gray-100 transition-colors" title="Fermer">✕</button>
+        </div>
+
+        <form (ngSubmit)="submitNatureForm()" class="flex flex-col flex-1 overflow-hidden">
+          <div class="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Libellé de la Nature *</label>
+              <input type="text" [(ngModel)]="natureFormData.label" name="natLabel" (input)="autoGenerateNatureCode()" required
+                placeholder="Ex: Acte Notarié, Sous Seing Privé..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-fuchsia-600" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Code Unique *</label>
+              <input type="text" [(ngModel)]="natureFormData.code" name="natCode" required
+                placeholder="Ex: NAT_ACTE_NOTARIE"
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm font-mono focus:outline-none focus:border-fuchsia-600 bg-gray-50/50" />
+            </div>
+
+            <div>
+              <label class="block text-xs font-bold text-gray-700 uppercase tracking-wider mb-1">Description</label>
+              <textarea [(ngModel)]="natureFormData.description" name="natDesc" rows="2"
+                placeholder="Description des implications légales..."
+                class="w-full px-4 py-2.5 border border-gray-300 rounded-xl text-sm focus:outline-none focus:border-fuchsia-600"></textarea>
+            </div>
+
+            <div class="space-y-2 pt-1">
+              <div class="flex items-center space-x-2">
+                <input type="checkbox" id="natNotaire" [(ngModel)]="natureFormData.necessiteNotaire" name="natNotaire" class="w-4 h-4 text-fuchsia-600 rounded cursor-pointer" />
+                <label for="natNotaire" class="text-xs font-medium text-gray-700 cursor-pointer">L'intervention d'un notaire est exigée</label>
+              </div>
+              <div class="flex items-center space-x-2">
+                <input type="checkbox" id="natFrais" [(ngModel)]="natureFormData.fraisEnregistrement" name="natFrais" class="w-4 h-4 text-fuchsia-600 rounded cursor-pointer" />
+                <label for="natFrais" class="text-xs font-medium text-gray-700 cursor-pointer">Soumis à des frais d'enregistrement domaniaux/fiscaux</label>
+              </div>
+              <div class="flex items-center space-x-2">
+                <input type="checkbox" id="natActif" [(ngModel)]="natureFormData.actif" name="natActif" class="w-4 h-4 text-fuchsia-600 rounded cursor-pointer" />
+                <label for="natActif" class="text-xs font-medium text-gray-700 cursor-pointer">Nature active (disponible lors du paramétrage)</label>
+              </div>
+            </div>
+          </div>
+
+          <div class="flex items-center justify-end space-x-3 px-6 py-4 bg-gray-50 border-t border-gray-100 flex-shrink-0">
+            <button type="button" (click)="closeNatureModal()" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-200 rounded-xl transition-colors cursor-pointer">Annuler</button>
+            <button type="submit" [disabled]="!natureFormData.label || !natureFormData.code"
+              class="bg-fuchsia-600 hover:bg-fuchsia-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all disabled:opacity-40 cursor-pointer">
+              {{ isEditingNature ? 'Mettre à jour' : 'Enregistrer la nature' }}
+            </button>
+          </div>
+        </form>
+      </div>
+    </div>
+
+    <!-- MODAL CONFIRMATION SUPPRESSION NATURE JURIDIQUE -->
+    <div *ngIf="natureToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
+      <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-gray-100 my-auto">
+        <div class="w-14 h-14 bg-red-50 text-red-600 rounded-2xl flex items-center justify-center mx-auto">
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/></svg>
+        </div>
+        <div class="text-center">
+          <h3 class="text-lg font-bold text-gray-900">Mettre à la corbeille ?</h3>
+          <p class="text-xs text-gray-500 mt-1">
+            Voulez-vous déplacer la nature <strong>"{{ natureToDelete.label }}"</strong> vers la corbeille ? Elle restera restaurable pendant 30 jours.
+          </p>
+        </div>
+        <div class="flex items-center justify-center space-x-3 pt-2">
+          <button (click)="natureToDelete = null" class="px-5 py-2.5 text-xs font-bold text-gray-600 hover:bg-gray-100 rounded-xl cursor-pointer">Annuler</button>
+          <button (click)="executeDeleteNature()" class="bg-red-600 hover:bg-red-700 text-white text-xs font-bold px-6 py-2.5 rounded-xl shadow-md transition-all cursor-pointer">
+            Déplacer vers la corbeille
+          </button>
+        </div>
+      </div>
+    </div>
+
     <!-- MODAL CONFIRMATION SUPPRESSION CATEGORIE -->
     <div *ngIf="categorieToDelete" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-fade-in">
       <div class="bg-white rounded-3xl max-w-md w-full p-6 sm:p-8 shadow-2xl space-y-5 border border-gray-100 my-auto">
@@ -1300,6 +1511,7 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
         </div>
       </div>
     </div>
+  </div>
   `,
   styles: [`
     @keyframes fadeIn {
@@ -1321,9 +1533,10 @@ export class ParametresComponent implements OnInit {
   notificationMessage = '';
 
   // Données dynamiques
-  categories: CategorieItem[] = [];
+  categories: CategorieCreditItem[] = [];
   objetsCredit: ObjetCreditItem[] = [];
   typesGaranties: GarantieItem[] = [];
+  naturesJuridiques: NatureJuridiqueItem[] = [];
   roles: AgentRole[] = [];
   agences: AgenceCIF[] = [];
   trashItems: CorbeilleItem[] = [];
@@ -1331,23 +1544,22 @@ export class ParametresComponent implements OnInit {
   // Modals & Forms : Catégories
   isCategorieModalOpen = false;
   isEditingCategorie = false;
-  editingCategorieId: string | null = null;
-  categorieToDelete: CategorieItem | null = null;
+  editingCategorieId: any = null;
+  editingCategorieSysteme = false;
+  categorieToDelete: CategorieCreditItem | null = null;
   categorieFormData: {
     label: string;
     code: string;
     description: string;
-    coefficientRisque: number;
-    tauxMin: number;
+    tauxInteretMin: number;
     dureeMaxMois: number;
     actif: boolean;
   } = {
     label: '',
     code: '',
     description: '',
-    coefficientRisque: 1.0,
-    tauxMin: 9.5,
-    dureeMaxMois: 12,
+    tauxInteretMin: 10,
+    dureeMaxMois: 24,
     actif: true
   };
 
@@ -1382,7 +1594,7 @@ export class ParametresComponent implements OnInit {
   garantieFormData: {
     label: string;
     code: string;
-    typeGarantie: 'PERSONNELLE' | 'REELLE_MOBILIERE' | 'REELLE_IMMOBILIERE' | 'FINANCIERE';
+    natureJuridiqueId: string;
     tauxCouvertureRecommande?: number;
     description: string;
     exigeDocument: boolean;
@@ -1390,10 +1602,31 @@ export class ParametresComponent implements OnInit {
   } = {
     label: '',
     code: '',
-    typeGarantie: 'PERSONNELLE',
+    natureJuridiqueId: '',
     tauxCouvertureRecommande: 100,
     description: '',
     exigeDocument: false,
+    actif: true
+  };
+
+  // Modals & Forms : Natures Juridiques
+  isNatureModalOpen = false;
+  isEditingNature = false;
+  editingNatureId: any = null;
+  natureToDelete: NatureJuridiqueItem | null = null;
+  natureFormData: {
+    label: string;
+    code: string;
+    description: string;
+    necessiteNotaire: boolean;
+    fraisEnregistrement: boolean;
+    actif: boolean;
+  } = {
+    label: '',
+    code: '',
+    description: '',
+    necessiteNotaire: false,
+    fraisEnregistrement: false,
     actif: true
   };
 
@@ -1427,13 +1660,14 @@ export class ParametresComponent implements OnInit {
     this.authService.roles$.subscribe(list => this.roles = list || []);
     this.authService.agences$.subscribe(list => this.agences = list || []);
     this.authService.trash$.subscribe(items => this.trashItems = items || []);
-    this.settingsService.categories$.subscribe(list => this.categories = list || []);
+    this.settingsService.categoriesCredit$.subscribe(list => this.categories = list || []);
     this.settingsService.objets$.subscribe(list => this.objetsCredit = list || []);
     this.settingsService.garanties$.subscribe(list => this.typesGaranties = list || []);
+    this.settingsService.naturesJuridiques$.subscribe(list => this.naturesJuridiques = list || []);
 
     this.route.queryParamMap.subscribe(params => {
       const tab = params.get('tab');
-      if (tab && ['HUB', 'CATEGORIES', 'OBJETS_CREDIT', 'GARANTIES', 'AGENCES', 'ROLES', 'CORBEILLE'].includes(tab)) {
+      if (tab && ['HUB', 'CATEGORIES', 'OBJETS_CREDIT', 'GARANTIES', 'NATURES_JURIDIQUES', 'AGENCES', 'ROLES', 'CORBEILLE'].includes(tab)) {
         this.currentSection = tab as ParamSection;
         this.loadSectionData(tab as ParamSection);
       } else {
@@ -1447,11 +1681,18 @@ export class ParametresComponent implements OnInit {
       case 'CATEGORIES': return 'Catégories de Prêt';
       case 'OBJETS_CREDIT': return 'Objets de Crédit';
       case 'GARANTIES': return 'Types de Garanties';
+      case 'NATURES_JURIDIQUES': return 'Natures Juridiques';
       case 'AGENCES': return 'Agences CIF';
       case 'ROLES': return 'Rôles Agents';
       case 'CORBEILLE': return 'Corbeille';
       default: return 'Paramètres';
     }
+  }
+
+  getNatureLabel(id: string | undefined): string {
+    if (!id) return 'Non définie';
+    const nat = this.naturesJuridiques.find(n => n.id === id);
+    return nat ? nat.label : 'Inconnue';
   }
 
   goToSection(section: ParamSection) {
@@ -1467,11 +1708,20 @@ export class ParametresComponent implements OnInit {
     if (section === 'AGENCES') {
       this.agences = this.authService.getAgences() || [];
     } else if (section === 'CATEGORIES') {
-      this.categories = this.settingsService.getCategories() || [];
+      this.categories = this.settingsService.getCategoriesCredit() || [];
+      this.settingsService.refreshCategoriesCredit().subscribe(list => {
+        if (list && list.length > 0) this.categories = list;
+      });
     } else if (section === 'OBJETS_CREDIT') {
-      this.settingsService.refreshObjets().subscribe();
+      this.objetsCredit = this.settingsService.getObjets() || [];
+      this.settingsService.refreshObjets().subscribe(list => {
+        if (list && list.length > 0) this.objetsCredit = list;
+      });
     } else if (section === 'GARANTIES') {
-      this.settingsService.refreshGaranties().subscribe();
+      this.typesGaranties = this.settingsService.getGaranties() || [];
+      this.settingsService.refreshGaranties().subscribe(list => {
+        if (list && list.length > 0) this.typesGaranties = list;
+      });
     }
   }
 
@@ -1501,28 +1751,21 @@ export class ParametresComponent implements OnInit {
   openCreateCategorieModal() {
     this.isEditingCategorie = false;
     this.editingCategorieId = null;
-    this.categorieFormData = {
-      label: '',
-      code: '',
-      description: '',
-      coefficientRisque: 1.0,
-      tauxMin: 9.5,
-      dureeMaxMois: 12,
-      actif: true
-    };
+    this.editingCategorieSysteme = false;
+    this.categorieFormData = { label: '', code: '', description: '', tauxInteretMin: 10, dureeMaxMois: 24, actif: true };
     this.isCategorieModalOpen = true;
   }
 
-  openEditCategorieModal(cat: CategorieItem) {
+  openEditCategorieModal(cat: CategorieCreditItem) {
     this.isEditingCategorie = true;
     this.editingCategorieId = cat.id;
+    this.editingCategorieSysteme = !!cat.systeme;
     this.categorieFormData = {
       label: cat.label,
       code: cat.code,
       description: cat.description || '',
-      coefficientRisque: cat.coefficientRisque || 1.0,
-      tauxMin: cat.tauxMin || 9.5,
-      dureeMaxMois: cat.dureeMaxMois || 12,
+      tauxInteretMin: cat.tauxInteretMin ?? 10,
+      dureeMaxMois: cat.dureeMaxMois ?? 24,
       actif: cat.actif
     };
     this.isCategorieModalOpen = true;
@@ -1536,36 +1779,49 @@ export class ParametresComponent implements OnInit {
 
   submitCategorieForm() {
     if (!this.categorieFormData.label || !this.categorieFormData.code) return;
-
-    if (this.isEditingCategorie && this.editingCategorieId) {
-      this.settingsService.updateCategorie(this.editingCategorieId, this.categorieFormData);
-      this.notificationMessage = `Catégorie "${this.categorieFormData.label}" mise à jour avec succès !`;
+    const done = (verbe: string) => {
+      this.notificationMessage = `Catégorie "${this.categorieFormData.label}" ${verbe} !`;
+      this.closeCategorieModal();
+      setTimeout(() => this.notificationMessage = '', 5000);
+    };
+    if (this.isEditingCategorie && this.editingCategorieId != null) {
+      this.settingsService.updateCategorieCredit(this.editingCategorieId, this.categorieFormData)
+        .subscribe({ next: () => done('mise à jour'), error: () => this.notificationMessage = 'Erreur de mise à jour.' });
     } else {
-      this.settingsService.addCategorie(this.categorieFormData);
-      this.notificationMessage = `Catégorie "${this.categorieFormData.label}" créée avec succès !`;
+      this.settingsService.addCategorieCredit(this.categorieFormData)
+        .subscribe({ next: () => done('créée'), error: () => this.notificationMessage = 'Erreur : code déjà utilisé ?' });
     }
-
-    this.closeCategorieModal();
-    setTimeout(() => this.notificationMessage = '', 5000);
   }
 
-  toggleCategorieActif(cat: CategorieItem) {
-    this.settingsService.updateCategorie(cat.id, { actif: !cat.actif });
-    this.notificationMessage = `Catégorie "${cat.label}" ${!cat.actif ? 'activée' : 'désactivée'}.`;
-    setTimeout(() => this.notificationMessage = '', 3000);
+  toggleCategorieActif(cat: CategorieCreditItem) {
+    this.settingsService.updateCategorieCredit(cat.id, { ...cat, actif: !cat.actif }).subscribe({
+      next: () => {
+        this.notificationMessage = `Catégorie "${cat.label}" ${!cat.actif ? 'activée' : 'désactivée'}.`;
+        setTimeout(() => this.notificationMessage = '', 3000);
+      }
+    });
   }
 
-  confirmDeleteCategorie(cat: CategorieItem) {
+  confirmDeleteCategorie(cat: CategorieCreditItem) {
+    if (cat.systeme) {
+      this.notificationMessage = `"${cat.label}" est une catégorie système (liée au modèle IA) : non supprimable.`;
+      setTimeout(() => this.notificationMessage = '', 4000);
+      return;
+    }
     this.categorieToDelete = cat;
   }
 
   executeDeleteCategorie() {
     if (!this.categorieToDelete) return;
     const label = this.categorieToDelete.label;
-    this.settingsService.deleteCategorie(this.categorieToDelete.id);
+    this.settingsService.deleteCategorieCredit(this.categorieToDelete.id).subscribe({
+      next: () => {
+        this.notificationMessage = `Catégorie "${label}" supprimée.`;
+        setTimeout(() => this.notificationMessage = '', 4000);
+      },
+      error: () => this.notificationMessage = `Suppression impossible ("${label}").`
+    });
     this.categorieToDelete = null;
-    this.notificationMessage = `La catégorie "${label}" a été déplacée vers la Corbeille (restaurable sous 30 jours).`;
-    setTimeout(() => this.notificationMessage = '', 5000);
   }
 
   // =========================================================================
@@ -1684,7 +1940,7 @@ export class ParametresComponent implements OnInit {
     this.garantieFormData = {
       label: '',
       code: '',
-      typeGarantie: 'PERSONNELLE',
+      natureJuridiqueId: '',
       tauxCouvertureRecommande: 100,
       description: '',
       exigeDocument: false,
@@ -1699,7 +1955,7 @@ export class ParametresComponent implements OnInit {
     this.garantieFormData = {
       label: gar.label,
       code: gar.code,
-      typeGarantie: gar.typeGarantie,
+      natureJuridiqueId: gar.natureJuridiqueId || '',
       tauxCouvertureRecommande: gar.tauxCouvertureRecommande,
       description: gar.description || '',
       exigeDocument: gar.exigeDocument,
@@ -1715,7 +1971,7 @@ export class ParametresComponent implements OnInit {
   }
 
   submitGarantieForm() {
-    if (!this.garantieFormData.label || !this.garantieFormData.code || !this.garantieFormData.typeGarantie) return;
+    if (!this.garantieFormData.label || !this.garantieFormData.code || !this.garantieFormData.natureJuridiqueId) return;
 
     if (this.isEditingGarantie && this.editingGarantieId) {
       this.settingsService.updateGarantie(this.editingGarantieId, this.garantieFormData).subscribe({
@@ -1759,6 +2015,99 @@ export class ParametresComponent implements OnInit {
       }
     });
     this.garantieToDelete = null;
+  }
+
+  // =========================================================================
+  // ACTIONS NATURES JURIDIQUES
+  // =========================================================================
+  autoGenerateNatureCode() {
+    if (this.natureFormData.label && !this.isEditingNature) {
+      this.natureFormData.code = 'NAT_' + this.natureFormData.label
+        .toUpperCase()
+        .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^A-Z0-9]/g, '_')
+        .substring(0, 24);
+    }
+  }
+
+  openCreateNatureModal() {
+    this.isEditingNature = false;
+    this.editingNatureId = null;
+    this.natureFormData = {
+      label: '',
+      code: '',
+      description: '',
+      necessiteNotaire: false,
+      fraisEnregistrement: false,
+      actif: true
+    };
+    this.isNatureModalOpen = true;
+  }
+
+  openEditNatureModal(nat: NatureJuridiqueItem) {
+    this.isEditingNature = true;
+    this.editingNatureId = nat.id;
+    this.natureFormData = {
+      label: nat.label,
+      code: nat.code,
+      description: nat.description || '',
+      necessiteNotaire: nat.necessiteNotaire,
+      fraisEnregistrement: nat.fraisEnregistrement,
+      actif: nat.actif
+    };
+    this.isNatureModalOpen = true;
+  }
+
+  closeNatureModal() {
+    this.isNatureModalOpen = false;
+    this.isEditingNature = false;
+    this.editingNatureId = null;
+  }
+
+  submitNatureForm() {
+    if (!this.natureFormData.label || !this.natureFormData.code) return;
+
+    if (this.isEditingNature && this.editingNatureId) {
+      this.settingsService.updateNatureJuridique(this.editingNatureId, this.natureFormData).subscribe({
+        next: () => {
+          this.notificationMessage = `Nature Juridique "${this.natureFormData.label}" mise à jour avec succès !`;
+          setTimeout(() => this.notificationMessage = '', 5000);
+        }
+      });
+    } else {
+      this.settingsService.addNatureJuridique(this.natureFormData).subscribe({
+        next: () => {
+          this.notificationMessage = `Nature Juridique "${this.natureFormData.label}" enregistrée avec succès !`;
+          setTimeout(() => this.notificationMessage = '', 5000);
+        }
+      });
+    }
+    this.closeNatureModal();
+  }
+
+  toggleNatureActif(nat: NatureJuridiqueItem) {
+    this.settingsService.updateNatureJuridique(nat.id, { actif: !nat.actif }).subscribe({
+      next: () => {
+        this.notificationMessage = `Nature Juridique "${nat.label}" ${!nat.actif ? 'activée' : 'désactivée'}.`;
+        setTimeout(() => this.notificationMessage = '', 3000);
+      }
+    });
+  }
+
+  confirmDeleteNature(nat: NatureJuridiqueItem) {
+    this.natureToDelete = nat;
+  }
+
+  executeDeleteNature() {
+    if (!this.natureToDelete) return;
+    const label = this.natureToDelete.label;
+    this.settingsService.deleteNatureJuridique(this.natureToDelete.id).subscribe({
+      next: () => {
+        this.notificationMessage = `La nature juridique "${label}" a été supprimée (placée dans la corbeille).`;
+        setTimeout(() => this.notificationMessage = '', 5000);
+      }
+    });
+    this.natureToDelete = null;
   }
 
   // =========================================================================
@@ -1913,11 +2262,13 @@ export class ParametresComponent implements OnInit {
   restoreItem(item: CorbeilleItem) {
     this.authService.restoreItem(item.id);
     if (item.type === 'CATEGORIE') {
-      this.settingsService.refreshCategories();
+      this.settingsService.refreshCategoriesCredit().subscribe();
     } else if (item.type === 'OBJET_CREDIT') {
       this.settingsService.addObjet(item.data).subscribe();
     } else if (item.type === 'GARANTIE') {
       this.settingsService.addGarantie(item.data).subscribe();
+    } else if (item.type === 'NATURE_JURIDIQUE') {
+      this.settingsService.addNatureJuridique(item.data).subscribe();
     }
     this.notificationMessage = `"${item.title}" a été restauré avec succès dans le système !`;
     setTimeout(() => this.notificationMessage = '', 5000);

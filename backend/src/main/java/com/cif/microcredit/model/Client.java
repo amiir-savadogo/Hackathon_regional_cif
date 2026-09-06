@@ -69,6 +69,32 @@ public class Client {
     @Max(value = 30, message = "Nombre de personnes à charge invraisemblable")
     private int nombrePersonnesACharge;
 
+    // --- Données comportementales connues de la banque (pré-remplissage du
+    //     wizard d'instruction). Toutes nullables ; alimentées par le seeder
+    //     depuis data/societaires_complet.json. ---
+    private String sousSecteurActivite;
+    private Boolean saisonaliteActivite;
+    private Double indiceVulnerabiliteZone;
+    private Integer nombreCreditsAnterieurs;
+    private Double tauxRemboursementHistoriquePct;
+    private Double joursRetardMoyenHistorique;
+    private Double montantTotalEmprunteFcfa;
+    private Double delaiUtilisationCreditJours;
+    private Integer totalTransactions;
+    private Double volumeDepotsFcfa;
+    private Double volumeRetraitsFcfa;
+    private Integer txMobileMoney;
+    private Boolean possedeMobileMoney;
+    private Integer frequenceTransactionsMmMois;
+    private Double mmAncienneteCompteMois;
+    private Double mmSoldeMoyenFcfa;
+    private Double mmFluxEntrantsMensuelFcfa;
+    private Integer mmNombreIncidentsCreditMm;
+    private Integer nombreComptesBancaires;
+    private String typeComptePrincipal;
+    private Double soldeCompteBancaireFcfa;
+    private Integer nombreRejetsPrelevementsCheques12m;
+
     private LocalDateTime dateCreation;
 
     @OneToMany(mappedBy = "client", cascade = CascadeType.ALL, fetch = FetchType.LAZY)
@@ -168,6 +194,72 @@ public class Client {
 
     public int getNombrePersonnesACharge() { return nombrePersonnesACharge; }
     public void setNombrePersonnesACharge(int nombrePersonnesACharge) { this.nombrePersonnesACharge = nombrePersonnesACharge; }
+
+    public String getSousSecteurActivite() { return sousSecteurActivite; }
+    public void setSousSecteurActivite(String v) { this.sousSecteurActivite = v; }
+
+    public Boolean getSaisonaliteActivite() { return saisonaliteActivite; }
+    public void setSaisonaliteActivite(Boolean v) { this.saisonaliteActivite = v; }
+
+    public Double getIndiceVulnerabiliteZone() { return indiceVulnerabiliteZone; }
+    public void setIndiceVulnerabiliteZone(Double v) { this.indiceVulnerabiliteZone = v; }
+
+    public Integer getNombreCreditsAnterieurs() { return nombreCreditsAnterieurs; }
+    public void setNombreCreditsAnterieurs(Integer v) { this.nombreCreditsAnterieurs = v; }
+
+    public Double getTauxRemboursementHistoriquePct() { return tauxRemboursementHistoriquePct; }
+    public void setTauxRemboursementHistoriquePct(Double v) { this.tauxRemboursementHistoriquePct = v; }
+
+    public Double getJoursRetardMoyenHistorique() { return joursRetardMoyenHistorique; }
+    public void setJoursRetardMoyenHistorique(Double v) { this.joursRetardMoyenHistorique = v; }
+
+    public Double getMontantTotalEmprunteFcfa() { return montantTotalEmprunteFcfa; }
+    public void setMontantTotalEmprunteFcfa(Double v) { this.montantTotalEmprunteFcfa = v; }
+
+    public Double getDelaiUtilisationCreditJours() { return delaiUtilisationCreditJours; }
+    public void setDelaiUtilisationCreditJours(Double v) { this.delaiUtilisationCreditJours = v; }
+
+    public Integer getTotalTransactions() { return totalTransactions; }
+    public void setTotalTransactions(Integer v) { this.totalTransactions = v; }
+
+    public Double getVolumeDepotsFcfa() { return volumeDepotsFcfa; }
+    public void setVolumeDepotsFcfa(Double v) { this.volumeDepotsFcfa = v; }
+
+    public Double getVolumeRetraitsFcfa() { return volumeRetraitsFcfa; }
+    public void setVolumeRetraitsFcfa(Double v) { this.volumeRetraitsFcfa = v; }
+
+    public Integer getTxMobileMoney() { return txMobileMoney; }
+    public void setTxMobileMoney(Integer v) { this.txMobileMoney = v; }
+
+    public Boolean getPossedeMobileMoney() { return possedeMobileMoney; }
+    public void setPossedeMobileMoney(Boolean v) { this.possedeMobileMoney = v; }
+
+    public Integer getFrequenceTransactionsMmMois() { return frequenceTransactionsMmMois; }
+    public void setFrequenceTransactionsMmMois(Integer v) { this.frequenceTransactionsMmMois = v; }
+
+    public Double getMmAncienneteCompteMois() { return mmAncienneteCompteMois; }
+    public void setMmAncienneteCompteMois(Double v) { this.mmAncienneteCompteMois = v; }
+
+    public Double getMmSoldeMoyenFcfa() { return mmSoldeMoyenFcfa; }
+    public void setMmSoldeMoyenFcfa(Double v) { this.mmSoldeMoyenFcfa = v; }
+
+    public Double getMmFluxEntrantsMensuelFcfa() { return mmFluxEntrantsMensuelFcfa; }
+    public void setMmFluxEntrantsMensuelFcfa(Double v) { this.mmFluxEntrantsMensuelFcfa = v; }
+
+    public Integer getMmNombreIncidentsCreditMm() { return mmNombreIncidentsCreditMm; }
+    public void setMmNombreIncidentsCreditMm(Integer v) { this.mmNombreIncidentsCreditMm = v; }
+
+    public Integer getNombreComptesBancaires() { return nombreComptesBancaires; }
+    public void setNombreComptesBancaires(Integer v) { this.nombreComptesBancaires = v; }
+
+    public String getTypeComptePrincipal() { return typeComptePrincipal; }
+    public void setTypeComptePrincipal(String v) { this.typeComptePrincipal = v; }
+
+    public Double getSoldeCompteBancaireFcfa() { return soldeCompteBancaireFcfa; }
+    public void setSoldeCompteBancaireFcfa(Double v) { this.soldeCompteBancaireFcfa = v; }
+
+    public Integer getNombreRejetsPrelevementsCheques12m() { return nombreRejetsPrelevementsCheques12m; }
+    public void setNombreRejetsPrelevementsCheques12m(Integer v) { this.nombreRejetsPrelevementsCheques12m = v; }
 
     public LocalDateTime getDateCreation() { return dateCreation; }
     public void setDateCreation(LocalDateTime dateCreation) { this.dateCreation = dateCreation; }

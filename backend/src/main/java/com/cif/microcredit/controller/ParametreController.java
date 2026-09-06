@@ -1,11 +1,15 @@
 package com.cif.microcredit.controller;
 
 import com.cif.microcredit.model.Agence;
+import com.cif.microcredit.model.CategorieCredit;
 import com.cif.microcredit.model.ObjetCredit;
 import com.cif.microcredit.model.TypeGarantie;
 import com.cif.microcredit.repository.AgenceRepository;
+import com.cif.microcredit.repository.CategorieCreditRepository;
 import com.cif.microcredit.repository.ObjetCreditRepository;
 import com.cif.microcredit.repository.TypeGarantieRepository;
+import com.cif.microcredit.model.NatureJuridique;
+import com.cif.microcredit.repository.NatureJuridiqueRepository;
 import jakarta.validation.Valid;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,6 +32,59 @@ public class ParametreController {
 
     @Autowired
     private AgenceRepository agenceRepository;
+
+    @Autowired
+    private NatureJuridiqueRepository natureJuridiqueRepository;
+
+    @Autowired
+    private CategorieCreditRepository categorieCreditRepository;
+
+    // =========================================================================
+    // CATÉGORIES DE CRÉDIT
+    // =========================================================================
+    @GetMapping("/categories-credit")
+    public ResponseEntity<List<CategorieCredit>> getAllCategoriesCredit(@RequestParam(required = false) Boolean actifOnly) {
+        if (Boolean.TRUE.equals(actifOnly)) {
+            return ResponseEntity.ok(categorieCreditRepository.findByActifTrue());
+        }
+        return ResponseEntity.ok(categorieCreditRepository.findAll());
+    }
+
+    @PostMapping("/categories-credit")
+    public ResponseEntity<?> createCategorieCredit(@Valid @RequestBody CategorieCredit categorie) {
+        if (categorieCreditRepository.existsByCode(categorie.getCode())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(java.util.Map.of("erreur", "Une catégorie avec ce code existe déjà."));
+        }
+        categorie.setSysteme(false);
+        return ResponseEntity.status(HttpStatus.CREATED).body(categorieCreditRepository.save(categorie));
+    }
+
+    @PutMapping("/categories-credit/{id}")
+    public ResponseEntity<?> updateCategorieCredit(@PathVariable Long id, @RequestBody CategorieCredit updates) {
+        Optional<CategorieCredit> opt = categorieCreditRepository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        CategorieCredit existing = opt.get();
+        // Une entrée "systeme" alimente le modèle IA : label figé, seul l'état actif est modifiable.
+        if (!existing.isSysteme() && updates.getLabel() != null) existing.setLabel(updates.getLabel());
+        if (updates.getDescription() != null) existing.setDescription(updates.getDescription());
+        if (updates.getTauxInteretMin() != null) existing.setTauxInteretMin(updates.getTauxInteretMin());
+        if (updates.getDureeMaxMois() != null) existing.setDureeMaxMois(updates.getDureeMaxMois());
+        existing.setActif(updates.isActif());
+        return ResponseEntity.ok(categorieCreditRepository.save(existing));
+    }
+
+    @DeleteMapping("/categories-credit/{id}")
+    public ResponseEntity<?> deleteCategorieCredit(@PathVariable Long id) {
+        Optional<CategorieCredit> opt = categorieCreditRepository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+        if (opt.get().isSysteme()) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(java.util.Map.of("erreur", "Catégorie système (liée au modèle IA) : non supprimable."));
+        }
+        categorieCreditRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
 
     // =========================================================================
     // OBJETS DE CRÉDIT
@@ -75,6 +132,50 @@ public class ParametreController {
     }
 
     // =========================================================================
+    // NATURES JURIDIQUES
+    // =========================================================================
+    @GetMapping("/natures-juridiques")
+    public ResponseEntity<List<NatureJuridique>> getAllNaturesJuridiques(@RequestParam(required = false) Boolean actifOnly) {
+        if (Boolean.TRUE.equals(actifOnly)) {
+            return ResponseEntity.ok(natureJuridiqueRepository.findByActifTrue());
+        }
+        return ResponseEntity.ok(natureJuridiqueRepository.findAll());
+    }
+
+    @PostMapping("/natures-juridiques")
+    public ResponseEntity<?> createNatureJuridique(@Valid @RequestBody NatureJuridique nature) {
+        if (natureJuridiqueRepository.existsByCode(nature.getCode())) {
+            return ResponseEntity.status(HttpStatus.CONFLICT)
+                    .body(java.util.Map.of("erreur", "Une nature juridique avec ce code existe déjà."));
+        }
+        NatureJuridique saved = natureJuridiqueRepository.save(nature);
+        return ResponseEntity.status(HttpStatus.CREATED).body(saved);
+    }
+
+    @PutMapping("/natures-juridiques/{id}")
+    public ResponseEntity<?> updateNatureJuridique(@PathVariable Long id, @RequestBody NatureJuridique updates) {
+        Optional<NatureJuridique> opt = natureJuridiqueRepository.findById(id);
+        if (opt.isEmpty()) return ResponseEntity.notFound().build();
+
+        NatureJuridique existing = opt.get();
+        if (updates.getLabel() != null) existing.setLabel(updates.getLabel());
+        if (updates.getDescription() != null) existing.setDescription(updates.getDescription());
+        existing.setNecessiteNotaire(updates.isNecessiteNotaire());
+        existing.setFraisEnregistrement(updates.isFraisEnregistrement());
+        existing.setActif(updates.isActif());
+
+        NatureJuridique saved = natureJuridiqueRepository.save(existing);
+        return ResponseEntity.ok(saved);
+    }
+
+    @DeleteMapping("/natures-juridiques/{id}")
+    public ResponseEntity<?> deleteNatureJuridique(@PathVariable Long id) {
+        if (!natureJuridiqueRepository.existsById(id)) return ResponseEntity.notFound().build();
+        natureJuridiqueRepository.deleteById(id);
+        return ResponseEntity.noContent().build();
+    }
+
+    // =========================================================================
     // TYPES DE GARANTIES
     // =========================================================================
     @GetMapping("/garanties")
@@ -102,7 +203,7 @@ public class ParametreController {
 
         TypeGarantie existing = opt.get();
         if (updates.getLabel() != null) existing.setLabel(updates.getLabel());
-        if (updates.getTypeGarantie() != null) existing.setTypeGarantie(updates.getTypeGarantie());
+        if (updates.getNatureJuridiqueId() != null) existing.setNatureJuridiqueId(updates.getNatureJuridiqueId());
         if (updates.getTauxCouvertureRecommande() != null) existing.setTauxCouvertureRecommande(updates.getTauxCouvertureRecommande());
         if (updates.getDescription() != null) existing.setDescription(updates.getDescription());
         existing.setExigeDocument(updates.isExigeDocument());

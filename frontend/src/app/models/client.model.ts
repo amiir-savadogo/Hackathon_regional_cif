@@ -34,6 +34,31 @@ export interface Client {
   niveauEducation?: 'Aucun' | 'Primaire' | 'Secondaire' | 'Supérieur' | string;
   nombrePersonnesACharge?: number;
 
+  // --- Données comportementales connues de la banque (pré-remplissage du wizard,
+  //     source : data/societaires_complet.json). Toutes optionnelles. ---
+  sousSecteurActivite?: string;
+  saisonaliteActivite?: boolean;
+  indiceVulnerabiliteZone?: number;
+  nombreCreditsAnterieurs?: number;
+  tauxRemboursementHistoriquePct?: number | null;
+  joursRetardMoyenHistorique?: number | null;
+  montantTotalEmprunteFcfa?: number;
+  delaiUtilisationCreditJours?: number | null;
+  totalTransactions?: number;
+  volumeDepotsFcfa?: number;
+  volumeRetraitsFcfa?: number;
+  txMobileMoney?: number;
+  possedeMobileMoney?: boolean;
+  frequenceTransactionsMmMois?: number;
+  mmAncienneteCompteMois?: number | null;
+  mmSoldeMoyenFcfa?: number;
+  mmFluxEntrantsMensuelFcfa?: number;
+  mmNombreIncidentsCreditMm?: number;
+  nombreComptesBancaires?: number;
+  typeComptePrincipal?: string;
+  soldeCompteBancaireFcfa?: number;
+  nombreRejetsPrelevementsCheques12m?: number;
+
   demandes?: DemandeCredit[];
 }
 
@@ -51,6 +76,10 @@ export interface DemandeCredit {
   revenuMensuelFcfa: number;
   chargesMensuellesFcfa: number;
 
+  // Activité (contexte porté avec le dossier pour tracer ce qui a été scoré)
+  sousSecteurActivite?: string;
+  saisonaliteActivite?: boolean;
+
   // Relation avec la coopérative
   ancienneteCooperativeMois?: number;
   membreGroupeSolidaire?: boolean;
@@ -61,21 +90,55 @@ export interface DemandeCredit {
   nombreCreditsAnterieurs?: number;
   tauxRemboursementHistoriquePct?: number | null;
   joursRetardMoyenHistorique?: number | null;
+  montantTotalEmprunteFcfa?: number;
+  delaiUtilisationCreditJours?: number | null;
 
-  // Mobile Money
+  // Agrégats de transactions (vue consolidée CIF)
+  totalTransactions?: number;
+  volumeDepotsFcfa?: number;
+  volumeRetraitsFcfa?: number;
+  txMobileMoney?: number;
+
+  // Mobile Money (enrichi)
   possedeMobileMoney?: boolean;
   frequenceTransactionsMmMois?: number;
+  mmAncienneteCompteMois?: number | null;
+  mmAncienneteSimMois?: number | null;
+  mmNombreMoisActifs12m?: number | null;
+  mmVolumeTransactionsMensuelFcfa?: number;
+  mmFluxEntrantsMensuelFcfa?: number;
+  mmFluxSortantsMensuelFcfa?: number;
+  mmMontantRemboursementsMmFcfa?: number;
+  mmNombreIncidentsCreditMm?: number;
+  mmSoldeMoyenFcfa?: number;
+  mmSoldeMinimumFcfa?: number;
+  mmEvolutionSoldePct?: number | null;
+  mmVolatiliteFluxPct?: number | null;
+  mmRatioDepensesCreditAppelDataPct?: number | null;
 
-  // Bureau d'Information sur le Crédit (BIC)
+  // Comptes bancaires classiques
+  nombreComptesBancaires?: number;
+  typeComptePrincipal?: string;
+  soldeCompteBancaireFcfa?: number;
+  fluxDepotsBancairesMensuelFcfa?: number;
+  fluxRetraitsBancairesMensuelFcfa?: number;
+  nombreRejetsPrelevementsCheques12m?: number;
+
+  // Bureau d'Information sur le Crédit (BIC, enrichi)
   interrogeBic?: boolean;
   statutBic?: string;
   nombrePretsActifsAutresInstitutions?: number;
   encoursCreditAutresInstitutionsFcfa?: number;
+  bicNombreCreditsSoldesAilleurs?: number | null;
+  bicAncienneteDernierIncidentMois?: number | null;
 
   // Demande de crédit
+  categorieCredit?: string;
   objetCredit?: string;
   montantDemandeFcfa: number;
   dureeMois: number;
+  tauxInteretNominalAnnuelPct?: number;
+  fraisDossierFcfa?: number;
   garantie?: string;
 
   // Résultat du moteur IA
@@ -85,10 +148,17 @@ export interface DemandeCredit {
   scoreCredit?: number;               // score scorecard 300-900
   perteAttendueFcfa?: number;         // Expected Loss
   ratioEndettement?: number;
+  ratioResteAVivreFcfa?: number;      // reste-à-vivre absolu après échéance
+  futureEcheanceCreditFcfa?: number;  // mensualité du crédit demandé (annuité)
   explicationJson?: string;           // facteurs SHAP sérialisés (parser avec JSON.parse)
 
   statut?: 'APPROUVE' | 'REJETE' | 'A_L_ETUDE' | 'ERREUR_IA' | string;
   dateCreation?: string;
+
+  // Origine du score : 'IA' = moteur de scoring backend, 'ESTIMATION_LOCALE' = repli
+  // calculé côté navigateur quand le backend est injoignable (à ne pas confondre
+  // avec une vraie prédiction du modèle).
+  source?: 'IA' | 'ESTIMATION_LOCALE' | string;
 }
 
 export interface DashboardStats {

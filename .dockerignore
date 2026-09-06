@@ -1,0 +1,8 @@
+# Contexte de build racine : utilisé UNIQUEMENT par le service `trainer`
+# (scripts/Dockerfile.train), qui ne copie que requirements.txt (le reste
+# est monté en volume). On exclut donc tout le reste pour garder le contexte
+# minuscule. Les services ai-service / backend / frontend ont leur propre
+# contexte (./ai-service, ./backend, ./frontend) et leur propre .dockerignore.
+*
+!scripts/requirements-train.txt
+!scripts/Dockerfile.train

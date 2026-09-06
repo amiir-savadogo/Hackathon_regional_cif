@@ -20,9 +20,8 @@ public class TypeGarantie {
     @Column(nullable = false)
     private String label;
 
-    @NotBlank
-    private String typeGarantie; // 'PERSONNELLE' | 'REELLE_MOBILIERE' | 'REELLE_IMMOBILIERE' | 'FINANCIERE'
-
+    @Column(name = "nature_juridique_id")
+    private Long natureJuridiqueId;
     private Integer tauxCouvertureRecommande;
 
     @Column(columnDefinition = "TEXT")
@@ -30,6 +29,7 @@ public class TypeGarantie {
 
     private boolean exigeDocument = false;
     private boolean actif = true;
+    private boolean systeme = false;
 
     private LocalDateTime dateCreation;
 
@@ -42,10 +42,10 @@ public class TypeGarantie {
 
     public TypeGarantie() {}
 
-    public TypeGarantie(String code, String label, String typeGarantie, Integer tauxCouvertureRecommande, String description, boolean exigeDocument, boolean actif) {
+    public TypeGarantie(String code, String label, Long natureJuridiqueId, Integer tauxCouvertureRecommande, String description, boolean exigeDocument, boolean actif) {
         this.code = code;
         this.label = label;
-        this.typeGarantie = typeGarantie;
+        this.natureJuridiqueId = natureJuridiqueId;
         this.tauxCouvertureRecommande = tauxCouvertureRecommande;
         this.description = description;
         this.exigeDocument = exigeDocument;
@@ -62,8 +62,8 @@ public class TypeGarantie {
     public String getLabel() { return label; }
     public void setLabel(String label) { this.label = label; }
 
-    public String getTypeGarantie() { return typeGarantie; }
-    public void setTypeGarantie(String typeGarantie) { this.typeGarantie = typeGarantie; }
+    public Long getNatureJuridiqueId() { return natureJuridiqueId; }
+    public void setNatureJuridiqueId(Long natureJuridiqueId) { this.natureJuridiqueId = natureJuridiqueId; }
 
     public Integer getTauxCouvertureRecommande() { return tauxCouvertureRecommande; }
     public void setTauxCouvertureRecommande(Integer tauxCouvertureRecommande) { this.tauxCouvertureRecommande = tauxCouvertureRecommande; }
@@ -76,6 +76,9 @@ public class TypeGarantie {
 
     public boolean isActif() { return actif; }
     public void setActif(boolean actif) { this.actif = actif; }
+
+    public boolean isSysteme() { return systeme; }
+    public void setSysteme(boolean systeme) { this.systeme = systeme; }
 
     public LocalDateTime getDateCreation() { return dateCreation; }
     public void setDateCreation(LocalDateTime dateCreation) { this.dateCreation = dateCreation; }

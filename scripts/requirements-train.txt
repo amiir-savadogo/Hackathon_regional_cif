@@ -1,0 +1,14 @@
+# Dépendances STRICTES de scripts/01_generate_dataset.py + scripts/02_train_model.py.
+# Volontairement SANS matplotlib / seaborn / streamlit (prototype uniquement,
+# jamais importés par les 2 scripts) -> image trainer nettement plus légère.
+# Versions alignées sur models/metadata.json (environnement_entrainement).
+pandas==3.0.2
+numpy==2.4.4
+scikit-learn==1.8.0
+imbalanced-learn==0.14.2
+xgboost==3.4.1
+lightgbm==4.7.0
+catboost==1.2.10
+optuna==4.9.0
+shap==0.52.0
+joblib==1.5.3

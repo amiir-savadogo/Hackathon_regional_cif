@@ -77,10 +77,24 @@ N_TRIALS = 6  # par objectif et par modèle ; compromis exploration/temps de cal
 #   - VALIDATION (15%) : choix du seuil de décision ET choix du modèle final
 #   - TEST (15%)       : jamais utilisé pour une décision - sert UNE SEULE FOIS,
 #                        à la fin, pour publier une performance honnête.
-df = pd.read_csv("data/samde_dataset.csv")
+# BASE B produite par scripts/01_generate_dataset.py : id_client + features
+# modèle + cible uniquement (aucune colonne d'identité, aucune copie de la
+# cible, aucun score pré-calculé -> pas de fuite possible ici).
+df = pd.read_csv("data/dataset_entrainement.csv")
 TARGET = "defaut_credit"
 MONTANT_COL = "montant_credit_demande_fcfa"  # nécessaire au calcul du coût métier (section 3.2)
 GARANTIE_COL = "garantie"
+
+# Garde-fou anti-fuite : si un jour le CSV d'entrée reprenait des colonnes de
+# sortie / d'identité, on s'arrête ici plutôt que de publier une AUC gonflée.
+_COLONNES_INTERDITES = {
+    "score_ia", "decision_scoring_cif", "proba_defaut_latent",
+    "discipline_latent", "richesse_latent", "cible_defaut",
+    "nom", "prenom", "email", "numero_cnib", "numero_compte", "contact_telephonique",
+}
+_fuite = _COLONNES_INTERDITES.intersection(df.columns)
+assert not _fuite, f"Colonnes interdites (fuite / identité) dans le dataset : {sorted(_fuite)}"
+assert {MONTANT_COL, GARANTIE_COL, TARGET, "id_client"}.issubset(df.columns)
 
 X = df.drop(columns=["id_client", TARGET])
 y = df[TARGET].values

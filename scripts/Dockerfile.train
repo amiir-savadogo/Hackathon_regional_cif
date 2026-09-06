@@ -1,0 +1,25 @@
+# Image d'entraînement du modèle de scoring (USAGE LOCAL uniquement).
+#
+# Contient les librairies ML lourdes (optuna, xgboost, lightgbm, catboost,
+# imbalanced-learn, shap) dont le service d'inférence `ai-service` n'a PAS
+# besoin : on ne les met donc pas dans son image, on les isole ici.
+#
+# Le code (scripts/, data/, models/, ai-service/models/) est monté en VOLUME
+# au moment du `run`, pas copié : seul requirements.txt entre dans l'image.
+FROM python:3.12-slim
+
+WORKDIR /app
+
+# Dépendances allégées (sans matplotlib/seaborn/streamlit, inutiles à l'entraînement).
+COPY scripts/requirements-train.txt .
+RUN pip install --no-cache-dir -r requirements-train.txt
+
+# Runtime OpenMP requis par lightgbm et xgboost (absent de python:3.12-slim).
+# Placé APRÈS le pip install pour ne pas invalider le cache de cette couche.
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends libgomp1 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Commande par défaut : entraînement. On peut la surcharger au `run`
+# (ex. `... run --rm trainer python scripts/01_generate_dataset.py`).
+CMD ["python", "scripts/02_train_model.py"]

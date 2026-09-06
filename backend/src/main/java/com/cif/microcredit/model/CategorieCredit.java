@@ -4,9 +4,16 @@ import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 
+/**
+ * Catégorie de crédit (13 valeurs du catalogue produits).
+ *
+ * Le champ `label` est consommé TEL QUEL par le modèle IA (variable
+ * categorie_credit). Les entrées seedées ont systeme=true : consultables et
+ * paramétrables dans l'app, mais les renommer casse le signal côté modèle.
+ */
 @Entity
-@Table(name = "objets_credit")
-public class ObjetCredit {
+@Table(name = "categories_credit")
+public class CategorieCredit {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
@@ -20,9 +27,6 @@ public class ObjetCredit {
     @Column(nullable = false)
     private String label;
 
-    @NotBlank
-    private String categorie;
-
     @Column(columnDefinition = "TEXT")
     private String description;
 
@@ -35,21 +39,17 @@ public class ObjetCredit {
 
     @PrePersist
     protected void onCreate() {
-        if (this.dateCreation == null) {
-            this.dateCreation = LocalDateTime.now();
-        }
+        if (this.dateCreation == null) this.dateCreation = LocalDateTime.now();
     }
 
-    public ObjetCredit() {}
+    public CategorieCredit() {}
 
-    public ObjetCredit(String code, String label, String categorie, String description, Double tauxInteretMin, Integer dureeMaxMois, boolean actif) {
+    public CategorieCredit(String code, String label, Double tauxInteretMin, Integer dureeMaxMois, boolean systeme) {
         this.code = code;
         this.label = label;
-        this.categorie = categorie;
-        this.description = description;
         this.tauxInteretMin = tauxInteretMin;
         this.dureeMaxMois = dureeMaxMois;
-        this.actif = actif;
+        this.systeme = systeme;
         this.dateCreation = LocalDateTime.now();
     }
 
@@ -61,9 +61,6 @@ public class ObjetCredit {
 
     public String getLabel() { return label; }
     public void setLabel(String label) { this.label = label; }
-
-    public String getCategorie() { return categorie; }
-    public void setCategorie(String categorie) { this.categorie = categorie; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

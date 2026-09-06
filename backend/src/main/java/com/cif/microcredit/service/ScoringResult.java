@@ -1,9 +1,7 @@
 package com.cif.microcredit.service;
 
 /**
- * Résultat complet renvoyé par le moteur IA (endpoint /api/score),
- * incluant la probabilité de défaut, la zone de décision, le score
- * scorecard, la perte attendue et l'explication SHAP (JSON brut).
+ * Résultat complet renvoyé par le moteur IA (endpoint /api/score).
  */
 public class ScoringResult {
 
@@ -13,10 +11,13 @@ public class ScoringResult {
     private final Integer scoreCredit;
     private final Double perteAttendueFcfa;
     private final Double ratioEndettement;
+    private final Double ratioResteAVivreFcfa;
+    private final Double futureEcheanceCreditFcfa;
     private final String explicationJson;
 
     public ScoringResult(Double scoreRisque, Double probaDefaut, String zoneDecision,
                           Integer scoreCredit, Double perteAttendueFcfa, Double ratioEndettement,
+                          Double ratioResteAVivreFcfa, Double futureEcheanceCreditFcfa,
                           String explicationJson) {
         this.scoreRisque = scoreRisque;
         this.probaDefaut = probaDefaut;
@@ -24,6 +25,8 @@ public class ScoringResult {
         this.scoreCredit = scoreCredit;
         this.perteAttendueFcfa = perteAttendueFcfa;
         this.ratioEndettement = ratioEndettement;
+        this.ratioResteAVivreFcfa = ratioResteAVivreFcfa;
+        this.futureEcheanceCreditFcfa = futureEcheanceCreditFcfa;
         this.explicationJson = explicationJson;
     }
 
@@ -33,5 +36,7 @@ public class ScoringResult {
     public Integer getScoreCredit() { return scoreCredit; }
     public Double getPerteAttendueFcfa() { return perteAttendueFcfa; }
     public Double getRatioEndettement() { return ratioEndettement; }
+    public Double getRatioResteAVivreFcfa() { return ratioResteAVivreFcfa; }
+    public Double getFutureEcheanceCreditFcfa() { return futureEcheanceCreditFcfa; }
     public String getExplicationJson() { return explicationJson; }
 }

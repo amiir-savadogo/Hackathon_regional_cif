@@ -1,7 +1,9 @@
 import { inject, Injectable, PLATFORM_ID } from '@angular/core';
 import { isPlatformBrowser } from '@angular/common';
-import { BehaviorSubject, Observable } from 'rxjs';
 import { AgentUser, AgentRole, AgenceCIF, CorbeilleItem } from '../models/user.model';
+import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
+import { BehaviorSubject, Observable } from 'rxjs';
 
 const STORAGE_AGENTS_KEY = 'samde_agents_list';
 const STORAGE_CURRENT_USER_KEY = 'samde_current_agent_id';
@@ -15,6 +17,8 @@ const SESSION_KEY = 'samde_agent_session';
 })
 export class AuthService {
   private readonly platformId = inject(PLATFORM_ID);
+  private http = inject(HttpClient);
+  private base = environment.apiUrl;
 
   private rolesSubject = new BehaviorSubject<AgentRole[]>(this.loadRoles());
   public roles$: Observable<AgentRole[]> = this.rolesSubject.asObservable();
@@ -30,6 +34,12 @@ export class AuthService {
 
   private trashSubject = new BehaviorSubject<CorbeilleItem[]>(this.loadTrash());
   public trash$: Observable<CorbeilleItem[]> = this.trashSubject.asObservable();
+
+  constructor() {
+    if (isPlatformBrowser(this.platformId)) {
+      this.refreshAgences();
+    }
+  }
 
   isAuthenticated(): boolean {
     if (!isPlatformBrowser(this.platformId)) return false;
@@ -235,24 +245,18 @@ export class AuthService {
     }
     return true;
   }
-
-  // =========================================================================
+    // =========================================================================
   // GESTION DES AGENCES CIF
   // =========================================================================
   private loadAgences(): AgenceCIF[] {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return [];
-    }
-    const saved = localStorage.getItem(STORAGE_AGENCES_KEY);
-    if (!saved) {
-      return [];
-    }
-    try {
-      const parsed = JSON.parse(saved);
-      return Array.isArray(parsed) ? parsed : [];
-    } catch {
-      return [];
-    }
+    return []; // Load from API now
+  }
+
+  public refreshAgences(): void {
+    this.http.get<AgenceCIF[]>(`${this.base}/agences`).subscribe({
+      next: (list) => this.agencesSubject.next(list),
+      error: (err) => console.error('Erreur chargement agences', err)
+    });
   }
 
   public getAgences(): AgenceCIF[] {
@@ -269,25 +273,29 @@ export class AuthService {
     adresse?: string;
   }): AgenceCIF {
     const codeClean = data.code.trim().toUpperCase().replace(/\s+/g, '_');
-    const newAgence: AgenceCIF = {
-      id: 'agence-' + Date.now(),
+    const newAgence: Partial<AgenceCIF> = {
       nom: data.nom.trim(),
       code: codeClean,
       pays: (data.pays || '').trim(),
       ville: data.ville.trim(),
       region: data.region.trim(),
       telephone: (data.telephone || '').trim(),
-      adresse: (data.adresse || '').trim(),
-      dateCreation: new Date().toISOString().split('T')[0]
+      adresse: (data.adresse || '').trim()
     };
 
-    const updated = [...this.getAgences(), newAgence];
-    this.agencesSubject.next(updated);
+    // We return a temporary ID so the UI updates optimistically
+    const tempId = 'agence-' + Date.now();
+    const tempAgence = { ...newAgence, id: tempId, dateCreation: new Date().toISOString().split('T')[0] } as AgenceCIF;
 
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_AGENCES_KEY, JSON.stringify(updated));
-    }
-    return newAgence;
+    this.http.post<AgenceCIF>(`${this.base}/agences`, newAgence).subscribe({
+      next: (saved) => {
+        const updated = [...this.getAgences(), saved];
+        this.agencesSubject.next(updated);
+      },
+      error: (err) => console.error('Erreur save agence', err)
+    });
+
+    return tempAgence;
   }
 
   public updateAgence(id: string, data: {
@@ -300,14 +308,13 @@ export class AuthService {
     adresse?: string;
   }): AgenceCIF | null {
     const agences = this.getAgences();
-    const index = agences.findIndex(a => a.id === id);
+    const index = agences.findIndex(a => a.id == id);
     if (index === -1) return null;
 
     const existing = agences[index];
     const oldNom = existing.nom;
 
-    const updatedAgence: AgenceCIF = {
-      ...existing,
+    const updatedAgence: Partial<AgenceCIF> = {
       nom: data.nom.trim(),
       code: data.code.trim().toUpperCase().replace(/\s+/g, '_'),
       pays: (data.pays || existing.pays || '').trim(),
@@ -317,39 +324,43 @@ export class AuthService {
       adresse: (data.adresse || '').trim()
     };
 
-    const updated = [...agences];
-    updated[index] = updatedAgence;
-    this.agencesSubject.next(updated);
-
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_AGENCES_KEY, JSON.stringify(updated));
-    }
-
-    // Si le nom a changé, synchroniser l'agence chez les agents
-    if (oldNom !== updatedAgence.nom) {
-      const agents = this.getAgents();
-      let hasAgentChanges = false;
-      const updatedAgents = agents.map(ag => {
-        if (ag.agence === oldNom) {
-          hasAgentChanges = true;
-          return { ...ag, agence: updatedAgence.nom };
+    this.http.put<AgenceCIF>(`${this.base}/agences/${id}`, updatedAgence).subscribe({
+      next: (saved) => {
+        const current = this.getAgences();
+        const idx = current.findIndex(a => a.id == id);
+        if (idx > -1) {
+          current[idx] = saved;
+          this.agencesSubject.next([...current]);
         }
-        return ag;
-      });
-      if (hasAgentChanges) {
-        this.agentsSubject.next(updatedAgents);
-        if (typeof window !== 'undefined' && window.localStorage) {
-          localStorage.setItem(STORAGE_AGENTS_KEY, JSON.stringify(updatedAgents));
+        
+        // Sync agent names
+        if (oldNom !== saved.nom) {
+          const agents = this.getAgents();
+          let hasAgentChanges = false;
+          const updatedAgents = agents.map(ag => {
+            if (ag.agence === oldNom) {
+              hasAgentChanges = true;
+              return { ...ag, agence: saved.nom };
+            }
+            return ag;
+          });
+          if (hasAgentChanges) {
+            this.agentsSubject.next(updatedAgents);
+            if (typeof window !== 'undefined' && window.localStorage) {
+              localStorage.setItem(STORAGE_AGENTS_KEY, JSON.stringify(updatedAgents));
+            }
+          }
         }
-      }
-    }
+      },
+      error: (err) => console.error('Erreur update agence', err)
+    });
 
-    return updatedAgence;
+    return { ...existing, ...updatedAgence } as AgenceCIF;
   }
 
   public deleteAgence(id: string): boolean {
     const agences = this.getAgences();
-    const agence = agences.find(a => a.id === id);
+    const agence = agences.find(a => a.id == id);
     if (!agence) return false;
 
     this.addToTrash({
@@ -360,12 +371,14 @@ export class AuthService {
       data: agence
     });
 
-    const updated = agences.filter(a => a.id !== id);
-    this.agencesSubject.next(updated);
+    this.http.delete(`${this.base}/agences/${id}`).subscribe({
+      next: () => {
+        const updated = this.getAgences().filter(a => a.id != id);
+        this.agencesSubject.next(updated);
+      },
+      error: (err) => console.error('Erreur delete agence', err)
+    });
 
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_AGENCES_KEY, JSON.stringify(updated));
-    }
     return true;
   }
 
@@ -612,7 +625,7 @@ export class AuthService {
   }
 
   public addToTrash(item: {
-    type: 'ROLE' | 'AGENT' | 'AGENCE' | 'OBJET_CREDIT' | 'GARANTIE' | 'CATEGORIE';
+    type: 'ROLE' | 'AGENT' | 'AGENCE' | 'OBJET_CREDIT' | 'GARANTIE' | 'CATEGORIE' | 'NATURE_JURIDIQUE';
     typeLabel: string;
     title: string;
     details: string;

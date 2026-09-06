@@ -1,4 +1,5 @@
-import { Injectable, inject } from '@angular/core';
+import { Injectable, inject, PLATFORM_ID } from '@angular/core';
+import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { BehaviorSubject, Observable, tap, catchError, of } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -25,8 +26,34 @@ export interface ObjetCreditItem {
   categorieId?: string;
   description?: string;
   actif: boolean;
+  systeme?: boolean;
   tauxInteretMin?: number;
   dureeMaxMois?: number;
+  dateCreation?: string;
+}
+
+/** Catégorie de crédit (13, catalogue produits) - API /api/categories-credit.
+ *  `label` est consommé par le modèle IA ; `systeme=true` => non renommable. */
+export interface CategorieCreditItem {
+  id: string | number;
+  code: string;
+  label: string;
+  description?: string;
+  actif: boolean;
+  systeme?: boolean;
+  tauxInteretMin?: number;
+  dureeMaxMois?: number;
+  dateCreation?: string;
+}
+
+export interface NatureJuridiqueItem {
+  id: string | number;
+  code: string;
+  label: string;
+  description?: string;
+  necessiteNotaire: boolean;
+  fraisEnregistrement: boolean;
+  actif: boolean;
   dateCreation?: string;
 }
 
@@ -34,7 +61,7 @@ export interface GarantieItem {
   id: string | number;
   code: string;
   label: string;
-  typeGarantie: 'PERSONNELLE' | 'REELLE_MOBILIERE' | 'REELLE_IMMOBILIERE' | 'FINANCIERE';
+  natureJuridiqueId?: string;
   tauxCouvertureRecommande?: number; // Ex: 100%, 120%, 150%
   description?: string;
   actif: boolean;
@@ -42,9 +69,10 @@ export interface GarantieItem {
   dateCreation?: string;
 }
 
-const STORAGE_CATEGORIES_KEY = 'cif_settings_categories_v2';
-const STORAGE_OBJETS_KEY = 'cif_settings_objets_credit_v2';
-const STORAGE_GARANTIES_KEY = 'cif_settings_garanties_v2';
+const STORAGE_CATEGORIES_KEY = 'cif_settings_categories_v3';
+const STORAGE_OBJETS_KEY = 'cif_settings_objets_credit_v3';
+const STORAGE_GARANTIES_KEY = 'cif_settings_garanties_v3';
+const STORAGE_NATURES_KEY = 'cif_settings_natures_juridiques_v1';
 
 @Injectable({
   providedIn: 'root'
@@ -53,6 +81,7 @@ export class SettingsService {
   private http = inject(HttpClient);
   private authService = inject(AuthService);
   private base = environment.apiUrl;
+  private isBrowser = isPlatformBrowser(inject(PLATFORM_ID));
 
   // --- SUJETS RÉACTIFS INITIALISÉS VIDES ---
   private categoriesSubject = new BehaviorSubject<CategorieItem[]>(this.loadStoredCategories());
@@ -64,15 +93,65 @@ export class SettingsService {
   private garantiesSubject = new BehaviorSubject<GarantieItem[]>(this.loadStoredGaranties());
   public garanties$: Observable<GarantieItem[]> = this.garantiesSubject.asObservable();
 
+  private naturesSubject = new BehaviorSubject<NatureJuridiqueItem[]>(this.loadStoredNatures());
+  public naturesJuridiques$: Observable<NatureJuridiqueItem[]> = this.naturesSubject.asObservable();
+
+  // Catégories de crédit du catalogue (API, alimente le wizard).
+  private categoriesCreditSubject = new BehaviorSubject<CategorieCreditItem[]>([]);
+  public categoriesCredit$: Observable<CategorieCreditItem[]> = this.categoriesCreditSubject.asObservable();
+
   constructor() {
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.removeItem('cif_settings_categories');
-      localStorage.removeItem('cif_settings_objets_credit');
-      localStorage.removeItem('cif_settings_garanties');
-    }
     this.refreshCategories();
-    this.refreshObjets().subscribe();
-    this.refreshGaranties().subscribe();
+    if (this.isBrowser) {
+      this.refreshCategoriesCredit().subscribe();
+      this.refreshObjets().subscribe();
+      this.refreshGaranties().subscribe();
+      this.refreshNatures().subscribe();
+    }
+  }
+
+  // =========================================================================
+  // CATÉGORIES DE CRÉDIT (catalogue produits, via API)
+  // =========================================================================
+  refreshCategoriesCredit(): Observable<CategorieCreditItem[]> {
+    return this.http.get<CategorieCreditItem[]>(`${this.base}/categories-credit`).pipe(
+      tap(list => this.categoriesCreditSubject.next(list || [])),
+      catchError(err => {
+        console.error('Erreur chargement catégories de crédit', err);
+        return of([] as CategorieCreditItem[]);
+      })
+    );
+  }
+
+  getCategoriesCredit(): CategorieCreditItem[] {
+    return this.categoriesCreditSubject.value;
+  }
+
+  getCategoriesCreditActives(): CategorieCreditItem[] {
+    return this.categoriesCreditSubject.value.filter(c => c.actif !== false);
+  }
+
+  addCategorieCredit(cat: Partial<CategorieCreditItem>): Observable<CategorieCreditItem> {
+    return this.http.post<CategorieCreditItem>(`${this.base}/categories-credit`, cat).pipe(
+      tap(saved => this.categoriesCreditSubject.next([...this.categoriesCreditSubject.value, saved]))
+    );
+  }
+
+  updateCategorieCredit(id: any, updates: Partial<CategorieCreditItem>): Observable<CategorieCreditItem> {
+    return this.http.put<CategorieCreditItem>(`${this.base}/categories-credit/${id}`, updates).pipe(
+      tap(saved => {
+        const list = this.categoriesCreditSubject.value.slice();
+        const i = list.findIndex(c => c.id == id);
+        if (i > -1) { list[i] = saved; this.categoriesCreditSubject.next(list); }
+      })
+    );
+  }
+
+  deleteCategorieCredit(id: any): Observable<void> {
+    return this.http.delete<void>(`${this.base}/categories-credit/${id}`).pipe(
+      tap(() => this.categoriesCreditSubject.next(
+        this.categoriesCreditSubject.value.filter(c => c.id != id)))
+    );
   }
 
   // =========================================================================
@@ -148,34 +227,18 @@ export class SettingsService {
   }
 
   // =========================================================================
-  // 2. GESTION DYNAMIQUE DES OBJETS DE CRÉDIT
+  // 2. GESTION DYNAMIQUE DES OBJETS DE CRÉDIT (via API)
   // =========================================================================
   private loadStoredObjets(): ObjetCreditItem[] {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return [];
-    }
-    const saved = localStorage.getItem(STORAGE_OBJETS_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      } catch (e) {}
-    }
-    return [];
+    return []; // Supprimé du localStorage, les données viennent de l'API
   }
 
   refreshObjets(): Observable<ObjetCreditItem[]> {
     return this.http.get<ObjetCreditItem[]>(`${this.base}/objets-credit`).pipe(
-      tap(list => {
-        if (list && Array.isArray(list)) {
-          this.objetsSubject.next(list);
-          if (typeof window !== 'undefined' && window.localStorage) {
-            localStorage.setItem(STORAGE_OBJETS_KEY, JSON.stringify(list));
-          }
-        }
-      }),
-      catchError(() => {
-        return of(this.objetsSubject.value);
+      tap(list => this.objetsSubject.next(list)),
+      catchError(err => {
+        console.error('Erreur de chargement des objets de crédit', err);
+        return of([]);
       })
     );
   }
@@ -188,88 +251,61 @@ export class SettingsService {
     return this.objetsSubject.value.filter(o => o.actif);
   }
 
-  addObjet(objet: Omit<ObjetCreditItem, 'id' | 'dateCreation'>): Observable<ObjetCreditItem> {
-    const localNew: ObjetCreditItem = {
-      ...objet,
-      id: 'obj-' + Date.now(),
-      dateCreation: new Date().toISOString()
-    };
-    const current = [localNew, ...this.objetsSubject.value];
-    this.objetsSubject.next(current);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_OBJETS_KEY, JSON.stringify(current));
-    }
-
+  addObjet(objet: Partial<ObjetCreditItem>): Observable<ObjetCreditItem> {
     return this.http.post<ObjetCreditItem>(`${this.base}/objets-credit`, objet).pipe(
-      catchError(() => of(localNew))
+      tap(saved => {
+        const current = this.objetsSubject.value;
+        this.objetsSubject.next([...current, saved]);
+      })
     );
   }
 
   updateObjet(id: any, updates: Partial<ObjetCreditItem>): Observable<ObjetCreditItem> {
-    const current = this.objetsSubject.value.map(o => o.id === id ? { ...o, ...updates } : o);
-    this.objetsSubject.next(current);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_OBJETS_KEY, JSON.stringify(current));
-    }
-
-    const updatedItem = current.find(o => o.id === id) || ({} as ObjetCreditItem);
     return this.http.put<ObjetCreditItem>(`${this.base}/objets-credit/${id}`, updates).pipe(
-      catchError(() => of(updatedItem))
+      tap(saved => {
+        const current = this.objetsSubject.value;
+        const index = current.findIndex(o => o.id == id);
+        if (index > -1) {
+          current[index] = saved;
+          this.objetsSubject.next([...current]);
+        }
+      })
     );
   }
 
   deleteObjet(id: any): Observable<void> {
-    const toDelete = this.objetsSubject.value.find(o => o.id === id);
+    const toDelete = this.objetsSubject.value.find(o => o.id == id);
     if (toDelete) {
       this.authService.addToTrash({
         type: 'OBJET_CREDIT',
         typeLabel: 'Objet de Crédit',
         title: toDelete.label,
-        details: `Catégorie: ${toDelete.categorie} · Code: ${toDelete.code}`,
+        details: `Catégorie: ${toDelete.categorie} · Max: ${toDelete.dureeMaxMois} mois`,
         data: toDelete
       });
     }
 
-    const current = this.objetsSubject.value.filter(o => o.id !== id);
-    this.objetsSubject.next(current);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_OBJETS_KEY, JSON.stringify(current));
-    }
-
     return this.http.delete<void>(`${this.base}/objets-credit/${id}`).pipe(
-      catchError(() => of(void 0))
+      tap(() => {
+        const current = this.objetsSubject.value.filter(o => o.id != id);
+        this.objetsSubject.next(current);
+      })
     );
   }
 
   // =========================================================================
-  // 3. GESTION DYNAMIQUE DES TYPES DE GARANTIES
+  // 3. GESTION DYNAMIQUE DES GARANTIES (via API)
   // =========================================================================
   private loadStoredGaranties(): GarantieItem[] {
-    if (typeof window === 'undefined' || !window.localStorage) {
-      return [];
-    }
-    const saved = localStorage.getItem(STORAGE_GARANTIES_KEY);
-    if (saved) {
-      try {
-        const parsed = JSON.parse(saved);
-        if (Array.isArray(parsed)) return parsed;
-      } catch (e) {}
-    }
-    return [];
+    return []; // API
   }
 
   refreshGaranties(): Observable<GarantieItem[]> {
     return this.http.get<GarantieItem[]>(`${this.base}/garanties`).pipe(
-      tap(list => {
-        if (list && Array.isArray(list)) {
-          this.garantiesSubject.next(list);
-          if (typeof window !== 'undefined' && window.localStorage) {
-            localStorage.setItem(STORAGE_GARANTIES_KEY, JSON.stringify(list));
-          }
-        }
-      }),
-      catchError(() => {
-        return of(this.garantiesSubject.value);
+      tap(list => this.garantiesSubject.next(list)),
+      catchError(err => {
+        console.error('Erreur chargement garanties', err);
+        return of([]);
       })
     );
   }
@@ -282,56 +318,112 @@ export class SettingsService {
     return this.garantiesSubject.value.filter(g => g.actif);
   }
 
-  addGarantie(garantie: Omit<GarantieItem, 'id' | 'dateCreation'>): Observable<GarantieItem> {
-    const localNew: GarantieItem = {
-      ...garantie,
-      id: 'gar-' + Date.now(),
-      dateCreation: new Date().toISOString()
-    };
-    const current = [localNew, ...this.garantiesSubject.value];
-    this.garantiesSubject.next(current);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_GARANTIES_KEY, JSON.stringify(current));
-    }
-
+  addGarantie(garantie: Partial<GarantieItem>): Observable<GarantieItem> {
     return this.http.post<GarantieItem>(`${this.base}/garanties`, garantie).pipe(
-      catchError(() => of(localNew))
+      tap(saved => {
+        const current = this.garantiesSubject.value;
+        this.garantiesSubject.next([...current, saved]);
+      })
     );
   }
 
   updateGarantie(id: any, updates: Partial<GarantieItem>): Observable<GarantieItem> {
-    const current = this.garantiesSubject.value.map(g => g.id === id ? { ...g, ...updates } : g);
-    this.garantiesSubject.next(current);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_GARANTIES_KEY, JSON.stringify(current));
-    }
-
-    const updatedItem = current.find(g => g.id === id) || ({} as GarantieItem);
     return this.http.put<GarantieItem>(`${this.base}/garanties/${id}`, updates).pipe(
-      catchError(() => of(updatedItem))
+      tap(saved => {
+        const current = this.garantiesSubject.value;
+        const index = current.findIndex(g => g.id == id);
+        if (index > -1) {
+          current[index] = saved;
+          this.garantiesSubject.next([...current]);
+        }
+      })
     );
   }
 
   deleteGarantie(id: any): Observable<void> {
-    const toDelete = this.garantiesSubject.value.find(g => g.id === id);
+    const toDelete = this.garantiesSubject.value.find(g => g.id == id);
     if (toDelete) {
       this.authService.addToTrash({
         type: 'GARANTIE',
         typeLabel: 'Type de Garantie',
         title: toDelete.label,
-        details: `Type: ${toDelete.typeGarantie} · Couverture: ${toDelete.tauxCouvertureRecommande || 100}%`,
+        details: `Code: ${toDelete.code} · Couverture: ${toDelete.tauxCouvertureRecommande}%`,
         data: toDelete
       });
     }
 
-    const current = this.garantiesSubject.value.filter(g => g.id !== id);
-    this.garantiesSubject.next(current);
-    if (typeof window !== 'undefined' && window.localStorage) {
-      localStorage.setItem(STORAGE_GARANTIES_KEY, JSON.stringify(current));
+    return this.http.delete<void>(`${this.base}/garanties/${id}`).pipe(
+      tap(() => {
+        const current = this.garantiesSubject.value.filter(g => g.id != id);
+        this.garantiesSubject.next(current);
+      })
+    );
+  }
+
+  // =========================================================================
+  // 4. GESTION DES NATURES JURIDIQUES (via API)
+  // =========================================================================
+  private loadStoredNatures(): NatureJuridiqueItem[] {
+    return [];
+  }
+
+  refreshNatures(): Observable<NatureJuridiqueItem[]> {
+    return this.http.get<NatureJuridiqueItem[]>(`${this.base}/natures-juridiques`).pipe(
+      tap(list => this.naturesSubject.next(list)),
+      catchError(err => {
+        console.error('Erreur chargement natures', err);
+        return of([]);
+      })
+    );
+  }
+
+  getNaturesJuridiques(): NatureJuridiqueItem[] {
+    return this.naturesSubject.value;
+  }
+
+  getNaturesJuridiquesActives(): NatureJuridiqueItem[] {
+    return this.naturesSubject.value.filter(n => n.actif);
+  }
+
+  addNatureJuridique(nature: Partial<NatureJuridiqueItem>): Observable<NatureJuridiqueItem> {
+    return this.http.post<NatureJuridiqueItem>(`${this.base}/natures-juridiques`, nature).pipe(
+      tap(saved => {
+        const current = this.naturesSubject.value;
+        this.naturesSubject.next([...current, saved]);
+      })
+    );
+  }
+
+  updateNatureJuridique(id: any, updates: Partial<NatureJuridiqueItem>): Observable<NatureJuridiqueItem> {
+    return this.http.put<NatureJuridiqueItem>(`${this.base}/natures-juridiques/${id}`, updates).pipe(
+      tap(saved => {
+        const current = this.naturesSubject.value;
+        const index = current.findIndex(n => n.id == id);
+        if (index > -1) {
+          current[index] = saved;
+          this.naturesSubject.next([...current]);
+        }
+      })
+    );
+  }
+
+  deleteNatureJuridique(id: any): Observable<void> {
+    const toDelete = this.naturesSubject.value.find(n => n.id == id);
+    if (toDelete) {
+      this.authService.addToTrash({
+        type: 'NATURE_JURIDIQUE',
+        typeLabel: 'Nature Juridique',
+        title: toDelete.label,
+        details: `Code: ${toDelete.code}`,
+        data: toDelete
+      });
     }
 
-    return this.http.delete<void>(`${this.base}/garanties/${id}`).pipe(
-      catchError(() => of(void 0))
+    return this.http.delete<void>(`${this.base}/natures-juridiques/${id}`).pipe(
+      tap(() => {
+        const current = this.naturesSubject.value.filter(n => n.id != id);
+        this.naturesSubject.next(current);
+      })
     );
   }
 
@@ -342,10 +434,12 @@ export class SettingsService {
     this.categoriesSubject.next([]);
     this.objetsSubject.next([]);
     this.garantiesSubject.next([]);
+    this.naturesSubject.next([]);
     if (typeof window !== 'undefined' && window.localStorage) {
       localStorage.removeItem(STORAGE_CATEGORIES_KEY);
       localStorage.removeItem(STORAGE_OBJETS_KEY);
       localStorage.removeItem(STORAGE_GARANTIES_KEY);
+      localStorage.removeItem(STORAGE_NATURES_KEY);
       localStorage.removeItem('cif_settings_categories');
       localStorage.removeItem('cif_settings_objets_credit');
       localStorage.removeItem('cif_settings_garanties');
