@@ -206,7 +206,7 @@ class ScoringResponse(BaseModel):
     score_risque: float          # proba de défaut en %, 0-100 (compat. historique)
     proba_defaut: float          # proba de défaut brute, 0-1
     zone_decision: str           # ACCORD_FAVORABLE | A_EXAMINER | RISQUE_ELEVE
-    score_credit: Optional[int] = None   # score de solvabilité 0-100 (100 = meilleur)
+    score_credit: Optional[int] = None   # score de RISQUE 0-100 (0 = meilleur, 100 = pire)
     perte_attendue_fcfa: Optional[float] = None
     lgd_utilise: Optional[float] = None
     ratio_endettement: Optional[float] = None
@@ -363,9 +363,10 @@ def _zone_decision(proba_defaut: float) -> str:
 
 
 def _score_credit(proba_defaut: float) -> int:
-    """Score de solvabilité sur 100 : 100 = risque nul, 0 = défaut quasi certain.
-    Simple complément de la probabilité de défaut (score = (1 - PD) x 100)."""
-    return int(np.clip(round((1.0 - proba_defaut) * 100), 0, 100))
+    """Score de RISQUE sur 100 : 0 = risque nul (bon dossier), 100 = défaut
+    quasi certain (à refuser). C'est directement la probabilité de défaut
+    exprimée en points (score = PD x 100). Plus le score est élevé, moins on prête."""
+    return int(np.clip(round(proba_defaut * 100), 0, 100))
 
 
 @app.get("/health")
@@ -429,7 +430,17 @@ def calculer_score(data: ClientData):
             logger.info("Garde-fou métier appliqué (zone -> %s) : %s", zone, note_decision)
 
         lgd = LGD_PAR_GARANTIE.get(data.garantie, 0.55)
-        perte_attendue = proba_defaut * lgd * data.montant_credit_demande_fcfa
+        # Perte attendue = PD x LGD x montant. Quand un garde-fou d'INSOLVABILITÉ
+        # a forcé "Risque élevé" (reste-à-vivre négatif ou endettement > 100 %),
+        # le dossier n'est structurellement pas remboursable : la probabilité de
+        # défaut réelle est proche de 1, pas celle - optimiste - que le modèle a
+        # estimée sur le seul profil du client. On plancher la PD utilisée pour la
+        # perte afin qu'elle reste cohérente avec la décision affichée (sinon on
+        # montre une "perte attendue" rassurante à côté d'un "Risque élevé").
+        pd_perte = proba_defaut
+        if zone == "RISQUE_ELEVE" and note_decision:
+            pd_perte = max(proba_defaut, 0.90)
+        perte_attendue = pd_perte * lgd * data.montant_credit_demande_fcfa
 
         # --- Explicabilité SHAP ---
         explication: List[FacteurExplicatif] = []

@@ -3,7 +3,7 @@ import { isPlatformBrowser } from '@angular/common';
 import { HttpClient } from '@angular/common/http';
 import { Observable, BehaviorSubject, of, forkJoin, catchError, map, tap } from 'rxjs';
 import { Client, DemandeCredit, DashboardStats } from '../models/client.model';
-import { SCORE_SEUIL_VERT, SCORE_SEUIL_ORANGE } from '../models/scoring-zones';
+import { SCORE_RISQUE_VERT_MAX, SCORE_RISQUE_ROUGE_MIN } from '../models/scoring-zones';
 import { environment } from '../../environments/environment';
 import { SOCIETAIRES_CIF_BASE } from '../data/societaires-data';
 
@@ -316,20 +316,26 @@ export class ApiService {
     const lgd: Record<string, number> = {
       'Bien matériel': 0.35, "Aval d'un tiers": 0.45, 'Caution solidaire': 0.40, 'Aucune': 0.65,
     };
-    const perteAttendue = probaDefaut * (lgd[demande.garantie || ''] ?? 0.55) * montant;
 
-    // Score de solvabilité 0-100 = (1 - PD) x 100, comme ai-service/main.py.
-    const scoreCredit = Math.round((1 - probaDefaut) * 100);
+    // Score de RISQUE 0-100 = PD x 100, comme ai-service/main.py (0 = aucun
+    // risque, 100 = risque max ; plus c'est haut, moins on prête).
+    const scoreCredit = Math.round(probaDefaut * 100);
     let statut = 'APPROUVE';
     let zoneDecision = 'ACCORD_FAVORABLE';
     // Seuils alignés sur le modèle déployé (cf. models/scoring-zones.ts).
-    if (scoreCredit <= SCORE_SEUIL_ORANGE || resteAVivre < 0) {
+    const insolvable = resteAVivre < 0 || ratioEndettement > 1.0;
+    if (scoreCredit > SCORE_RISQUE_ROUGE_MIN || insolvable) {
       statut = 'REJETE';
       zoneDecision = 'RISQUE_ELEVE';
-    } else if (scoreCredit <= SCORE_SEUIL_VERT) {
+    } else if (scoreCredit > SCORE_RISQUE_VERT_MAX) {
       statut = 'A_L_ETUDE';
       zoneDecision = 'A_EXAMINER';
     }
+
+    // Dossier structurellement non remboursable : PD réelle proche de 1 pour la
+    // perte attendue (cohérence avec la décision), cf. ai-service/main.py.
+    const pdPerte = insolvable ? Math.max(probaDefaut, 0.90) : probaDefaut;
+    const perteAttendue = pdPerte * (lgd[demande.garantie || ''] ?? 0.55) * montant;
 
     return {
       ...demande,

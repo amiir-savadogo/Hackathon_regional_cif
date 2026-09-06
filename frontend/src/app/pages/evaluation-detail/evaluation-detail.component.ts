@@ -18,99 +18,132 @@ import { couleurScore } from '../../models/scoring-zones';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="max-w-4xl mx-auto space-y-5 pb-16">
+    <div class="mx-auto max-w-5xl space-y-5 pb-16 animate-fade-up">
 
-      <div *ngIf="loading" class="p-10 text-center text-sm text-gray-400">Chargement…</div>
+      <!-- Chargement -->
+      <div *ngIf="loading" class="card card-pad space-y-4" aria-busy="true" aria-live="polite">
+        <div class="skeleton h-6 w-1/3"></div>
+        <div class="skeleton h-4 w-2/3"></div>
+        <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 pt-2">
+          <div class="skeleton h-20"></div><div class="skeleton h-20"></div>
+          <div class="skeleton h-20"></div><div class="skeleton h-20"></div>
+        </div>
+        <span class="sr-only">Chargement de l'évaluation…</span>
+      </div>
 
-      <div *ngIf="!loading && !demande" class="bg-white rounded-2xl border border-gray-200 p-10 text-center space-y-3">
-        <p class="text-sm text-gray-600">Cette évaluation est introuvable.</p>
-        <a routerLink="/credits" class="inline-block px-4 py-2 bg-[#147c76] text-white text-xs font-bold rounded-xl">← Retour à la liste</a>
+      <!-- Introuvable -->
+      <div *ngIf="!loading && !demande" class="card">
+        <div class="empty-state">
+          <span class="empty-icon" aria-hidden="true">
+            <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.6" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+          <h1 class="text-base font-bold text-ink-900">Évaluation introuvable</h1>
+          <p class="mt-1.5 text-sm text-ink-500 max-w-xs">Ce dossier n'existe plus ou a été supprimé.</p>
+          <a routerLink="/credits" class="btn-primary btn-sm mt-5">Retour à la liste</a>
+        </div>
       </div>
 
       <ng-container *ngIf="!loading && demande">
 
-        <!-- En-tête -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm flex flex-col sm:flex-row sm:items-center justify-between gap-3">
-          <div>
-            <span class="text-xs font-bold text-[#147c76] uppercase tracking-wider">Résultat de l'évaluation</span>
-            <h1 class="text-xl font-bold text-gray-900">{{ client?.prenom }} {{ client?.nom }}</h1>
-            <p class="text-xs text-gray-400 mt-0.5">
-              CNIB {{ client?.numeroCnib || '-' }} · évaluée le {{ demande.dateCreation ? (demande.dateCreation | date:'dd/MM/yyyy HH:mm') : '-' }}
-            </p>
+        <!-- En-tête du dossier -->
+        <header class="card card-pad flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+          <div class="flex items-center gap-4 min-w-0">
+            <span class="grid place-items-center w-14 h-14 flex-shrink-0 rounded-2xl bg-brand-gradient
+                         text-white text-base font-bold shadow-brand" aria-hidden="true">
+              {{ (client?.prenom || '?')[0] }}{{ (client?.nom || '?')[0] }}
+            </span>
+            <div class="min-w-0">
+              <p class="eyebrow">Résultat de l'évaluation</p>
+              <h1 class="mt-0.5 text-xl sm:text-2xl font-extrabold text-ink-900 truncate">
+                {{ client?.prenom }} {{ client?.nom }}
+              </h1>
+              <p class="mt-1 text-xs text-ink-500">
+                CNIB {{ client?.numeroCnib || '-' }}
+                <span class="text-ink-300" aria-hidden="true">·</span>
+                évaluée le {{ demande.dateCreation ? (demande.dateCreation | date:'dd/MM/yyyy à HH:mm') : '-' }}
+              </p>
+            </div>
           </div>
-          <span [ngClass]="badgeClass(demande.statut)" class="px-4 py-2 rounded-full text-xs font-bold border self-start">{{ statutLabel(demande.statut) }}</span>
-        </div>
+          <span [ngClass]="badgeClass(demande.statut)"
+            class="badge self-start sm:self-auto flex-shrink-0 px-4 py-1.5 text-xs">{{ statutLabel(demande.statut) }}</span>
+        </header>
 
-        <div *ngIf="demande.noteDecision" class="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-300 text-red-800 text-xs">
-          <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-          <span><strong>Règle métier appliquée.</strong> {{ demande.noteDecision }}</span>
+        <!-- Garde-fou métier -->
+        <div *ngIf="demande.noteDecision" role="alert"
+          class="flex items-start gap-3 rounded-2xl border border-danger-200 bg-danger-50 p-4">
+          <span class="grid place-items-center w-8 h-8 flex-shrink-0 rounded-xl bg-danger-100 text-danger-700" aria-hidden="true">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2.1" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          </span>
+          <p class="text-xs text-danger-800 leading-relaxed">
+            <strong class="font-bold">Règle métier appliquée.</strong> {{ demande.noteDecision }}
+          </p>
         </div>
 
         <!-- Résultat -->
-        <div class="bg-white rounded-2xl border-2 border-[#147c76]/30 p-6 shadow-sm space-y-5">
-          <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
-            <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <p class="text-[11px] text-gray-500">Score CIF</p>
-              <p class="text-3xl font-extrabold mt-1" [ngClass]="scoreColor(demande.scoreCredit)">{{ demande.scoreCredit ?? '-' }}<span class="text-xs text-gray-400 font-normal"> / 100</span></p>
+        <div class="card card-pad space-y-5 border-brand-200">
+          <div class="grid grid-cols-2 gap-3 text-center" [ngClass]="estScoreVert(demande.scoreCredit) ? 'sm:grid-cols-4' : 'sm:grid-cols-3'">
+            <div class="p-4 bg-ink-50 rounded-xl border border-ink-200">
+              <p class="text-[11px] text-ink-500">Score de risque</p>
+              <p class="text-3xl font-extrabold mt-1" [ngClass]="scoreColor(demande.scoreCredit)">{{ demande.scoreCredit ?? '-' }}<span class="text-xs text-ink-400 font-normal"> / 100</span></p>
             </div>
-            <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <p class="text-[11px] text-gray-500">Proba. de défaut</p>
-              <p class="text-3xl font-extrabold text-gray-900 mt-1">{{ (demande.scoreRisque || 0) | number:'1.1-1' }}%</p>
+            <div *ngIf="estScoreVert(demande.scoreCredit)" class="p-4 bg-success-50 rounded-xl border border-success-200">
+              <p class="text-[11px] text-success-700">Chances de remboursement</p>
+              <p class="text-3xl font-extrabold text-success-700 mt-1">{{ 100 - (demande.scoreCredit || 0) }}<span class="text-xs text-success-500 font-normal"> %</span></p>
             </div>
-            <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <p class="text-[11px] text-gray-500">Échéance / mois</p>
-              <p class="text-lg font-extrabold text-gray-900 mt-2">{{ demande.futureEcheanceCreditFcfa || 0 | number:'1.0-0' }} F</p>
+            <div class="p-4 bg-ink-50 rounded-xl border border-ink-200">
+              <p class="text-[11px] text-ink-500">Échéance / mois</p>
+              <p class="text-lg font-extrabold text-ink-900 mt-2">{{ demande.futureEcheanceCreditFcfa || 0 | number:'1.0-0' }} F</p>
             </div>
-            <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
-              <p class="text-[11px] text-gray-500">Perte attendue</p>
-              <p class="text-lg font-extrabold text-gray-900 mt-2">{{ demande.perteAttendueFcfa || 0 | number:'1.0-0' }} F</p>
+            <div class="p-4 bg-ink-50 rounded-xl border border-ink-200">
+              <p class="text-[11px] text-ink-500">Perte attendue</p>
+              <p class="text-lg font-extrabold text-ink-900 mt-2">{{ demande.perteAttendueFcfa || 0 | number:'1.0-0' }} F</p>
             </div>
           </div>
 
           <div class="grid grid-cols-2 gap-3 text-xs">
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Zone de décision</span><span class="font-bold text-sm">{{ zoneLabel(demande.zoneDecision) }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Montant / durée</span><span class="font-bold text-sm">{{ demande.montantDemandeFcfa | number:'1.0-0' }} F · {{ demande.dureeMois }} mois</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Taux d'endettement retenu</span><span class="font-bold text-sm">{{ (demande.ratioEndettement || 0) * 100 | number:'1.0-0' }} %</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Reste à vivre après échéance</span><span class="font-bold text-sm">{{ demande.ratioResteAVivreFcfa || 0 | number:'1.0-0' }} FCFA</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Zone de décision</span><span class="font-bold text-sm">{{ zoneLabel(demande.zoneDecision) }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Montant / durée</span><span class="font-bold text-sm">{{ demande.montantDemandeFcfa | number:'1.0-0' }} F · {{ demande.dureeMois }} mois</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Taux d'endettement retenu</span><span class="font-bold text-sm">{{ (demande.ratioEndettement || 0) * 100 | number:'1.0-0' }} %</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Reste à vivre après échéance</span><span class="font-bold text-sm">{{ demande.ratioResteAVivreFcfa || 0 | number:'1.0-0' }} FCFA</span></div>
           </div>
 
           <!-- SHAP -->
-          <div class="p-4 bg-slate-50 rounded-xl border border-slate-200">
-            <p class="font-bold text-slate-800 text-sm mb-3">Facteurs déterminants pour ce dossier <span class="text-[11px] font-normal text-slate-500">(explicabilité SHAP)</span></p>
+          <div class="p-4 bg-ink-50 rounded-xl border border-ink-200">
+            <p class="font-bold text-ink-800 text-sm mb-3">Facteurs déterminants pour ce dossier <span class="text-[11px] font-normal text-ink-500">(ce qui a pesé dans la décision)</span></p>
             <div *ngIf="facteurs.length > 0" class="space-y-2">
               <div *ngFor="let f of facteurs" class="flex items-center gap-3">
-                <span class="w-52 text-xs font-semibold text-slate-700 truncate" [title]="humaniser(f.variable)">{{ humaniser(f.variable) }}</span>
-                <div class="flex-1 h-3.5 bg-slate-200 rounded-full overflow-hidden">
-                  <div class="h-full rounded-full" [ngClass]="f.contribution > 0 ? 'bg-red-500' : 'bg-emerald-500'" [style.width.%]="barWidth(f.contribution)"></div>
+                <span class="w-52 text-xs font-semibold text-ink-700 truncate" [title]="humaniser(f.variable)">{{ humaniser(f.variable) }}</span>
+                <div class="flex-1 h-3.5 bg-ink-200 rounded-full overflow-hidden">
+                  <div class="h-full rounded-full" [ngClass]="f.contribution > 0 ? 'bg-danger-500' : 'bg-success-500'" [style.width.%]="barWidth(f.contribution)"></div>
                 </div>
-                <span class="text-[11px] font-bold w-20 text-right" [ngClass]="f.contribution > 0 ? 'text-red-600' : 'text-emerald-600'">{{ f.contribution > 0 ? '↑ risque' : '↓ risque' }}</span>
+                <span class="text-[11px] font-bold w-20 text-right" [ngClass]="f.contribution > 0 ? 'text-danger-600' : 'text-success-600'">{{ f.contribution > 0 ? '↑ risque' : '↓ risque' }}</span>
               </div>
             </div>
-            <p *ngIf="facteurs.length === 0" class="text-xs text-slate-400">Explication non disponible pour ce dossier.</p>
+            <p *ngIf="facteurs.length === 0" class="text-xs text-ink-400">Explication non disponible pour ce dossier.</p>
           </div>
         </div>
 
         <!-- Dossier évalué -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
-          <p class="font-bold text-gray-800 text-sm mb-3">Dossier évalué</p>
+        <div class="bg-white rounded-2xl border border-ink-200 p-6 shadow-sm">
+          <p class="font-bold text-ink-800 text-sm mb-3">Dossier évalué</p>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Catégorie</span><span class="font-semibold">{{ demande.categorieCredit || '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Objet</span><span class="font-semibold">{{ demande.objetCredit || '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Garantie</span><span class="font-semibold">{{ demande.garantie || '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Taux nominal annuel</span><span class="font-semibold">{{ demande.tauxInteretNominalAnnuelPct != null ? demande.tauxInteretNominalAnnuelPct + ' %' : '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Revenu mensuel</span><span class="font-semibold">{{ demande.revenuMensuelFcfa ? (demande.revenuMensuelFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Charges mensuelles</span><span class="font-semibold">{{ demande.chargesMensuellesFcfa != null ? (demande.chargesMensuellesFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Épargne moyenne</span><span class="font-semibold">{{ demande.epargneSoldeMoyenFcfa != null ? (demande.epargneSoldeMoyenFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Régularité d'épargne</span><span class="font-semibold">{{ demande.regulariteEpargne || '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Ancienneté coopérative</span><span class="font-semibold">{{ demande.ancienneteCooperativeMois != null ? demande.ancienneteCooperativeMois + ' mois' : '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Mobile Money</span><span class="font-semibold">{{ demande.possedeMobileMoney ? 'Oui' : 'Non' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Statut BIC</span><span class="font-semibold">{{ demande.statutBic || '-' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Groupe solidaire</span><span class="font-semibold">{{ demande.membreGroupeSolidaire ? 'Oui' : 'Non' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Catégorie</span><span class="font-semibold">{{ demande.categorieCredit || '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Objet</span><span class="font-semibold">{{ demande.objetCredit || '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Garantie</span><span class="font-semibold">{{ demande.garantie || '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Taux nominal annuel</span><span class="font-semibold">{{ demande.tauxInteretNominalAnnuelPct != null ? demande.tauxInteretNominalAnnuelPct + ' %' : '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Revenu mensuel</span><span class="font-semibold">{{ demande.revenuMensuelFcfa ? (demande.revenuMensuelFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Charges mensuelles</span><span class="font-semibold">{{ demande.chargesMensuellesFcfa != null ? (demande.chargesMensuellesFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Épargne moyenne</span><span class="font-semibold">{{ demande.epargneSoldeMoyenFcfa != null ? (demande.epargneSoldeMoyenFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Régularité d'épargne</span><span class="font-semibold">{{ demande.regulariteEpargne || '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Ancienneté coopérative</span><span class="font-semibold">{{ demande.ancienneteCooperativeMois != null ? demande.ancienneteCooperativeMois + ' mois' : '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Mobile Money</span><span class="font-semibold">{{ demande.possedeMobileMoney ? 'Oui' : 'Non' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Statut BIC</span><span class="font-semibold">{{ demande.statutBic || '-' }}</span></div>
+            <div class="p-3 bg-ink-50 rounded-xl"><span class="text-ink-400 block">Groupe solidaire</span><span class="font-semibold">{{ demande.membreGroupeSolidaire ? 'Oui' : 'Non' }}</span></div>
           </div>
         </div>
 
         <a [routerLink]="['/credits', demandeId, 'explication']"
-          class="flex items-center justify-between gap-2 p-3 rounded-xl bg-[#e5f3f1] border border-[#b9ded9] text-[#147c76] text-xs font-bold hover:bg-[#cce9e5] transition-colors">
+          class="flex items-center justify-between gap-2 p-3 rounded-xl bg-brand-50 border border-brand-200 text-brand-600 text-xs font-bold hover:bg-brand-100 transition-colors">
           <span class="flex items-center gap-2">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
             Pourquoi ce résultat ? Voir l'explication détaillée
@@ -120,8 +153,8 @@ import { couleurScore } from '../../models/scoring-zones';
 
         <!-- Actions -->
         <div class="flex flex-col sm:flex-row items-center justify-between gap-3">
-          <a routerLink="/credits" class="text-xs font-bold text-gray-500 hover:text-gray-800">← Retour à la liste</a>
-          <button type="button" (click)="refaire()" class="px-6 py-2.5 bg-[#147c76] hover:bg-[#0e625e] text-white text-xs font-bold rounded-xl shadow transition-all">
+          <a routerLink="/credits" class="text-xs font-bold text-ink-500 hover:text-ink-800">← Retour à la liste</a>
+          <button type="button" (click)="refaire()" class="px-6 py-2.5 bg-brand-600 hover:bg-brand-700 text-white text-xs font-bold rounded-xl shadow transition-all">
             Refaire cette évaluation →
           </button>
         </div>
@@ -224,14 +257,15 @@ export class EvaluationDetailComponent implements OnInit {
 
   scoreColor(s?: number) {
     const c = couleurScore(s);
-    return c === 'gris' ? 'text-gray-700' : c === 'vert' ? 'text-emerald-600' : c === 'orange' ? 'text-amber-600' : 'text-red-600';
+    return c === 'gris' ? 'text-ink-700' : c === 'vert' ? 'text-success-600' : c === 'orange' ? 'text-warning-600' : 'text-danger-600';
   }
+  estScoreVert(s?: number) { return couleurScore(s) === 'vert'; }
 
   badgeClass(s?: string) {
-    return s === 'APPROUVE' ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
-      : s === 'A_L_ETUDE' ? 'bg-amber-50 text-amber-700 border-amber-200'
-      : s === 'REJETE' ? 'bg-red-50 text-red-700 border-red-200'
-      : 'bg-gray-100 text-gray-700 border-gray-200';
+    return s === 'APPROUVE' ? 'bg-success-50 text-success-700 border-success-200'
+      : s === 'A_L_ETUDE' ? 'bg-warning-50 text-warning-700 border-warning-200'
+      : s === 'REJETE' ? 'bg-danger-50 text-danger-700 border-danger-200'
+      : 'bg-ink-100 text-ink-700 border-ink-200';
   }
 
   statutLabel(s?: string) {

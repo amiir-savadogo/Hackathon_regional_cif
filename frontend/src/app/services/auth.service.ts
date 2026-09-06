@@ -73,7 +73,7 @@ export class AuthService {
           email: 'admin@cif.bf',
           motDePasse: 'admin123',
           roleCode: 'ADMIN_SYSTEME',
-          agence: 'Siège Principal CIF',
+          agence: 'Siège Principal',
           telephone: '+226 25 30 00 00'
         });
         this.setCurrentUser(defaultAdmin.id);
@@ -365,7 +365,7 @@ export class AuthService {
 
     this.addToTrash({
       type: 'AGENCE',
-      typeLabel: 'Agence CIF',
+      typeLabel: 'Agence',
       title: agence.nom,
       details: `${agence.code} · ${agence.ville}, ${agence.region} (${agence.pays || ''})`,
       data: agence
@@ -399,7 +399,7 @@ export class AuthService {
       motDePasse: 'admin123',
       roleCode: 'ADMIN_SYSTEME',
       roleLabel: 'Administrateur Système',
-      agence: 'Siège Principal CIF',
+      agence: 'Siège Principal',
       dateCreation: '2026-01-15',
       telephone: '+226 25 30 00 00',
       avatarColor: 'from-[#147c76] to-[#147c76]',

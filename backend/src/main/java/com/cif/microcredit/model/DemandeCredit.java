@@ -136,7 +136,7 @@ public class DemandeCredit {
     private Double scoreRisque;              // proba de défaut en % (0-100)
     private Double probaDefaut;             // proba de défaut brute (0-1)
     private String zoneDecision;            // ACCORD_FAVORABLE | A_EXAMINER | RISQUE_ELEVE
-    private Integer scoreCredit;            // score de solvabilité 0-100 (100 = meilleur)
+    private Integer scoreCredit;            // score de risque 0-100 (0 = meilleur, 100 = pire)
     private Double perteAttendueFcfa;       // Expected Loss = PD x LGD x EAD
     private Double ratioEndettement;
     private Double ratioResteAVivreFcfa;

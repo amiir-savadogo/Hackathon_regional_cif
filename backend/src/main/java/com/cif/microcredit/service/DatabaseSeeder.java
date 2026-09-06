@@ -188,13 +188,13 @@ public class DatabaseSeeder implements CommandLineRunner {
         if (agenceRepository.count() > 0) {
             return;
         }
-        log.info("Initialisation des Agences CIF dans PostgreSQL...");
+        log.info("Initialisation des agences dans PostgreSQL...");
         agenceRepository.saveAll(List.of(
             new Agence("AGC_OUAGA_CENTRE", "Caisse Populaire Ouaga Centre", "Burkina Faso", "Ouagadougou", "Centre", "+226 25 30 11 22", "Avenue Kwame Nkrumah, Secteur 4"),
             new Agence("AGC_BOBO_DIOULASSO", "Délégation Régionale Bobo", "Burkina Faso", "Bobo-Dioulasso", "Hauts-Bassins", "+226 20 97 05 40", "Boulevard de la Révolution"),
-            new Agence("AGC_KOUDOUGOU", "Agence CIF Koudougou", "Burkina Faso", "Koudougou", "Centre-Ouest", "+226 25 44 02 18", "Place Maurice Yaméogo"),
+            new Agence("AGC_KOUDOUGOU", "Agence de Koudougou", "Burkina Faso", "Koudougou", "Centre-Ouest", "+226 25 44 02 18", "Place Maurice Yaméogo"),
             new Agence("AGC_OUAGA_GOUNGHIN", "Point de Service Gounghin", "Burkina Faso", "Ouagadougou", "Centre", "+226 25 34 22 10", "Rue 9.15 Gounghin"),
-            new Agence("AGC_FADA_NGOURMA", "Caisse CIF Fada N'Gourma", "Burkina Faso", "Fada N'Gourma", "Est", "+226 24 77 01 90", "Avenue Yendabili")
+            new Agence("AGC_FADA_NGOURMA", "Caisse de Fada N'Gourma", "Burkina Faso", "Fada N'Gourma", "Est", "+226 24 77 01 90", "Avenue Yendabili")
         ));
     }
 

@@ -12,14 +12,14 @@ import { Client } from '../../models/client.model';
   template: `
     <div class="max-w-2xl mx-auto">
       <div class="flex justify-end mb-4">
-        <a routerLink="/clients" class="text-xs font-bold text-gray-600 hover:text-gray-900 px-3 py-1.5 rounded-lg bg-gray-100 hover:bg-gray-200 transition-colors">← Retour aux clients</a>
+        <a routerLink="/clients" class="text-xs font-bold text-ink-600 hover:text-ink-900 px-3 py-1.5 rounded-lg bg-ink-100 hover:bg-ink-200 transition-colors">← Retour aux clients</a>
       </div>
 
-      <div class="bg-white rounded-xl border border-gray-200 shadow-sm p-6 sm:p-8">
-        <h1 class="text-xl font-bold text-gray-900 mb-1">Enregistrement d'un nouveau demandeur</h1>
-        <p class="text-sm text-gray-500 mb-6">Saisissez les informations d'identité du client. Les données financières seront renseignées lors de la demande de crédit.</p>
+      <div class="bg-white rounded-xl border border-ink-200 shadow-sm p-6 sm:p-8">
+        <h1 class="text-xl font-bold text-ink-900 mb-1">Enregistrement d'un nouveau demandeur</h1>
+        <p class="text-sm text-ink-500 mb-6">Saisissez les informations d'identité du client. Les données financières seront renseignées lors de la demande de crédit.</p>
 
-        <div *ngIf="errorMessage" class="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-sm text-red-700">
+        <div *ngIf="errorMessage" class="mb-4 p-3 bg-danger-50 border border-danger-200 rounded-lg text-sm text-danger-700">
           {{ errorMessage }}
         </div>
 
@@ -27,44 +27,44 @@ import { Client } from '../../models/client.model';
 
           <!-- SECTION : Identité -->
           <div>
-            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Identité</h2>
+            <h2 class="text-xs font-semibold text-ink-500 uppercase tracking-widest mb-3 pb-2 border-b border-ink-100">Identité</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Nom *</label>
+                <label class="label mb-1.5">Nom *</label>
                 <input type="text" [(ngModel)]="client.nom" name="nom" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 focus:border-[#147c76]"
+                  class="input"
                   placeholder="Ex : Diop" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Prénom *</label>
+                <label class="label mb-1.5">Prénom *</label>
                 <input type="text" [(ngModel)]="client.prenom" name="prenom" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 focus:border-[#147c76]"
+                  class="input"
                   placeholder="Ex : Amadou" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Âge *</label>
+                <label class="label mb-1.5">Âge *</label>
                 <input type="number" [(ngModel)]="client.age" name="age" required min="18" max="100"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 focus:border-[#147c76]" />
+                  class="input" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Téléphone</label>
+                <label class="label mb-1.5">Téléphone</label>
                 <input type="tel" [(ngModel)]="client.telephone" name="telephone"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 focus:border-[#147c76]"
+                  class="input"
                   placeholder="Ex : +225 07 00 00 00" />
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Sexe *</label>
+                <label class="label mb-1.5">Sexe *</label>
                 <select [(ngModel)]="client.sexe" name="sexe" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 bg-white">
+                  class="input">
                   <option value="">-- Sélectionner --</option>
                   <option>Femme</option>
                   <option>Homme</option>
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Zone *</label>
+                <label class="label mb-1.5">Zone *</label>
                 <select [(ngModel)]="client.zone" name="zone" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 bg-white">
+                  class="input">
                   <option value="">-- Sélectionner --</option>
                   <option>Urbaine</option>
                   <option>Semi-urbaine</option>
@@ -72,9 +72,9 @@ import { Client } from '../../models/client.model';
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Situation matrimoniale *</label>
+                <label class="label mb-1.5">Situation matrimoniale *</label>
                 <select [(ngModel)]="client.situationMatrimoniale" name="situationMatrimoniale" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 bg-white">
+                  class="input">
                   <option value="">-- Sélectionner --</option>
                   <option>Marié(e)</option>
                   <option>Célibataire</option>
@@ -83,9 +83,9 @@ import { Client } from '../../models/client.model';
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Niveau d'éducation *</label>
+                <label class="label mb-1.5">Niveau d'éducation *</label>
                 <select [(ngModel)]="client.niveauEducation" name="niveauEducation" required
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 bg-white">
+                  class="input">
                   <option value="">-- Sélectionner --</option>
                   <option>Aucun</option>
                   <option>Primaire</option>
@@ -94,21 +94,21 @@ import { Client } from '../../models/client.model';
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Personnes à charge *</label>
+                <label class="label mb-1.5">Personnes à charge *</label>
                 <input type="number" [(ngModel)]="client.nombrePersonnesACharge" name="nombrePersonnesACharge" required min="0" max="15"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 focus:border-[#147c76]" />
+                  class="input" />
               </div>
             </div>
           </div>
 
           <!-- SECTION : Activité économique -->
           <div>
-            <h2 class="text-xs font-semibold text-gray-500 uppercase tracking-widest mb-3 pb-2 border-b border-gray-100">Activité économique</h2>
+            <h2 class="text-xs font-semibold text-ink-500 uppercase tracking-widest mb-3 pb-2 border-b border-ink-100">Activité économique</h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Secteur d'activité</label>
+                <label class="label mb-1.5">Secteur d'activité</label>
                 <select [(ngModel)]="client.secteurActivite" name="secteur"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 bg-white">
+                  class="input">
                   <option value="">-- Sélectionner --</option>
                   <option>Commerce informel</option>
                   <option>Agriculture</option>
@@ -122,19 +122,19 @@ import { Client } from '../../models/client.model';
                 </select>
               </div>
               <div>
-                <label class="block text-sm font-medium text-gray-700 mb-1">Ancienneté (années) *</label>
+                <label class="label mb-1.5">Ancienneté (années) *</label>
                 <input type="number" [(ngModel)]="client.ancienneteActiviteAnnees" name="anciennete" required step="0.5" min="0"
-                  class="w-full px-3 py-2 border border-gray-300 rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#147c76]/30 focus:border-[#147c76]"
+                  class="input"
                   placeholder="Ex : 3" />
               </div>
             </div>
           </div>
 
           <!-- ACTIONS -->
-          <div class="flex items-center justify-between pt-4 border-t border-gray-100">
-            <a routerLink="/clients" class="text-sm text-gray-500 hover:text-gray-700">Annuler</a>
+          <div class="flex items-center justify-between pt-4 border-t border-ink-100">
+            <a routerLink="/clients" class="text-sm text-ink-500 hover:text-ink-700">Annuler</a>
             <button type="submit" [disabled]="loading"
-              class="bg-[#147c76] hover:bg-[#0e625e] disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors">
+              class="bg-brand-600 hover:bg-brand-700 disabled:opacity-50 text-white text-sm font-semibold px-6 py-2.5 rounded-lg transition-colors">
               {{ loading ? 'Enregistrement...' : 'Enregistrer le client' }}
             </button>
           </div>

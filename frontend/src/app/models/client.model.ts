@@ -106,7 +106,7 @@ export interface FacteurExplicatif {
   sens: 'AUGMENTE_RISQUE' | 'REDUIT_RISQUE' | string;
 }
 
-/** Un crédit CIF passé du sociétaire (historique interne détaillé, lecture seule). */
+/** Un crédit interne passé du sociétaire (historique détaillé, lecture seule). */
 export interface CreditInterneAnterieur {
   reference?: string;
   categorie?: string;
@@ -241,7 +241,7 @@ export interface DemandeCredit {
   scoreRisque?: number;               // probabilité de défaut en %, 0-100
   probaDefaut?: number;               // probabilité de défaut brute, 0-1
   zoneDecision?: 'ACCORD_FAVORABLE' | 'A_EXAMINER' | 'RISQUE_ELEVE' | string;
-  scoreCredit?: number;               // score de solvabilité 0-100 (100 = meilleur)
+  scoreCredit?: number;               // score de risque 0-100 (0 = meilleur, 100 = pire)
   perteAttendueFcfa?: number;         // Expected Loss
   ratioEndettement?: number;
   ratioResteAVivreFcfa?: number;      // reste-à-vivre absolu après échéance
