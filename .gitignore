@@ -74,6 +74,7 @@ Hackathon_preprod/
 ehthumbs.db
 Thumbs.db
 .idea/
+.metals/
 .vscode/
 *.swp
 *.swo
