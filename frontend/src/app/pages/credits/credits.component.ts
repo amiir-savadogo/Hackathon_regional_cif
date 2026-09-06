@@ -140,9 +140,9 @@ interface CreditDossierItem {
               <td class="px-5 py-3.5">
                 <div class="flex items-center space-x-1.5" *ngIf="item.demande.scoreCredit">
                   <span class="font-bold text-sm" [ngClass]="getScoreColor(item.demande.scoreCredit)">{{ item.demande.scoreCredit }}</span>
-                  <span class="text-[11px] text-gray-400 font-mono">/ 900</span>
+                  <span class="text-[11px] text-gray-400 font-mono">/ 100</span>
                 </div>
-                <span *ngIf="!item.demande.scoreCredit" class="text-xs text-gray-400">—</span>
+                <span *ngIf="!item.demande.scoreCredit" class="text-xs text-gray-400">-</span>
               </td>
               <td class="px-5 py-3.5">
                 <span [ngClass]="getStatusBadgeClass(item.demande.statut)" class="px-2.5 py-1 rounded-full text-xs font-bold border inline-flex items-center gap-1">
@@ -333,10 +333,11 @@ export class CreditsComponent implements OnInit {
     return Math.round((approved / this.dossiers.length) * 100);
   }
 
+  // Score de solvabilité 0-100, couleurs alignées sur les zones de décision.
   getScoreColor(score?: number): string {
-    if (!score) return 'text-gray-700';
-    if (score >= 680) return 'text-emerald-600';
-    if (score >= 550) return 'text-amber-600';
+    if (score === null || score === undefined) return 'text-gray-700';
+    if (score > 81) return 'text-emerald-600';
+    if (score > 56) return 'text-amber-600';
     return 'text-red-600';
   }
 

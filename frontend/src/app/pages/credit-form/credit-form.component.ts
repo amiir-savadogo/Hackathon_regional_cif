@@ -35,7 +35,7 @@ interface Volet { n: number; titre: string; sous: string; }
       <!-- ============ CAS 1 : recherche sociétaire ============ -->
       <div *ngIf="!selectedClient" class="space-y-5">
         <div class="bg-gradient-to-r from-[#147c76] to-[#0e625e] rounded-2xl p-6 text-white shadow-lg">
-          <h1 class="text-xl font-bold">Instruction d'un microcrédit — sélection du sociétaire</h1>
+          <h1 class="text-xl font-bold">Instruction d'un microcrédit - sélection du sociétaire</h1>
           <p class="text-xs text-emerald-100 mt-1">Recherchez par numéro CNIB, nom ou numéro de compte pour démarrer.</p>
         </div>
         <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm space-y-3">
@@ -122,7 +122,7 @@ interface Volet { n: number; titre: string; sous: string; }
               </div>
             </div>
             <div class="bg-white rounded-2xl border border-gray-200 p-5 shadow-sm space-y-2">
-              <h2 class="text-xs font-bold text-[#147c76] uppercase tracking-wider pb-2 border-b border-gray-100">Activité & compte CIF</h2>
+              <h2 class="text-xs font-bold text-[#147c76] uppercase tracking-wider pb-2 border-b border-gray-100">Activité & compte</h2>
               <div class="grid grid-cols-2 gap-2 text-xs">
                 <div class="p-2 bg-gray-50 rounded-lg col-span-2"><span class="text-gray-400 block">Activité</span><span class="font-bold">{{ selectedClient.activite }}</span></div>
                 <div class="p-2 bg-gray-50 rounded-lg"><span class="text-gray-400 block">Secteur</span><span class="font-bold">{{ selectedClient.secteurActivite }}</span></div>
@@ -214,7 +214,7 @@ interface Volet { n: number; titre: string; sous: string; }
               <div>
                 <label class="lbl">Ancienneté à la coopérative (mois)</label>
                 <input type="text" class="inp bg-gray-100 text-gray-600 cursor-not-allowed" [value]="ancienneteCoopMois + ' mois'" readonly tabindex="-1" />
-                <p class="text-[11px] text-gray-400 mt-1">Calculé automatiquement à partir de la date d'adhésion ({{ selectedClient.dateCreation || '—' }}).</p>
+                <p class="text-[11px] text-gray-400 mt-1">Calculé automatiquement à partir de la date d'adhésion ({{ selectedClient.dateCreation || '-' }}).</p>
               </div>
               <div>
                 <label class="lbl">Solde d'épargne moyen (FCFA)</label>
@@ -223,7 +223,7 @@ interface Volet { n: number; titre: string; sous: string; }
               <div>
                 <label class="lbl">Régularité de l'épargne *</label>
                 <select class="inp" [(ngModel)]="demande.regulariteEpargne" [ngModelOptions]="{standalone:true}">
-                  <option value="" disabled>— choisir —</option>
+                  <option value="" disabled>- choisir -</option>
                   <option *ngFor="let r of regularites" [value]="r">{{ r }}</option>
                 </select>
               </div>
@@ -238,7 +238,7 @@ interface Volet { n: number; titre: string; sous: string; }
               <p class="text-xs text-gray-400">Chiffres issus des dossiers de crédit CIF du sociétaire. Corrigez si nécessaire.</p>
               <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
                 <div>
-                  <label class="lbl">Crédits CIF antérieurs</label>
+                  <label class="lbl">Crédits antérieurs</label>
                   <input type="number" min="0" class="inp" [(ngModel)]="demande.nombreCreditsAnterieurs" [ngModelOptions]="{standalone:true}" />
                 </div>
                 <div *ngIf="(demande.nombreCreditsAnterieurs || 0) > 0">
@@ -323,14 +323,14 @@ interface Volet { n: number; titre: string; sous: string; }
               <div>
                 <label class="lbl">Catégorie de crédit *</label>
                 <select class="inp" [(ngModel)]="demande.categorieCredit" [ngModelOptions]="{standalone:true}" (ngModelChange)="onCategorieChange()">
-                  <option value="" disabled>— choisir ({{ categoriesCredit.length }} catégories) —</option>
+                  <option value="" disabled>- choisir ({{ categoriesCredit.length }} catégories) -</option>
                   <option *ngFor="let c of categoriesCredit" [value]="c.label">{{ c.label }}</option>
                 </select>
               </div>
               <div>
                 <label class="lbl">Objet précis du crédit *</label>
                 <select class="inp" [(ngModel)]="demande.objetCredit" [ngModelOptions]="{standalone:true}">
-                  <option value="" disabled>— choisir ({{ objetsFiltres.length }}) —</option>
+                  <option value="" disabled>- choisir ({{ objetsFiltres.length }}) -</option>
                   <option *ngFor="let o of objetsFiltres" [value]="o.label">{{ o.label }}</option>
                 </select>
               </div>
@@ -346,7 +346,7 @@ interface Volet { n: number; titre: string; sous: string; }
               <div>
                 <label class="lbl">Durée (mois) *</label>
                 <select class="inp" [(ngModel)]="demande.dureeMois" [ngModelOptions]="{standalone:true}">
-                  <option [ngValue]="undefined" disabled>— choisir —</option>
+                  <option [ngValue]="undefined" disabled>- choisir -</option>
                   <option *ngFor="let d of durees" [ngValue]="d">{{ d }} mois</option>
                 </select>
               </div>
@@ -357,7 +357,7 @@ interface Volet { n: number; titre: string; sous: string; }
               <div class="md:col-span-2">
                 <label class="lbl">Garantie proposée *</label>
                 <select class="inp" [(ngModel)]="demande.garantie" [ngModelOptions]="{standalone:true}">
-                  <option value="" disabled>— choisir ({{ garanties.length }}) —</option>
+                  <option value="" disabled>- choisir ({{ garanties.length }}) -</option>
                   <option *ngFor="let g of garanties" [value]="g.label">{{ g.label }}</option>
                 </select>
               </div>
@@ -406,7 +406,7 @@ interface Volet { n: number; titre: string; sous: string; }
 
             <div *ngIf="evaluationResult.source === 'ESTIMATION_LOCALE'" class="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs">
               <span class="font-bold">⚠</span>
-              <span><strong>Estimation locale de repli</strong> — le moteur IA n'a pas pu être contacté. Résultat indicatif, sans valeur de prédiction du modèle. Relancez une fois la connexion rétablie.</span>
+              <span><strong>Estimation locale de repli</strong> - le moteur IA n'a pas pu être contacté. Résultat indicatif, sans valeur de prédiction du modèle. Relancez une fois la connexion rétablie.</span>
             </div>
 
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
@@ -417,10 +417,15 @@ interface Volet { n: number; titre: string; sous: string; }
               <span [ngClass]="badgeClass(evaluationResult.statut)" class="px-4 py-2 rounded-full text-xs font-bold border self-start">{{ statusLabel(evaluationResult.statut) }}</span>
             </div>
 
+            <div *ngIf="evaluationResult.noteDecision" class="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-300 text-red-800 text-xs">
+              <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+              <span><strong>Règle métier appliquée.</strong> {{ evaluationResult.noteDecision }}</span>
+            </div>
+
             <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
               <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <p class="text-[11px] text-gray-500">Score CIF</p>
-                <p class="text-3xl font-extrabold mt-1" [ngClass]="scoreColor(evaluationResult.scoreCredit)">{{ evaluationResult.scoreCredit || '—' }}<span class="text-xs text-gray-400 font-normal"> / 900</span></p>
+                <p class="text-3xl font-extrabold mt-1" [ngClass]="scoreColor(evaluationResult.scoreCredit)">{{ evaluationResult.scoreCredit ?? '-' }}<span class="text-xs text-gray-400 font-normal"> / 100</span></p>
               </div>
               <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
                 <p class="text-[11px] text-gray-500">Proba. de défaut</p>
@@ -487,7 +492,7 @@ export class CreditFormComponent implements OnInit {
   volets: Volet[] = [
     { n: 1, titre: 'Profil & activité', sous: 'Données KYC du sociétaire, sous-secteur et saisonnalité.' },
     { n: 2, titre: 'Revenus & épargne', sous: 'Revenus déclarés pour ce dossier, relation coopérative, épargne.' },
-    { n: 3, titre: 'Historique interne', sous: 'Crédits CIF antérieurs, remboursement, retards.' },
+    { n: 3, titre: 'Historique interne', sous: 'Crédits antérieurs, remboursement, retards.' },
     { n: 4, titre: 'Mobile Money', sous: 'Usage transactionnel Mobile Money (proxy de revenu et de discipline).' },
     { n: 5, titre: 'BIC & banque', sous: 'Centrale des risques UEMOA et comptes bancaires classiques.' },
     { n: 6, titre: 'Demande & garantie', sous: 'Objet, montant, durée, taux et garantie du prêt sollicité.' },
@@ -807,7 +812,9 @@ export class CreditFormComponent implements OnInit {
   }
 
   // --- affichage statut ---
-  scoreColor(s?: number) { return !s ? 'text-gray-700' : s >= 680 ? 'text-emerald-600' : s >= 550 ? 'text-amber-600' : 'text-red-600'; }
+  // Couleurs alignées sur les zones de décision du moteur : score = (1 - PD) x 100.
+  // > 81 => accord (PD < 19 %) · 57-81 => examen · <= 56 => risque élevé (PD >= 44 %).
+  scoreColor(s?: number) { return (s === null || s === undefined) ? 'text-gray-700' : s > 81 ? 'text-emerald-600' : s > 56 ? 'text-amber-600' : 'text-red-600'; }
   badgeClass(s?: string) {
     return s === 'APPROUVE' ? 'bg-emerald-50 text-emerald-700 border-emerald-200'
       : s === 'A_L_ETUDE' ? 'bg-amber-50 text-amber-700 border-amber-200'

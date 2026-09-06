@@ -162,7 +162,8 @@ public class ScoringService {
                     toDouble(body.get("ratio_endettement")),
                     toDouble(body.get("ratio_reste_a_vivre_absolu_fcfa")),
                     toDouble(body.get("future_echeance_credit_fcfa")),
-                    explicationJson);
+                    explicationJson,
+                    (String) body.get("note_decision"));
 
         } catch (RestClientException e) {
             logger.error("Appel au moteur IA échoué ({}) pour le client {}", e.getMessage(), client.getId());

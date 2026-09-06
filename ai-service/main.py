@@ -181,12 +181,13 @@ class ScoringResponse(BaseModel):
     score_risque: float          # proba de défaut en %, 0-100 (compat. historique)
     proba_defaut: float          # proba de défaut brute, 0-1
     zone_decision: str           # ACCORD_FAVORABLE | A_EXAMINER | RISQUE_ELEVE
-    score_credit: Optional[int] = None
+    score_credit: Optional[int] = None   # score de solvabilité 0-100 (100 = meilleur)
     perte_attendue_fcfa: Optional[float] = None
     lgd_utilise: Optional[float] = None
     ratio_endettement: Optional[float] = None
     ratio_reste_a_vivre_absolu_fcfa: Optional[float] = None
     future_echeance_credit_fcfa: Optional[float] = None
+    note_decision: Optional[str] = None   # règle métier ayant modifié la zone, le cas échéant
     explication: List[FacteurExplicatif] = []
 
 
@@ -309,12 +310,9 @@ def _zone_decision(proba_defaut: float) -> str:
 
 
 def _score_credit(proba_defaut: float) -> int:
-    """Score à points (300-900), convention scorecard bancaire standard."""
-    pdo, base, odds = 20, 600, 1.0
-    facteur = pdo / np.log(2)
-    offset = base - facteur * np.log(odds)
-    p_safe = min(max(proba_defaut, 1e-6), 1 - 1e-6)
-    return int(np.clip(offset + facteur * np.log((1 - p_safe) / p_safe), 300, 900))
+    """Score de solvabilité sur 100 : 100 = risque nul, 0 = défaut quasi certain.
+    Simple complément de la probabilité de défaut (score = (1 - PD) x 100)."""
+    return int(np.clip(round((1.0 - proba_defaut) * 100), 0, 100))
 
 
 @app.get("/health")
@@ -351,6 +349,24 @@ def calculer_score(data: ClientData):
         proba_defaut = float(model.predict_proba(X_proc)[0, 1])
         zone = _zone_decision(proba_defaut)
         score_credit = _score_credit(proba_defaut)
+
+        # --- Garde-fous métier : la capacité de remboursement prime sur le modèle.
+        #     Un dossier que le client ne peut physiquement pas honorer ne doit
+        #     jamais ressortir en accord automatique, quel que soit le score IA.
+        rav = row.get("ratio_reste_a_vivre_absolu_fcfa")
+        endettement = row.get("ratio_endettement")
+        note_decision = None
+        if rav is not None and rav < 0:
+            zone = "RISQUE_ELEVE"
+            note_decision = "Reste à vivre négatif après échéance : le client ne peut pas honorer la mensualité."
+        elif endettement is not None and endettement > 1.0:
+            zone = "RISQUE_ELEVE"
+            note_decision = "Taux d'endettement supérieur à 100 % : charges + échéances dépassent le revenu."
+        elif endettement is not None and endettement > 0.66 and zone == "ACCORD_FAVORABLE":
+            zone = "A_EXAMINER"
+            note_decision = "Taux d'endettement élevé (> 66 %) : décision laissée au comité de crédit."
+        if note_decision:
+            logger.info("Garde-fou métier appliqué (zone -> %s) : %s", zone, note_decision)
 
         lgd = LGD_PAR_GARANTIE.get(data.garantie, 0.55)
         perte_attendue = proba_defaut * lgd * data.montant_credit_demande_fcfa
@@ -390,6 +406,7 @@ def calculer_score(data: ClientData):
             ratio_endettement=row["ratio_endettement"],
             ratio_reste_a_vivre_absolu_fcfa=row["ratio_reste_a_vivre_absolu_fcfa"],
             future_echeance_credit_fcfa=row["future_echeance_credit_fcfa"],
+            note_decision=note_decision,
             explication=explication,
         )
 

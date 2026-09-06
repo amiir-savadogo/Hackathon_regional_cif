@@ -14,11 +14,12 @@ public class ScoringResult {
     private final Double ratioResteAVivreFcfa;
     private final Double futureEcheanceCreditFcfa;
     private final String explicationJson;
+    private final String noteDecision;
 
     public ScoringResult(Double scoreRisque, Double probaDefaut, String zoneDecision,
                           Integer scoreCredit, Double perteAttendueFcfa, Double ratioEndettement,
                           Double ratioResteAVivreFcfa, Double futureEcheanceCreditFcfa,
-                          String explicationJson) {
+                          String explicationJson, String noteDecision) {
         this.scoreRisque = scoreRisque;
         this.probaDefaut = probaDefaut;
         this.zoneDecision = zoneDecision;
@@ -28,6 +29,7 @@ public class ScoringResult {
         this.ratioResteAVivreFcfa = ratioResteAVivreFcfa;
         this.futureEcheanceCreditFcfa = futureEcheanceCreditFcfa;
         this.explicationJson = explicationJson;
+        this.noteDecision = noteDecision;
     }
 
     public Double getScoreRisque() { return scoreRisque; }
@@ -39,4 +41,5 @@ public class ScoringResult {
     public Double getRatioResteAVivreFcfa() { return ratioResteAVivreFcfa; }
     public Double getFutureEcheanceCreditFcfa() { return futureEcheanceCreditFcfa; }
     public String getExplicationJson() { return explicationJson; }
+    public String getNoteDecision() { return noteDecision; }
 }

@@ -391,11 +391,11 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
                 <div class="mt-4 pt-3 border-t border-gray-100 grid grid-cols-2 gap-2 text-center text-xs">
                   <div class="p-2 bg-slate-50 rounded-xl">
                     <span class="text-[10px] text-gray-400 block font-medium">Taux min.</span>
-                    <span class="font-bold text-[#147c76]">{{ cat.tauxInteretMin ?? '—' }}%</span>
+                    <span class="font-bold text-[#147c76]">{{ cat.tauxInteretMin ?? '-' }}%</span>
                   </div>
                   <div class="p-2 bg-slate-50 rounded-xl">
                     <span class="text-[10px] text-gray-400 block font-medium">Durée max.</span>
-                    <span class="font-bold text-gray-800">{{ cat.dureeMaxMois ?? '—' }}m</span>
+                    <span class="font-bold text-gray-800">{{ cat.dureeMaxMois ?? '-' }}m</span>
                   </div>
                 </div>
               </div>

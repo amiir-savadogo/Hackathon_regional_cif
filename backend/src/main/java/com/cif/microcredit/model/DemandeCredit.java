@@ -136,13 +136,15 @@ public class DemandeCredit {
     private Double scoreRisque;              // proba de défaut en % (0-100)
     private Double probaDefaut;             // proba de défaut brute (0-1)
     private String zoneDecision;            // ACCORD_FAVORABLE | A_EXAMINER | RISQUE_ELEVE
-    private Integer scoreCredit;            // score scorecard 300-900
+    private Integer scoreCredit;            // score de solvabilité 0-100 (100 = meilleur)
     private Double perteAttendueFcfa;       // Expected Loss = PD x LGD x EAD
     private Double ratioEndettement;
     private Double ratioResteAVivreFcfa;
     private Double futureEcheanceCreditFcfa;
     @Column(columnDefinition = "TEXT")
     private String explicationJson;         // top facteurs SHAP, sérialisés en JSON
+    @Column(columnDefinition = "TEXT")
+    private String noteDecision;            // règle métier ayant modifié la zone, le cas échéant
 
     private String statut;                  // APPROUVE | REJETE | A_L_ETUDE | ERREUR_IA
 
@@ -334,6 +336,9 @@ public class DemandeCredit {
 
     public String getExplicationJson() { return explicationJson; }
     public void setExplicationJson(String v) { this.explicationJson = v; }
+
+    public String getNoteDecision() { return noteDecision; }
+    public void setNoteDecision(String v) { this.noteDecision = v; }
 
     public String getStatut() { return statut; }
     public void setStatut(String v) { this.statut = v; }

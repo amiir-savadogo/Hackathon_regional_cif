@@ -142,12 +142,13 @@ export interface DemandeCredit {
   scoreRisque?: number;               // probabilité de défaut en %, 0-100
   probaDefaut?: number;               // probabilité de défaut brute, 0-1
   zoneDecision?: 'ACCORD_FAVORABLE' | 'A_EXAMINER' | 'RISQUE_ELEVE' | string;
-  scoreCredit?: number;               // score scorecard 300-900
+  scoreCredit?: number;               // score de solvabilité 0-100 (100 = meilleur)
   perteAttendueFcfa?: number;         // Expected Loss
   ratioEndettement?: number;
   ratioResteAVivreFcfa?: number;      // reste-à-vivre absolu après échéance
   futureEcheanceCreditFcfa?: number;  // mensualité du crédit demandé (annuité)
   explicationJson?: string;           // facteurs SHAP sérialisés (parser avec JSON.parse)
+  noteDecision?: string;              // règle métier ayant modifié la zone, le cas échéant
 
   statut?: 'APPROUVE' | 'REJETE' | 'A_L_ETUDE' | 'ERREUR_IA' | string;
   dateCreation?: string;

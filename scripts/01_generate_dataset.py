@@ -427,12 +427,18 @@ z = (
     # Intercept calibré pour un taux de défaut cible ~10-13 % (microfinance UEMOA).
     # Sensibilité : environ -0.10 d'intercept => -1.5 à -2 points de défaut dans
     # cette zone. Ajuster ici si le taux affiché sort de [8 % ; 15 %].
-    -4.68
-    # --- capacité de remboursement ---
-    + 1.60 * (ratio_endettement > 0.55)
-    + 1.15 * (ratio_endettement > 0.80)
-    + 0.25 * (ratio_reste_a_vivre_absolu_fcfa < 10000)
-    + 0.20 * (ratio_reste_a_vivre_absolu_fcfa < 0)
+    -4.35
+    # --- capacité de remboursement (termes CONTINUS, jamais plafonnés) ---
+    # Un ratio d'endettement de 191 % ou un reste à vivre très négatif restent
+    # structurellement plus risqués qu'un cas limite à 81 % / RAV proche de zéro.
+    # Les anciens termes à seuil binaire ("> 0.55", "> 0.80", "< 0") traitaient
+    # ces deux situations de façon IDENTIQUE une fois le seuil franchi, d'où des
+    # dossiers inpayables classés "À examiner" au lieu de "Risque élevé".
+    # L'endettement porte la pénalité principale ; le reste à vivre n'est qu'un
+    # correctif (coefficient volontairement plus faible) pour éviter un double
+    # comptage massif entre deux variables mathématiquement liées.
+    + 1.90 * np.clip(ratio_endettement - 0.40, 0.0, None)
+    + 0.40 * (np.clip(15000.0 - ratio_reste_a_vivre_absolu_fcfa, 0.0, None) / 50000.0)
     - 0.20 * (np.nan_to_num(ratio_couverture_echeance_epargne) >= 1.0)
     # --- facteurs latents ---
     - 0.65 * discipline
@@ -481,20 +487,14 @@ z = (
 proba_defaut_latent = 1.0 / (1.0 + np.exp(-z))
 defaut_credit = RNG.binomial(1, proba_defaut_latent)
 
-# --- Scorecard de référence (SORTIE, jamais une feature) --------------------
-score_ia = np.clip(
-    690
-    - 170 * np.clip(ratio_endettement - 0.40, 0, None)
-    + 0.7 * np.nan_to_num(taux_remboursement_historique, nan=80.0)
-    - 2.2 * np.nan_to_num(jours_retard_moyen_historique, nan=0.0)
-    + 22 * membre_groupe_solidaire
-    - 32 * (regularite_epargne == "Aucune épargne")
-    + 40 * discipline
-    + RNG.normal(0, 15, N),
-    300, 900,
-).round().astype("int64")
+# --- Score de solvabilité de référence (SORTIE, jamais une feature) ---------
+# Même définition que le moteur (ai-service/main.py) : score = (1 - PD) x 100,
+# borné 0-100. 100 = risque nul, 0 = défaut quasi certain.
+score_ia = np.clip((1.0 - proba_defaut_latent) * 100.0, 0, 100).round().astype("int64")
+# Zones alignées sur les seuils de PD du moteur (0,19 / 0,44) : PD 0,19 <=> 81,
+# PD 0,44 <=> 56.
 decision_scoring_cif = np.select(
-    [score_ia >= 680, score_ia >= 550],
+    [score_ia > 81, score_ia > 56],
     ["Accord Favorable", "À Examiner"],
     default="Risque Élevé",
 )
@@ -712,7 +712,7 @@ if not (0.08 <= taux_defaut <= 0.15):
     _cible = 0.115
     _delta = float(np.log(_cible / (1 - _cible)) - np.log(taux_defaut / (1 - taux_defaut)))
     print(f"  ⚠️  hors plage cible [8% ; 15%] -> dans la formule z, remplacer "
-          f"l'intercept -4.68 par ~{-4.68 + _delta:.2f} et relancer 01.")
+          f"l'intercept -4.35 par ~{-4.35 + _delta:.2f} et relancer 01.")
 print(f"  Nouveaux clients (0 crédit antérieur) : {(nombre_credits_anterieurs == 0).mean():.1%}")
 print(f"  Possède Mobile Money                  : {(possede_mobile_money == 1).mean():.1%}")
 print(f"  BIC consulté                          : {(interroge_bic == 1).mean():.1%}")

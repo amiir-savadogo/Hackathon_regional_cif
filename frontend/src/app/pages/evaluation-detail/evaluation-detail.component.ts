@@ -40,10 +40,15 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
             <span class="text-xs font-bold text-[#147c76] uppercase tracking-wider">Résultat de l'évaluation</span>
             <h1 class="text-xl font-bold text-gray-900">{{ client?.prenom }} {{ client?.nom }}</h1>
             <p class="text-xs text-gray-400 mt-0.5">
-              CNIB {{ client?.numeroCnib || '—' }} · évaluée le {{ demande.dateCreation ? (demande.dateCreation | date:'dd/MM/yyyy HH:mm') : '—' }}
+              CNIB {{ client?.numeroCnib || '-' }} · évaluée le {{ demande.dateCreation ? (demande.dateCreation | date:'dd/MM/yyyy HH:mm') : '-' }}
             </p>
           </div>
           <span [ngClass]="badgeClass(demande.statut)" class="px-4 py-2 rounded-full text-xs font-bold border self-start">{{ statutLabel(demande.statut) }}</span>
+        </div>
+
+        <div *ngIf="demande.noteDecision" class="flex items-start gap-2 p-3 rounded-xl bg-red-50 border border-red-300 text-red-800 text-xs">
+          <svg class="w-4 h-4 flex-shrink-0 mt-0.5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
+          <span><strong>Règle métier appliquée.</strong> {{ demande.noteDecision }}</span>
         </div>
 
         <!-- Résultat -->
@@ -51,7 +56,7 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
           <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
             <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
               <p class="text-[11px] text-gray-500">Score CIF</p>
-              <p class="text-3xl font-extrabold mt-1" [ngClass]="scoreColor(demande.scoreCredit)">{{ demande.scoreCredit || '—' }}<span class="text-xs text-gray-400 font-normal"> / 900</span></p>
+              <p class="text-3xl font-extrabold mt-1" [ngClass]="scoreColor(demande.scoreCredit)">{{ demande.scoreCredit ?? '-' }}<span class="text-xs text-gray-400 font-normal"> / 100</span></p>
             </div>
             <div class="p-4 bg-gray-50 rounded-xl border border-gray-200">
               <p class="text-[11px] text-gray-500">Proba. de défaut</p>
@@ -94,17 +99,17 @@ import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.mo
         <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm">
           <p class="font-bold text-gray-800 text-sm mb-3">Dossier évalué</p>
           <div class="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs">
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Catégorie</span><span class="font-semibold">{{ demande.categorieCredit || '—' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Objet</span><span class="font-semibold">{{ demande.objetCredit || '—' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Garantie</span><span class="font-semibold">{{ demande.garantie || '—' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Taux nominal annuel</span><span class="font-semibold">{{ demande.tauxInteretNominalAnnuelPct != null ? demande.tauxInteretNominalAnnuelPct + ' %' : '—' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Revenu mensuel</span><span class="font-semibold">{{ demande.revenuMensuelFcfa ? (demande.revenuMensuelFcfa | number:'1.0-0') + ' F' : '—' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Charges mensuelles</span><span class="font-semibold">{{ demande.chargesMensuellesFcfa != null ? (demande.chargesMensuellesFcfa | number:'1.0-0') + ' F' : '—' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Épargne moyenne</span><span class="font-semibold">{{ demande.epargneSoldeMoyenFcfa != null ? (demande.epargneSoldeMoyenFcfa | number:'1.0-0') + ' F' : '—' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Régularité d'épargne</span><span class="font-semibold">{{ demande.regulariteEpargne || '—' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Ancienneté coopérative</span><span class="font-semibold">{{ demande.ancienneteCooperativeMois != null ? demande.ancienneteCooperativeMois + ' mois' : '—' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Catégorie</span><span class="font-semibold">{{ demande.categorieCredit || '-' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Objet</span><span class="font-semibold">{{ demande.objetCredit || '-' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Garantie</span><span class="font-semibold">{{ demande.garantie || '-' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Taux nominal annuel</span><span class="font-semibold">{{ demande.tauxInteretNominalAnnuelPct != null ? demande.tauxInteretNominalAnnuelPct + ' %' : '-' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Revenu mensuel</span><span class="font-semibold">{{ demande.revenuMensuelFcfa ? (demande.revenuMensuelFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Charges mensuelles</span><span class="font-semibold">{{ demande.chargesMensuellesFcfa != null ? (demande.chargesMensuellesFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Épargne moyenne</span><span class="font-semibold">{{ demande.epargneSoldeMoyenFcfa != null ? (demande.epargneSoldeMoyenFcfa | number:'1.0-0') + ' F' : '-' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Régularité d'épargne</span><span class="font-semibold">{{ demande.regulariteEpargne || '-' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Ancienneté coopérative</span><span class="font-semibold">{{ demande.ancienneteCooperativeMois != null ? demande.ancienneteCooperativeMois + ' mois' : '-' }}</span></div>
             <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Mobile Money</span><span class="font-semibold">{{ demande.possedeMobileMoney ? 'Oui' : 'Non' }}</span></div>
-            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Statut BIC</span><span class="font-semibold">{{ demande.statutBic || '—' }}</span></div>
+            <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Statut BIC</span><span class="font-semibold">{{ demande.statutBic || '-' }}</span></div>
             <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Groupe solidaire</span><span class="font-semibold">{{ demande.membreGroupeSolidaire ? 'Oui' : 'Non' }}</span></div>
           </div>
         </div>
@@ -214,7 +219,8 @@ export class EvaluationDetailComponent implements OnInit {
   }
 
   scoreColor(s?: number) {
-    return !s ? 'text-gray-700' : s >= 680 ? 'text-emerald-600' : s >= 550 ? 'text-amber-600' : 'text-red-600';
+    if (s === null || s === undefined) return 'text-gray-700';
+    return s > 81 ? 'text-emerald-600' : s > 56 ? 'text-amber-600' : 'text-red-600';
   }
 
   badgeClass(s?: string) {
@@ -233,6 +239,6 @@ export class EvaluationDetailComponent implements OnInit {
     return z === 'ACCORD_FAVORABLE' ? 'Accord favorable'
       : z === 'RISQUE_ELEVE' ? 'Risque élevé'
       : z === 'A_EXAMINER' ? 'À examiner'
-      : (z || '—');
+      : (z || '-');
   }
 }

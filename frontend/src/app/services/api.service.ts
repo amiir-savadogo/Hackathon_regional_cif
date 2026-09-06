@@ -175,8 +175,8 @@ export class ApiService {
   }
 
   /**
-   * Soumet la demande au backend, qui appelle le moteur IA (Régression
-   * Logistique + SHAP). Si le backend est injoignable, on produit une
+   * Soumet la demande au backend, qui appelle le moteur de scoring
+   * (Random Forest + SHAP). Si le backend est injoignable, on produit une
    * ESTIMATION LOCALE de repli, explicitement marquée `source: 'ESTIMATION_LOCALE'`
    * pour qu'un agent ne la confonde jamais avec une vraie prédiction du modèle.
    */
@@ -273,13 +273,17 @@ export class ApiService {
     if (anciennete > 36) probaDefaut -= 0.04;
     probaDefaut = Math.max(0.02, Math.min(0.65, probaDefaut));
 
-    const scoreCredit = Math.round(900 - probaDefaut * 700);
+    // Garde-fou de capacité de remboursement, même logique que le moteur.
+    const resteAVivre = revenu - (demande.chargesMensuellesFcfa || 0) - (montant / duree);
+
+    // Score de solvabilité 0-100 = (1 - PD) x 100, comme ai-service/main.py.
+    const scoreCredit = Math.round((1 - probaDefaut) * 100);
     let statut = 'APPROUVE';
     let zoneDecision = 'ACCORD_FAVORABLE';
-    if (scoreCredit < 550) {
+    if (scoreCredit <= 56 || resteAVivre < 0) {
       statut = 'REJETE';
       zoneDecision = 'RISQUE_ELEVE';
-    } else if (scoreCredit < 680) {
+    } else if (scoreCredit <= 81) {
       statut = 'A_L_ETUDE';
       zoneDecision = 'A_EXAMINER';
     }

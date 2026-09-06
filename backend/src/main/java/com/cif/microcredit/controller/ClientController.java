@@ -141,7 +141,7 @@ public class ClientController {
 
         demande.setClient(optClient.get());
 
-        // Appel du moteur IA (Régression Logistique + SHAP) pour évaluer le dossier
+        // Appel du moteur de scoring (modèle retenu : Random Forest + explicabilité SHAP)
         ScoringResult resultat = scoringService.calculerScore(demande);
 
         if (resultat != null) {
@@ -154,6 +154,7 @@ public class ClientController {
             demande.setRatioResteAVivreFcfa(resultat.getRatioResteAVivreFcfa());
             demande.setFutureEcheanceCreditFcfa(resultat.getFutureEcheanceCreditFcfa());
             demande.setExplicationJson(resultat.getExplicationJson());
+            demande.setNoteDecision(resultat.getNoteDecision());
 
             // La décision finale suit la zone à 3 niveaux calculée par l'IA
             // (le dossier reste toujours sous la responsabilité finale du comité de crédit)
