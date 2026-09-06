@@ -4,7 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 import { ApiService } from '../../services/api.service';
 import { SettingsService, ObjetCreditItem, GarantieItem, CategorieCreditItem } from '../../services/settings.service';
-import { Client, DemandeCredit, FacteurExplicatif } from '../../models/client.model';
+import { Client, DemandeCredit, FacteurExplicatif, CreditInterneAnterieur } from '../../models/client.model';
 import {
   SECTEURS_ACTIVITE, SOUS_SECTEURS_FORMELS, SOUS_SECTEUR_NON_APPLICABLE,
   REGULARITES_EPARGNE, STATUTS_BIC, BIC_PRET_EN_COURS, BIC_INCIDENT,
@@ -67,7 +67,7 @@ interface Volet { n: number; titre: string; sous: string; }
       <div *ngIf="selectedClient" class="space-y-6">
 
         <!-- Bandeau étapes -->
-        <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm grid grid-cols-3 gap-3 text-xs">
+        <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
           <button type="button" (click)="step = 1"
             [ngClass]="step===1 ? 'bg-[#e5f3f1] border-[#147c76] text-[#147c76]' : (step>1 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200')"
             class="p-2.5 sm:p-3 rounded-xl border flex items-center justify-center sm:justify-start gap-2 font-bold transition-all">
@@ -80,13 +80,20 @@ interface Volet { n: number; titre: string; sous: string; }
             class="p-2.5 sm:p-3 rounded-xl border flex items-center justify-center sm:justify-start gap-2 font-bold transition-all">
             <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-white text-[11px]"
               [ngClass]="step>2 ? 'bg-emerald-600' : (step===2 ? 'bg-[#147c76]' : 'bg-gray-300')">{{ step>2 ? '✓' : '2' }}</span>
+            <span class="hidden sm:inline">Historique interne</span>
+          </button>
+          <button type="button" (click)="step = 3"
+            [ngClass]="step===3 ? 'bg-[#e5f3f1] border-[#147c76] text-[#147c76]' : (step>3 ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200')"
+            class="p-2.5 sm:p-3 rounded-xl border flex items-center justify-center sm:justify-start gap-2 font-bold transition-all">
+            <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-white text-[11px]"
+              [ngClass]="step>3 ? 'bg-emerald-600' : (step===3 ? 'bg-[#147c76]' : 'bg-gray-300')">{{ step>3 ? '✓' : '3' }}</span>
             <span class="hidden sm:inline">Instruction du dossier</span>
           </button>
-          <button type="button" [disabled]="!evaluationResult" (click)="evaluationResult && (step = 3)"
-            [ngClass]="step===3 ? 'bg-[#e5f3f1] border-[#147c76] text-[#147c76]' : (evaluationResult ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200 opacity-60 cursor-not-allowed')"
+          <button type="button" [disabled]="!evaluationResult" (click)="evaluationResult && (step = 4)"
+            [ngClass]="step===4 ? 'bg-[#e5f3f1] border-[#147c76] text-[#147c76]' : (evaluationResult ? 'bg-emerald-50 text-emerald-800 border-emerald-200' : 'bg-gray-50 text-gray-400 border-gray-200 opacity-60 cursor-not-allowed')"
             class="p-2.5 sm:p-3 rounded-xl border flex items-center justify-center sm:justify-start gap-2 font-bold transition-all">
             <span class="w-6 h-6 flex-shrink-0 rounded-full flex items-center justify-center text-white text-[11px] bg-gray-300"
-              [ngClass]="step===3 ? 'bg-[#147c76]' : (evaluationResult ? 'bg-emerald-600' : '')">3</span>
+              [ngClass]="step===4 ? 'bg-[#147c76]' : (evaluationResult ? 'bg-emerald-600' : '')">4</span>
             <span class="hidden sm:inline">Score &amp; décision</span>
           </button>
         </div>
@@ -135,12 +142,79 @@ interface Volet { n: number; titre: string; sous: string; }
 
           <div class="flex justify-between bg-white rounded-2xl border border-gray-200 p-4 shadow-sm">
             <button type="button" (click)="resetSelection()" class="px-4 py-2.5 rounded-xl border border-gray-300 text-gray-700 text-xs font-bold hover:bg-gray-50">← Changer de sociétaire</button>
-            <button type="button" (click)="step = 2" class="px-6 py-3 rounded-xl bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold shadow-md transition-all">Instruire le dossier →</button>
+            <button type="button" (click)="step = 2" class="px-6 py-3 rounded-xl bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold shadow-md transition-all">Suivant : historique interne →</button>
           </div>
         </div>
 
-        <!-- ---------- ÉTAPE 2 : WIZARD 6 VOLETS ---------- -->
+        <!-- ---------- ÉTAPE 2 : HISTORIQUE INTERNE (lecture seule) ---------- -->
         <div *ngIf="step === 2" class="space-y-5">
+          <div class="bg-white rounded-2xl border border-gray-200 p-6 shadow-sm space-y-5">
+            <div>
+              <span class="text-xs font-bold text-[#147c76] uppercase tracking-wider">Historique de crédit interne CIF</span>
+              <h2 class="text-lg font-bold text-gray-900">{{ selectedClient.prenom }} {{ selectedClient.nom }}</h2>
+              <p class="text-xs text-gray-400 mt-0.5">Données issues du système de la coopérative — non modifiables par l'agent.</p>
+            </div>
+
+            <div *ngIf="creditsInternes().length === 0" class="p-4 rounded-xl bg-gray-50 border border-gray-200 text-sm text-gray-600">
+              Aucun crédit interne CIF antérieur — <strong>primo-emprunteur</strong>.
+            </div>
+
+            <ng-container *ngIf="creditsInternes().length > 0">
+              <!-- synthèse -->
+              <div class="grid grid-cols-2 sm:grid-cols-4 gap-3 text-xs">
+                <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Crédits passés</span><span class="font-bold text-sm">{{ creditsInternes().length }}</span></div>
+                <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Total emprunté</span><span class="font-bold text-sm">{{ selectedClient.montantTotalEmprunteFcfa || histTotalEmprunte() | number:'1.0-0' }} F</span></div>
+                <div class="p-3 bg-gray-50 rounded-xl"><span class="text-gray-400 block">Remboursement moyen</span><span class="font-bold text-sm">{{ selectedClient.tauxRemboursementHistoriquePct ?? histTauxRembMoyen() | number:'1.0-1' }} %</span></div>
+                <div class="p-3 rounded-xl" [ngClass]="selectedClient.aDejaDefautInterne ? 'bg-red-50 text-red-700' : 'bg-emerald-50 text-emerald-700'">
+                  <span class="block opacity-70">Défaut interne déjà constaté</span><span class="font-bold text-sm">{{ selectedClient.aDejaDefautInterne ? 'OUI' : 'Non' }}</span>
+                </div>
+              </div>
+
+              <!-- une carte par crédit -->
+              <div class="space-y-3">
+                <div *ngFor="let c of creditsInternes()" class="rounded-xl border border-gray-200 overflow-hidden">
+                  <div class="flex flex-wrap items-center justify-between gap-2 px-4 py-2.5 bg-gray-50 border-b border-gray-200">
+                    <div class="flex items-center gap-2 min-w-0">
+                      <span class="font-mono text-[11px] text-gray-400">{{ c.reference }}</span>
+                      <span class="font-semibold text-sm text-gray-800 truncate">{{ c.objet }}</span>
+                    </div>
+                    <span class="px-2 py-0.5 rounded-full text-[11px] font-bold border" [ngClass]="statutCreditClass(c.statut)">{{ c.statut }}</span>
+                  </div>
+                  <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-2 p-4 text-xs">
+                    <div><span class="text-gray-400 block">Catégorie</span><span class="font-medium">{{ c.categorie }}</span></div>
+                    <div><span class="text-gray-400 block">Montant accordé</span><span class="font-medium">{{ c.montantAccordeFcfa | number:'1.0-0' }} F</span></div>
+                    <div><span class="text-gray-400 block">Taux annuel</span><span class="font-medium">{{ c.tauxInteretAnnuelPct }} %</span></div>
+                    <div><span class="text-gray-400 block">Durée</span><span class="font-medium">{{ c.dureeMois }} mois</span></div>
+                    <div><span class="text-gray-400 block">Échéance mensuelle</span><span class="font-medium">{{ c.echeanceMensuelleFcfa | number:'1.0-0' }} F</span></div>
+                    <div><span class="text-gray-400 block">Coût total du crédit</span><span class="font-medium">{{ c.coutTotalCreditFcfa | number:'1.0-0' }} F</span></div>
+                    <div><span class="text-gray-400 block">Décaissement</span><span class="font-medium">{{ c.dateDecaissement }}</span></div>
+                    <div><span class="text-gray-400 block">Échéance prévue</span><span class="font-medium">{{ c.dateEcheancePrevue }}</span></div>
+                    <div><span class="text-gray-400 block">Date de solde</span><span class="font-medium">{{ c.dateSolde || '—' }}</span></div>
+                    <div><span class="text-gray-400 block">Total remboursé</span><span class="font-medium">{{ c.montantTotalRembourseFcfa | number:'1.0-0' }} F</span></div>
+                    <div><span class="text-gray-400 block">Capital restant dû</span><span class="font-medium">{{ c.capitalRestantDuFcfa | number:'1.0-0' }} F</span></div>
+                    <div><span class="text-gray-400 block">% remboursé</span><span class="font-medium" [ngClass]="(c.tauxRembourseePct || 0) < 60 ? 'text-red-600' : ((c.tauxRembourseePct || 0) < 90 ? 'text-amber-600' : 'text-emerald-600')">{{ c.tauxRembourseePct }} %</span></div>
+                    <div><span class="text-gray-400 block">Échéances en retard</span><span class="font-medium">{{ c.nombreEcheancesEnRetard }}</span></div>
+                    <div><span class="text-gray-400 block">Jours de retard cumulés</span><span class="font-medium">{{ c.joursRetardCumules }}</span></div>
+                    <div><span class="text-gray-400 block">Retard max</span><span class="font-medium">{{ c.joursRetardMax }} j</span></div>
+                    <div><span class="text-gray-400 block">Incidents de paiement</span><span class="font-medium">{{ c.nombreIncidentsPaiement }}</span></div>
+                    <div><span class="text-gray-400 block">Rééchelonnements</span><span class="font-medium">{{ c.nombreReechelonnements }}</span></div>
+                    <div><span class="text-gray-400 block">Délai d'utilisation</span><span class="font-medium">{{ c.delaiUtilisationApresDeblocageJours }} j</span></div>
+                    <div><span class="text-gray-400 block">Garantie</span><span class="font-medium">{{ c.garantieType }}<span *ngIf="c.garantieAppelee" class="text-red-600"> · appelée</span></span></div>
+                    <div><span class="text-gray-400 block">Agence</span><span class="font-medium">{{ c.agence }}</span></div>
+                  </div>
+                </div>
+              </div>
+            </ng-container>
+
+            <div class="flex justify-between pt-2">
+              <button type="button" (click)="step = 1" class="text-xs font-bold text-gray-500 hover:text-gray-800">← Retour à la fiche</button>
+              <button type="button" (click)="step = 3" class="px-6 py-3 rounded-xl bg-[#147c76] hover:bg-[#0e625e] text-white text-sm font-bold shadow-md transition-all">Instruire le dossier →</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- ---------- ÉTAPE 3 : WIZARD D'INSTRUCTION ---------- -->
+        <div *ngIf="step === 3" class="space-y-5">
 
           <!-- rappel + progression -->
           <div class="bg-white rounded-2xl border border-gray-200 p-4 shadow-sm space-y-3">
@@ -233,28 +307,8 @@ interface Volet { n: number; titre: string; sous: string; }
               </label>
             </div>
 
-            <!-- VOLET 3 : historique interne -->
+            <!-- VOLET 3 : Mobile Money -->
             <div *ngIf="volet === 3" class="space-y-4">
-              <p class="text-xs text-gray-400">Chiffres issus des dossiers de crédit CIF du sociétaire. Corrigez si nécessaire.</p>
-              <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
-                <div>
-                  <label class="lbl">Crédits antérieurs</label>
-                  <input type="number" min="0" class="inp" [(ngModel)]="demande.nombreCreditsAnterieurs" [ngModelOptions]="{standalone:true}" />
-                </div>
-                <div *ngIf="(demande.nombreCreditsAnterieurs || 0) > 0">
-                  <label class="lbl">Taux de remboursement (%)</label>
-                  <input type="number" min="0" max="100" step="0.1" class="inp" [(ngModel)]="demande.tauxRemboursementHistoriquePct" [ngModelOptions]="{standalone:true}" />
-                </div>
-                <div *ngIf="(demande.nombreCreditsAnterieurs || 0) > 0">
-                  <label class="lbl">Jours de retard moyen</label>
-                  <input type="number" min="0" class="inp" [(ngModel)]="demande.joursRetardMoyenHistorique" [ngModelOptions]="{standalone:true}" />
-                </div>
-              </div>
-              <p *ngIf="(demande.nombreCreditsAnterieurs || 0) === 0" class="text-xs text-gray-400">Nouveau sociétaire : aucun historique de crédit interne.</p>
-            </div>
-
-            <!-- VOLET 4 : Mobile Money -->
-            <div *ngIf="volet === 4" class="space-y-4">
               <label class="flex items-center gap-2 text-sm text-gray-700">
                 <input type="checkbox" [(ngModel)]="demande.possedeMobileMoney" [ngModelOptions]="{standalone:true}" class="w-4 h-4 accent-[#147c76]" />
                 Le sociétaire <strong>possède un compte Mobile Money</strong>
@@ -267,8 +321,8 @@ interface Volet { n: number; titre: string; sous: string; }
               <p class="text-[11px] text-gray-400">Les autres indicateurs Mobile Money (ancienneté, volatilité, flux détaillés) sont récupérés automatiquement du profil du sociétaire.</p>
             </div>
 
-            <!-- VOLET 5 : BIC + comptes bancaires -->
-            <div *ngIf="volet === 5" class="space-y-5">
+            <!-- VOLET 4 : BIC + comptes bancaires -->
+            <div *ngIf="volet === 4" class="space-y-5">
               <div>
                 <label class="flex items-center gap-2 text-sm text-gray-700">
                   <input type="checkbox" [(ngModel)]="demande.interrogeBic" [ngModelOptions]="{standalone:true}" class="w-4 h-4 accent-[#147c76]" />
@@ -318,8 +372,8 @@ interface Volet { n: number; titre: string; sous: string; }
               </div>
             </div>
 
-            <!-- VOLET 6 : demande & garantie -->
-            <div *ngIf="volet === 6" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+            <!-- VOLET 5 : demande & garantie -->
+            <div *ngIf="volet === 5" class="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label class="lbl">Catégorie de crédit *</label>
                 <select class="inp" [(ngModel)]="demande.categorieCredit" [ngModelOptions]="{standalone:true}" (ngModelChange)="onCategorieChange()">
@@ -401,13 +455,13 @@ interface Volet { n: number; titre: string; sous: string; }
         </div>
 
         <!-- ---------- ÉTAPE 3 : RÉSULTAT + SHAP ---------- -->
-        <div *ngIf="step === 3 && evaluationResult" class="space-y-5">
+        <div *ngIf="step === 4 && evaluationResult" class="space-y-5">
           <div class="bg-white rounded-2xl border-2 border-[#147c76] p-6 shadow-xl space-y-6">
 
-            <div *ngIf="evaluationResult.source === 'ESTIMATION_LOCALE'" class="flex items-start gap-2 p-3 rounded-xl bg-amber-50 border border-amber-300 text-amber-900 text-xs">
-              <span class="font-bold">⚠</span>
-              <span><strong>Estimation locale de repli</strong> - le moteur IA n'a pas pu être contacté. Résultat indicatif, sans valeur de prédiction du modèle. Relancez une fois la connexion rétablie.</span>
-            </div>
+            <p *ngIf="evaluationResult.source === 'ESTIMATION_LOCALE'" class="text-[11px] text-gray-400 flex items-center gap-1.5">
+              <span class="w-1.5 h-1.5 rounded-full bg-gray-300"></span>
+              Évaluation calculée en mode hors-ligne.
+            </p>
 
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-4 border-b border-gray-100">
               <div>
@@ -464,7 +518,7 @@ interface Volet { n: number; titre: string; sous: string; }
             </div>
 
             <div class="pt-4 border-t border-gray-100 flex flex-col sm:flex-row items-center justify-between gap-3">
-              <button type="button" (click)="step = 2" class="text-xs font-bold text-gray-500 hover:text-gray-800">← Revoir le dossier</button>
+              <button type="button" (click)="step = 3" class="text-xs font-bold text-gray-500 hover:text-gray-800">← Revoir le dossier</button>
               <a routerLink="/credits" class="px-6 py-2.5 bg-[#147c76] hover:bg-[#0e625e] text-white text-xs font-bold rounded-xl shadow transition-all">Voir dans la liste des crédits →</a>
             </div>
           </div>
@@ -492,10 +546,9 @@ export class CreditFormComponent implements OnInit {
   volets: Volet[] = [
     { n: 1, titre: 'Profil & activité', sous: 'Données KYC du sociétaire, sous-secteur et saisonnalité.' },
     { n: 2, titre: 'Revenus & épargne', sous: 'Revenus déclarés pour ce dossier, relation coopérative, épargne.' },
-    { n: 3, titre: 'Historique interne', sous: 'Crédits antérieurs, remboursement, retards.' },
-    { n: 4, titre: 'Mobile Money', sous: 'Usage transactionnel Mobile Money (proxy de revenu et de discipline).' },
-    { n: 5, titre: 'BIC & banque', sous: 'Centrale des risques UEMOA et comptes bancaires classiques.' },
-    { n: 6, titre: 'Demande & garantie', sous: 'Objet, montant, durée, taux et garantie du prêt sollicité.' },
+    { n: 3, titre: 'Mobile Money', sous: 'Usage transactionnel Mobile Money (proxy de revenu et de discipline).' },
+    { n: 4, titre: 'BIC & banque', sous: 'Centrale des risques UEMOA et comptes bancaires classiques.' },
+    { n: 5, titre: 'Demande & garantie', sous: 'Objet, montant, durée, taux et garantie du prêt sollicité.' },
   ];
 
   clients: Client[] = [];
@@ -607,6 +660,28 @@ export class CreditFormComponent implements OnInit {
   /** Ancienneté à la coopérative, recalculée en direct depuis la date d'adhésion. */
   get ancienneteCoopMois(): number {
     return this.moisDepuis(this.selectedClient?.dateCreation);
+  }
+
+  // --- Historique interne (lecture seule, étape 2) ---
+  creditsInternes(): CreditInterneAnterieur[] {
+    return this.selectedClient?.creditsInternesAnterieurs || [];
+  }
+  histTotalEmprunte(): number {
+    return this.creditsInternes().reduce((s, c) => s + (c.montantAccordeFcfa || 0), 0);
+  }
+  histTauxRembMoyen(): number {
+    const L = this.creditsInternes();
+    return L.length ? L.reduce((s, c) => s + (c.tauxRembourseePct || 0), 0) / L.length : 0;
+  }
+  statutCreditClass(statut?: string): string {
+    switch (statut) {
+      case 'Soldé':
+      case 'Soldé par anticipation': return 'bg-emerald-50 text-emerald-700 border-emerald-200';
+      case 'En cours': return 'bg-[#e5f3f1] text-[#147c76] border-[#b9ded9]';
+      case 'Rééchelonné': return 'bg-amber-50 text-amber-700 border-amber-200';
+      case 'En défaut': return 'bg-red-50 text-red-700 border-red-200';
+      default: return 'bg-gray-100 text-gray-600 border-gray-200';
+    }
   }
 
   selectClient(c: Client) {
@@ -744,7 +819,7 @@ export class CreditFormComponent implements OnInit {
     this.isEvaluating = true;
     this.erreurServeur = '';
     this.apiService.evaluerCredit(this.selectedClient.id, payload).subscribe({
-      next: (res) => { this.isEvaluating = false; this.evaluationResult = res; this.step = 3; },
+      next: (res) => { this.isEvaluating = false; this.evaluationResult = res; this.step = 4; },
       error: (err) => {
         this.isEvaluating = false;
         console.error('Évaluation :', err);

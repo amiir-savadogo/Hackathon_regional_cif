@@ -80,6 +80,20 @@ public class Client {
     private Double joursRetardMoyenHistorique;
     private Double montantTotalEmprunteFcfa;
     private Double delaiUtilisationCreditJours;
+    // Agrégats d'historique interne enrichis (dérivés du détail des crédits passés).
+    private Integer nombreCreditsSoldes;
+    private Double partCreditsSoldesPct;
+    private Boolean aDejaDefautInterne;
+    private Double tauxRemboursementDernierCreditPct;
+    private Double joursRetardMaxHistorique;
+    private Integer nombreIncidentsPaiementTotal;
+    private Integer nombreReechelonnementsTotal;
+    private Double ancienneteDernierCreditMois;
+    private Double montantMaxCreditAnterieurFcfa;
+    // Historique interne DÉTAILLÉ (une entrée par crédit passé), stocké en JSON.
+    @org.hibernate.annotations.JdbcTypeCode(org.hibernate.type.SqlTypes.JSON)
+    @Column(columnDefinition = "jsonb")
+    private java.util.List<CreditInterneAnterieur> creditsInternesAnterieurs = new ArrayList<>();
     private Integer totalTransactions;
     private Double volumeDepotsFcfa;
     private Double volumeRetraitsFcfa;
@@ -217,6 +231,36 @@ public class Client {
 
     public Double getDelaiUtilisationCreditJours() { return delaiUtilisationCreditJours; }
     public void setDelaiUtilisationCreditJours(Double v) { this.delaiUtilisationCreditJours = v; }
+
+    public Integer getNombreCreditsSoldes() { return nombreCreditsSoldes; }
+    public void setNombreCreditsSoldes(Integer v) { this.nombreCreditsSoldes = v; }
+
+    public Double getPartCreditsSoldesPct() { return partCreditsSoldesPct; }
+    public void setPartCreditsSoldesPct(Double v) { this.partCreditsSoldesPct = v; }
+
+    public Boolean getADejaDefautInterne() { return aDejaDefautInterne; }
+    public void setADejaDefautInterne(Boolean v) { this.aDejaDefautInterne = v; }
+
+    public Double getTauxRemboursementDernierCreditPct() { return tauxRemboursementDernierCreditPct; }
+    public void setTauxRemboursementDernierCreditPct(Double v) { this.tauxRemboursementDernierCreditPct = v; }
+
+    public Double getJoursRetardMaxHistorique() { return joursRetardMaxHistorique; }
+    public void setJoursRetardMaxHistorique(Double v) { this.joursRetardMaxHistorique = v; }
+
+    public Integer getNombreIncidentsPaiementTotal() { return nombreIncidentsPaiementTotal; }
+    public void setNombreIncidentsPaiementTotal(Integer v) { this.nombreIncidentsPaiementTotal = v; }
+
+    public Integer getNombreReechelonnementsTotal() { return nombreReechelonnementsTotal; }
+    public void setNombreReechelonnementsTotal(Integer v) { this.nombreReechelonnementsTotal = v; }
+
+    public Double getAncienneteDernierCreditMois() { return ancienneteDernierCreditMois; }
+    public void setAncienneteDernierCreditMois(Double v) { this.ancienneteDernierCreditMois = v; }
+
+    public Double getMontantMaxCreditAnterieurFcfa() { return montantMaxCreditAnterieurFcfa; }
+    public void setMontantMaxCreditAnterieurFcfa(Double v) { this.montantMaxCreditAnterieurFcfa = v; }
+
+    public java.util.List<CreditInterneAnterieur> getCreditsInternesAnterieurs() { return creditsInternesAnterieurs; }
+    public void setCreditsInternesAnterieurs(java.util.List<CreditInterneAnterieur> v) { this.creditsInternesAnterieurs = v; }
 
     public Integer getTotalTransactions() { return totalTransactions; }
     public void setTotalTransactions(Integer v) { this.totalTransactions = v; }

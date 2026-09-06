@@ -3,17 +3,18 @@ API Scoring Microcrédit — Moteur IA
 Hackathon National d'Innovation CIF — Projet DigiCoop-WA+ (Thématique 02)
 
 Expose le modèle entraîné par scripts/02_train_model.py sur
-data/dataset_entrainement.csv (61 variables : cf. scripts/01_generate_dataset.py,
+data/dataset_entrainement.csv (71 variables : cf. scripts/01_generate_dataset.py,
 liste COLONNES_MODELE).
 
-Le client (backend Spring) envoie les 56 variables BRUTES ; le service calcule
-lui-même les 5 variables DÉRIVÉES avec exactement les mêmes formules que le
+Le client (backend Spring) envoie les 65 variables BRUTES ; le service calcule
+lui-même les 6 variables DÉRIVÉES avec exactement les mêmes formules que le
 générateur du dataset :
   - indice_vulnerabilite_zone
   - future_echeance_credit_fcfa   (annuité réelle)
   - ratio_endettement
   - ratio_reste_a_vivre_absolu_fcfa
   - ratio_couverture_echeance_epargne
+  - ratio_montant_demande_sur_max_anterieur
 """
 
 import json
@@ -116,12 +117,21 @@ class ClientData(BaseModel):
     epargne_solde_moyen_fcfa: float = Field(0, ge=0)
     regularite_epargne: str = "Aucune épargne"
 
-    # --- Historique de crédit interne ---
+    # --- Historique de crédit interne (agrégats dérivés du détail des crédits passés) ---
     nombre_credits_anterieurs: int = Field(0, ge=0)
     taux_remboursement_historique_pct: Optional[float] = Field(None, ge=0, le=100)
     jours_retard_moyen_historique: Optional[float] = Field(None, ge=0)
     montant_total_emprunte_passe: float = Field(0, ge=0)
     delai_utilisation_credit_apres_deblocage_jours: Optional[float] = Field(None, ge=0)
+    nombre_credits_soldes: int = Field(0, ge=0)
+    part_credits_soldes_pct: Optional[float] = Field(None, ge=0, le=100)
+    a_deja_defaut_interne: int = Field(0, ge=0, le=1)
+    taux_remboursement_dernier_credit_pct: Optional[float] = Field(None, ge=0, le=100)
+    jours_retard_max_historique: Optional[float] = Field(None, ge=0)
+    nombre_incidents_paiement_total: int = Field(0, ge=0)
+    nombre_reechelonnements_total: int = Field(0, ge=0)
+    anciennete_dernier_credit_mois: Optional[float] = Field(None, ge=0)
+    montant_max_credit_anterieur_fcfa: float = Field(0, ge=0)
 
     # --- Agrégats de transactions (vue consolidée CIF) ---
     total_transactions: int = Field(0, ge=0)
@@ -195,6 +205,8 @@ class ScoringResponse(BaseModel):
 _NUMERIC_NULLABLE = (
     "taux_remboursement_historique_pct", "jours_retard_moyen_historique",
     "delai_utilisation_credit_apres_deblocage_jours",
+    "part_credits_soldes_pct", "taux_remboursement_dernier_credit_pct",
+    "jours_retard_max_historique", "anciennete_dernier_credit_mois",
     "mm_anciennete_compte_mois", "mm_anciennete_sim_mois", "mm_nombre_mois_actifs_12m",
     "mm_evolution_solde_pct", "mm_volatilite_flux_pct", "mm_ratio_depenses_credit_appel_data_pct",
     "bic_nombre_credits_soldes_ailleurs",
@@ -216,16 +228,24 @@ def _echeance_annuite(montant: float, taux_annuel_pct: float, duree_mois: int) -
 
 def _preparer_row(data: ClientData) -> dict:
     """Applique les mêmes règles de cohérence 'valeur absente' que le générateur
-    du dataset, puis calcule les 5 variables dérivées. Renvoie un dict des 63
+    du dataset, puis calcule les 6 variables dérivées. Renvoie un dict des 71
     colonnes attendues par le préprocesseur."""
     row = data.model_dump()
     row.pop("objet_credit", None)
 
-    # 1a. Aucun historique -> NaN sur les variables d'historique
+    # 1a. Aucun historique (primo-emprunteur) -> NaN sur les variables d'historique
+    #     conditionnelles, 0 sur les compteurs (comme le générateur).
     if data.nombre_credits_anterieurs == 0:
         for k in ("taux_remboursement_historique_pct", "jours_retard_moyen_historique",
-                  "delai_utilisation_credit_apres_deblocage_jours"):
+                  "delai_utilisation_credit_apres_deblocage_jours",
+                  "part_credits_soldes_pct", "taux_remboursement_dernier_credit_pct",
+                  "jours_retard_max_historique", "anciennete_dernier_credit_mois"):
             row[k] = np.nan
+        for k in ("nombre_credits_soldes", "a_deja_defaut_interne",
+                  "nombre_incidents_paiement_total", "nombre_reechelonnements_total"):
+            row[k] = 0
+        row["montant_max_credit_anterieur_fcfa"] = 0.0
+        row["montant_total_emprunte_passe"] = 0.0
 
     # 1b. Pas de Mobile Money -> NaN sur les indicateurs, 0 sur les montants
     if int(data.possede_mobile_money) == 0:
@@ -295,6 +315,12 @@ def _preparer_row(data: ClientData) -> dict:
     row["ratio_couverture_echeance_epargne"] = (
         round(data.epargne_solde_moyen_fcfa / echeance, 2) if echeance > 0 else np.nan
     )
+    # Montant demandé rapporté au plus gros crédit CIF déjà obtenu (NaN si primo).
+    mx = data.montant_max_credit_anterieur_fcfa
+    row["ratio_montant_demande_sur_max_anterieur"] = (
+        round(data.montant_credit_demande_fcfa / max(mx, 1.0), 2)
+        if (data.nombre_credits_anterieurs > 0 and mx and mx > 0) else np.nan
+    )
 
     return row
 
@@ -336,10 +362,17 @@ def calculer_score(data: ClientData):
     try:
         row = _preparer_row(data)
 
+        # Tolérance au décalage de version modèle <-> code : si le modèle chargé
+        # attend une colonne que le payload ne fournit plus (ou pas encore),
+        # on l'impute (NaN -> médiane/mode du préprocesseur) au lieu de rejeter
+        # tout le dossier. Le repli "estimation locale" ne doit jamais se
+        # déclencher juste parce qu'une variable a été ajoutée/retirée.
         manquantes = [c for c in (num_cols + cat_cols) if c not in row]
         if manquantes:
-            logger.error("Colonnes attendues absentes du payload : %s", manquantes)
-            raise HTTPException(status_code=422, detail="Données de scoring incomplètes.")
+            logger.warning(
+                "Colonnes attendues par le modèle absentes du payload (imputées) : %s", manquantes)
+            for c in manquantes:
+                row[c] = np.nan
 
         X_input = pd.DataFrame([row])[num_cols + cat_cols]
         X_proc = preprocessor.transform(X_input)

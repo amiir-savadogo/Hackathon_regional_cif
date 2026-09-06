@@ -241,28 +241,142 @@ lam_credits = np.clip(0.15 + 0.02 * anciennete_cooperative_mois, 0.15, 4.0)
 nombre_credits_anterieurs = RNG.poisson(lam_credits).clip(0, 10)
 a_historique = nombre_credits_anterieurs > 0
 
-taux_remboursement_historique = np.where(
-    a_historique,
-    np.clip(89.0 + 6.5 * discipline + RNG.normal(0, 4.0, N), 35, 100),
-    np.nan,
-).round(1)
-jours_retard_moyen_historique = np.where(
-    a_historique,
-    np.clip(RNG.exponential(np.exp(1.5 - 0.55 * discipline)), 0, 180),
-    np.nan,
-).round(0)
-montant_total_emprunte_passe = np.where(
-    a_historique,
-    (nombre_credits_anterieurs * revenu_mensuel * RNG.uniform(1.2, 3.5, N)).round(-4),
-    0.0,
-)
-# Délai d'utilisation du crédit après déblocage : proxy de détournement d'objet
-# (observable seulement pour un client ayant déjà un crédit précédent).
-delai_utilisation_credit_apres_deblocage_jours = np.where(
-    a_historique,
-    np.clip(RNG.exponential(6.0, N) - 3.0 * discipline, 0, 90),
-    np.nan,
-).round(0)
+# ---------------------------------------------------------------------------
+# 4b. Historique interne DÉTAILLÉ : une entrée par crédit CIF passé.
+#     Cette liste est (1) affichée telle quelle à l'agent (wizard, lecture
+#     seule) et (2) la SOURCE de tous les agrégats d'historique utilisés par
+#     le modèle -> la fiche et les features disent exactement la même chose.
+# ---------------------------------------------------------------------------
+_STATUTS_TERMINES = ("Soldé", "Soldé par anticipation", "En défaut", "Rééchelonné")
+
+
+def _annuite(montant, taux_annuel_pct, duree_mois):
+    i = (taux_annuel_pct / 100.0) / 12.0
+    n = max(int(duree_mois), 1)
+    return montant / n if i <= 0 else montant * i / (1.0 - (1.0 + i) ** (-n))
+
+
+credits_par_client = [[] for _ in range(N)]
+for _idx in range(N):
+    _n = int(nombre_credits_anterieurs[_idx])
+    if _n == 0:
+        continue
+    _disc = float(discipline[_idx])
+    _debut = DATE_JOUR - timedelta(days=int(anciennete_cooperative_mois[_idx]) * 30)
+    _fenetre = max((DATE_JOUR - _debut).days - 60, 60)
+    _offsets = np.sort(RNG.uniform(0, _fenetre, _n))
+    for _k in range(_n):
+        _tc = CATALOGUE[int(RNG.integers(0, len(CATALOGUE)))]
+        _montant = float(np.clip(revenu_mensuel[_idx] * RNG.uniform(1.0, 2.8) * (1.0 + 0.12 * _k),
+                                 20000, 3_000_000).round(-3))
+        _duree = int(RNG.integers(_tc["duree_min_mois"], _tc["duree_max_mois"] + 1))
+        _taux = round(float(RNG.uniform(_tc["taux_min_pct"], _tc["taux_max_pct"])), 2)
+        _d_dec = _debut + timedelta(days=int(_offsets[_k]))
+        _d_ech = _d_dec + timedelta(days=_duree * 30)
+        _echeance = round(_annuite(_montant, _taux, _duree), -2)
+        _cout_total = round(_echeance * _duree - _montant, -2)
+
+        _retard_max = int(np.clip(RNG.exponential(np.exp(1.7 - 0.6 * _disc)), 0, 150))
+        _ech_retard = int(np.clip(RNG.poisson(max(0.0, 0.4 - 0.3 * _disc) + _retard_max / 55.0), 0, _duree))
+        _jrc = int(round(_ech_retard * RNG.uniform(4, 22)))
+        _jrm = round(_jrc / _ech_retard, 1) if _ech_retard > 0 else 0.0
+        _incidents = int(RNG.poisson(np.clip(0.30 - 0.20 * _disc, 0.02, 2.0)))
+        _delai_util = int(np.clip(RNG.exponential(6.0) - 3.0 * _disc, 0, 90))
+
+        _est_dernier = (_k == _n - 1)
+        _part_ecoulee = min(1.0, max(0.05, (DATE_JOUR - _d_dec).days / (_duree * 30.0)))
+        # Un crédit dont l'échéance n'est pas encore atteinte est FORCÉMENT en
+        # cours (pas de "Soldé" avec une date dans le futur) ; le dernier crédit
+        # peut aussi être en cours même si l'échéance est passée de peu.
+        _en_cours = (_d_ech > DATE_JOUR) or (_est_dernier and _part_ecoulee < 0.9 and RNG.random() < 0.4)
+        _p_defaut_cred = float(np.clip(0.06 - 0.045 * _disc + 0.03 * (_retard_max > 60), 0.004, 0.40))
+        if _en_cours:
+            _taux_remb = round(float(np.clip(100 * _part_ecoulee * (0.85 + 0.10 * _disc) + RNG.normal(0, 6), 3, 99)), 1)
+            _statut = "En cours"
+        elif RNG.random() < _p_defaut_cred:
+            _taux_remb = round(float(RNG.uniform(8, 55)), 1)
+            _statut = "En défaut"
+        else:
+            _taux_remb = round(float(np.clip(92 + 7 * _disc + RNG.normal(0, 5), 60, 100)), 1)
+            if _retard_max >= 30 and RNG.random() < 0.35:
+                _statut = "Rééchelonné"
+            elif _taux_remb >= 99 and _retard_max <= 10 and RNG.random() < 0.20:
+                _statut = "Soldé par anticipation"
+            else:
+                _statut = "Soldé"
+        _reechel = 1 if _statut == "Rééchelonné" else int(
+            RNG.random() < np.clip(0.04 - 0.03 * _disc + (_taux_remb < 70) * 0.12, 0, 0.35))
+        _total_remb = round((_montant + max(_cout_total, 0.0)) * _taux_remb / 100.0, -2)
+        _capital_restant = round(_montant * max(0.0, 1.0 - _taux_remb / 100.0), -2) \
+            if _statut in ("En cours", "En défaut") else 0.0
+        _garantie_c = str(RNG.choice(GARANTIES, p=GARANTIES_PROBAS))
+        _garantie_appelee = bool(_statut == "En défaut" and _garantie_c != "Aucune" and RNG.random() < 0.6)
+
+        credits_par_client[_idx].append({
+            "reference": f"CR-{_d_dec.year}-{_idx + 1:04d}{_k + 1}",
+            "categorie": _tc["categorie"],
+            "objet": _tc["type"],
+            "dateDecaissement": _d_dec.strftime("%Y-%m-%d"),
+            "dateEcheancePrevue": _d_ech.strftime("%Y-%m-%d"),
+            "dateSolde": (_d_ech - timedelta(days=int(RNG.integers(0, 40)))).strftime("%Y-%m-%d")
+            if _statut in _STATUTS_TERMINES else None,
+            "montantAccordeFcfa": int(_montant),
+            "tauxInteretAnnuelPct": _taux,
+            "dureeMois": _duree,
+            "echeanceMensuelleFcfa": int(_echeance),
+            "coutTotalCreditFcfa": int(_cout_total),
+            "montantTotalRembourseFcfa": int(_total_remb),
+            "capitalRestantDuFcfa": int(_capital_restant),
+            "statut": _statut,
+            "tauxRembourseePct": _taux_remb,
+            "nombreEcheancesEnRetard": _ech_retard,
+            "joursRetardCumules": _jrc,
+            "joursRetardMoyen": _jrm,
+            "joursRetardMax": _retard_max,
+            "nombreIncidentsPaiement": _incidents,
+            "nombreReechelonnements": _reechel,
+            "delaiUtilisationApresDeblocageJours": _delai_util,
+            "garantieType": _garantie_c,
+            "garantieAppelee": _garantie_appelee,
+            "agence": str(agence_cif[_idx]),
+            "membreGroupeSolidaire": bool(membre_groupe_solidaire[_idx]),
+        })
+
+
+def _agg_hist(fn, defaut):
+    return np.array([fn(credits_par_client[i]) if nombre_credits_anterieurs[i] > 0 else defaut
+                     for i in range(N)], dtype="float64")
+
+
+# Agrégats EXISTANTS (mêmes noms qu'avant) — désormais dérivés de la liste.
+taux_remboursement_historique = _agg_hist(
+    lambda L: round(float(np.mean([c["tauxRembourseePct"] for c in L])), 1), np.nan)
+jours_retard_moyen_historique = _agg_hist(
+    lambda L: round(float(np.mean([c["joursRetardMoyen"] for c in L])), 0), np.nan)
+montant_total_emprunte_passe = _agg_hist(
+    lambda L: float(sum(c["montantAccordeFcfa"] for c in L)), 0.0).round(-3)
+delai_utilisation_credit_apres_deblocage_jours = _agg_hist(
+    lambda L: round(float(np.mean([c["delaiUtilisationApresDeblocageJours"] for c in L])), 0), np.nan)
+
+# Agrégats NOUVEAUX — features supplémentaires de l'historique interne.
+nombre_credits_soldes = _agg_hist(
+    lambda L: sum(1 for c in L if c["statut"] in ("Soldé", "Soldé par anticipation")), 0.0)
+part_credits_soldes_pct = _agg_hist(
+    lambda L: round(100.0 * sum(1 for c in L if c["statut"] in ("Soldé", "Soldé par anticipation")) / len(L), 1), 0.0)
+a_deja_defaut_interne = _agg_hist(
+    lambda L: float(any(c["statut"] == "En défaut" for c in L)), 0.0)
+taux_remboursement_dernier_credit_pct = _agg_hist(
+    lambda L: float(L[-1]["tauxRembourseePct"]), np.nan)
+jours_retard_max_historique = _agg_hist(
+    lambda L: float(max(c["joursRetardMax"] for c in L)), np.nan)
+nombre_incidents_paiement_total = _agg_hist(
+    lambda L: float(sum(c["nombreIncidentsPaiement"] for c in L)), 0.0)
+nombre_reechelonnements_total = _agg_hist(
+    lambda L: float(sum(c["nombreReechelonnements"] for c in L)), 0.0)
+anciennete_dernier_credit_mois = _agg_hist(
+    lambda L: round((DATE_JOUR - datetime.strptime(L[-1]["dateDecaissement"], "%Y-%m-%d")).days / 30.0, 1), np.nan)
+montant_max_credit_anterieur_fcfa = _agg_hist(
+    lambda L: float(max(c["montantAccordeFcfa"] for c in L)), 0.0)
 
 # ===========================================================================
 # 5. Bureau d'Information sur le Crédit (BIC / centrale des risques UEMOA)
@@ -406,6 +520,13 @@ ratio_couverture_echeance_epargne = np.where(
     (epargne_solde_moyen / future_echeance_credit_fcfa).round(2),
     np.nan,
 )
+# Montant demandé rapporté au plus gros crédit CIF déjà obtenu : demander
+# beaucoup plus que ce qu'on a déjà su gérer est un signal de risque.
+ratio_montant_demande_sur_max_anterieur = np.where(
+    montant_max_credit_anterieur_fcfa > 0,
+    (montant_credit_demande_fcfa / np.maximum(montant_max_credit_anterieur_fcfa, 1.0)).round(2),
+    np.nan,
+)
 
 # ===========================================================================
 # 10. Cible : DEFAUT (1 = impayé sévère). Score latent = règles métier + bruit.
@@ -449,10 +570,22 @@ z = (
     + 0.55 * (nombre_credits_anterieurs == 0)
     + 0.90 * (regularite_epargne == "Aucune épargne")
     - 0.45 * (regularite_epargne == "Régulière")
-    # --- historique interne ---
+    # --- historique interne (dérivé de la liste détaillée des crédits passés) ---
+    #     L'historique de remboursement pèse LOURD : un défaut interne déjà
+    #     constaté, un dernier crédit mal remboursé ou une demande très
+    #     supérieure au plus gros crédit déjà géré sont des signaux forts.
     + np.where(a_historique, -0.025 * np.nan_to_num(taux_remboursement_historique - 85.0), 0.0)
     + np.where(a_historique, 0.020 * np.nan_to_num(jours_retard_moyen_historique), 0.0)
     + np.where(a_historique, 0.006 * np.nan_to_num(delai_utilisation_credit_apres_deblocage_jours - 15.0), 0.0)
+    + 1.40 * a_deja_defaut_interne
+    + np.where(a_historique, -0.020 * np.nan_to_num(taux_remboursement_dernier_credit_pct - 88.0), 0.0)
+    + 0.004 * np.clip(np.nan_to_num(jours_retard_max_historique) - 30.0, 0.0, 150.0)
+    + 0.12 * np.clip(nombre_reechelonnements_total, 0.0, 4.0)
+    + 0.05 * np.clip(nombre_incidents_paiement_total, 0.0, 8.0)
+    - 0.006 * np.clip(part_credits_soldes_pct - 50.0, 0.0, 50.0)
+    + np.where(a_historique, 0.008 * np.clip(np.nan_to_num(anciennete_dernier_credit_mois) - 24.0, 0.0, 72.0), 0.0)
+    + 0.35 * (np.nan_to_num(ratio_montant_demande_sur_max_anterieur) > 2.5)
+    + 0.55 * (np.nan_to_num(ratio_montant_demande_sur_max_anterieur) > 4.0)
     # --- garantie ---
     - 0.45 * (garantie != "Aucune")
     + 0.50 * (garantie == "Aucune")
@@ -509,6 +642,10 @@ COLONNES_MODELE = [
     "anciennete_cooperative_mois", "membre_groupe_solidaire", "epargne_solde_moyen_fcfa", "regularite_epargne",
     "nombre_credits_anterieurs", "taux_remboursement_historique_pct", "jours_retard_moyen_historique",
     "montant_total_emprunte_passe", "delai_utilisation_credit_apres_deblocage_jours",
+    "nombre_credits_soldes", "part_credits_soldes_pct", "a_deja_defaut_interne",
+    "taux_remboursement_dernier_credit_pct", "jours_retard_max_historique",
+    "nombre_incidents_paiement_total", "nombre_reechelonnements_total",
+    "anciennete_dernier_credit_mois", "montant_max_credit_anterieur_fcfa",
     "total_transactions", "volume_depots_fcfa", "volume_retraits_fcfa", "tx_mobile_money",
     "possede_mobile_money", "frequence_transactions_mm_mois", "mm_anciennete_compte_mois",
     "mm_anciennete_sim_mois", "mm_nombre_mois_actifs_12m", "mm_volume_transactions_mensuel_fcfa",
@@ -524,7 +661,7 @@ COLONNES_MODELE = [
     "categorie_credit", "montant_credit_demande_fcfa", "duree_credit_mois",
     "taux_interet_nominal_annuel_pct", "garantie",
     "future_echeance_credit_fcfa", "ratio_endettement", "ratio_reste_a_vivre_absolu_fcfa",
-    "ratio_couverture_echeance_epargne",
+    "ratio_couverture_echeance_epargne", "ratio_montant_demande_sur_max_anterieur",
 ]
 COLONNES_SORTIE = ["defaut_credit", "score_ia", "decision_scoring_cif"]
 
@@ -537,6 +674,12 @@ _INT_MONEY = {
     "flux_depots_bancaires_mensuel_fcfa", "flux_retraits_bancaires_mensuel_fcfa",
     "encours_credit_autres_institutions_fcfa", "montant_credit_demande_fcfa",
     "future_echeance_credit_fcfa", "ratio_reste_a_vivre_absolu_fcfa",
+    "montant_max_credit_anterieur_fcfa",
+}
+# Compteurs entiers sans valeur manquante (0 pour un primo-emprunteur).
+_INT_COUNT = {
+    "nombre_credits_soldes", "a_deja_defaut_interne",
+    "nombre_incidents_paiement_total", "nombre_reechelonnements_total",
 }
 
 # Alias : quelques variables portent un nom "métier" plus court en amont ;
@@ -550,7 +693,7 @@ _g = globals()
 _manquants = [_c for _c in COLONNES_MODELE if _c not in _g]
 assert not _manquants, f"Variables absentes pour COLONNES_MODELE : {_manquants}"
 _valeurs = {_c: _g[_c] for _c in COLONNES_MODELE}
-for _col_int in _INT_MONEY:
+for _col_int in (_INT_MONEY | _INT_COUNT):
     _valeurs[_col_int] = np.asarray(_valeurs[_col_int], dtype="int64")
 
 # ===========================================================================
@@ -601,6 +744,15 @@ df_entrainement.to_csv(os.path.join(REPO, "data", "dataset_entrainement.csv"),
 df_complet.to_csv(os.path.join(REPO, "data", "base_complete.csv"),
                   index=False, encoding="utf-8-sig")
 
+# Historique interne détaillé : une ligne = un crédit CIF passé (AUDIT / source
+# d'affichage). Ne sert PAS à l'entraînement (le modèle utilise les agrégats).
+_lignes_credits = [
+    {"id_client": str(id_client[i]), "id_societaire": i + 1, **_c}
+    for i in range(N) for _c in credits_par_client[i]
+]
+pd.DataFrame(_lignes_credits).to_csv(
+    os.path.join(REPO, "data", "credits_internes.csv"), index=False, encoding="utf-8-sig")
+
 
 def _client_base(i):
     return {
@@ -636,6 +788,9 @@ def _client_base(i):
         "revenuMensuelFcfa": int(revenu_mensuel[i]),
         "chargesMensuellesFcfa": int(charges_mensuelles[i]),
         "soldeEpargneActuelFcfa": int(epargne_solde_moyen[i]),
+        # Historique interne détaillé : une carte par crédit CIF passé, affichée
+        # en lecture seule dans le wizard. Liste vide = primo-emprunteur.
+        "creditsInternesAnterieurs": list(credits_par_client[i]),
         "demandes": [],
     }
 
@@ -656,6 +811,15 @@ def _client_complet(i):
         "montantTotalEmprunteFcfa": int(montant_total_emprunte_passe[i]),
         "delaiUtilisationCreditJours": _nan_to_none(
             float(delai_utilisation_credit_apres_deblocage_jours[i])),
+        "nombreCreditsSoldes": int(nombre_credits_soldes[i]),
+        "partCreditsSoldesPct": _nan_to_none(float(part_credits_soldes_pct[i])),
+        "aDejaDefautInterne": bool(a_deja_defaut_interne[i]),
+        "tauxRemboursementDernierCreditPct": _nan_to_none(float(taux_remboursement_dernier_credit_pct[i])),
+        "joursRetardMaxHistorique": _nan_to_none(float(jours_retard_max_historique[i])),
+        "nombreIncidentsPaiementTotal": int(nombre_incidents_paiement_total[i]),
+        "nombreReechelonnementsTotal": int(nombre_reechelonnements_total[i]),
+        "ancienneteDernierCreditMois": _nan_to_none(float(anciennete_dernier_credit_mois[i])),
+        "montantMaxCreditAnterieurFcfa": int(montant_max_credit_anterieur_fcfa[i]),
         "totalTransactions": int(total_transactions[i]),
         "volumeDepotsFcfa": int(volume_depots_fcfa[i]),
         "volumeRetraitsFcfa": int(volume_retraits_fcfa[i]),

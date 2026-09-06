@@ -44,6 +44,16 @@ export interface Client {
   joursRetardMoyenHistorique?: number | null;
   montantTotalEmprunteFcfa?: number;
   delaiUtilisationCreditJours?: number | null;
+  nombreCreditsSoldes?: number;
+  partCreditsSoldesPct?: number | null;
+  aDejaDefautInterne?: boolean;
+  tauxRemboursementDernierCreditPct?: number | null;
+  joursRetardMaxHistorique?: number | null;
+  nombreIncidentsPaiementTotal?: number;
+  nombreReechelonnementsTotal?: number;
+  ancienneteDernierCreditMois?: number | null;
+  montantMaxCreditAnterieurFcfa?: number;
+  creditsInternesAnterieurs?: CreditInterneAnterieur[];
   totalTransactions?: number;
   volumeDepotsFcfa?: number;
   volumeRetraitsFcfa?: number;
@@ -65,6 +75,36 @@ export interface FacteurExplicatif {
   variable: string;
   contribution: number;
   sens: 'AUGMENTE_RISQUE' | 'REDUIT_RISQUE' | string;
+}
+
+/** Un crédit CIF passé du sociétaire (historique interne détaillé, lecture seule). */
+export interface CreditInterneAnterieur {
+  reference?: string;
+  categorie?: string;
+  objet?: string;
+  dateDecaissement?: string;
+  dateEcheancePrevue?: string;
+  dateSolde?: string | null;
+  montantAccordeFcfa?: number;
+  tauxInteretAnnuelPct?: number;
+  dureeMois?: number;
+  echeanceMensuelleFcfa?: number;
+  coutTotalCreditFcfa?: number;
+  montantTotalRembourseFcfa?: number;
+  capitalRestantDuFcfa?: number;
+  statut?: 'Soldé' | 'Soldé par anticipation' | 'En cours' | 'En défaut' | 'Rééchelonné' | string;
+  tauxRembourseePct?: number;
+  nombreEcheancesEnRetard?: number;
+  joursRetardCumules?: number;
+  joursRetardMoyen?: number;
+  joursRetardMax?: number;
+  nombreIncidentsPaiement?: number;
+  nombreReechelonnements?: number;
+  delaiUtilisationApresDeblocageJours?: number;
+  garantieType?: string;
+  garantieAppelee?: boolean;
+  agence?: string;
+  membreGroupeSolidaire?: boolean;
 }
 
 export interface DemandeCredit {

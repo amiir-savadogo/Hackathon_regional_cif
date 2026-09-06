@@ -81,12 +81,22 @@ public class ScoringService {
         r.put("epargne_solde_moyen_fcfa", demande.getEpargneSoldeMoyenFcfa());
         r.put("regularite_epargne", orDefault(demande.getRegulariteEpargne(), "Aucune épargne"));
 
-        // --- Historique de crédit interne CIF ---
+        // --- Historique de crédit interne CIF (agrégats issus du dossier du sociétaire) ---
         r.put("nombre_credits_anterieurs", demande.getNombreCreditsAnterieurs());
         r.put("taux_remboursement_historique_pct", demande.getTauxRemboursementHistoriquePct());
         r.put("jours_retard_moyen_historique", demande.getJoursRetardMoyenHistorique());
         r.put("montant_total_emprunte_passe", demande.getMontantTotalEmprunteFcfa());
         r.put("delai_utilisation_credit_apres_deblocage_jours", demande.getDelaiUtilisationCreditJours());
+        // Agrégats enrichis : non saisis par l'agent, lus sur le dossier interne du sociétaire.
+        r.put("nombre_credits_soldes", client.getNombreCreditsSoldes() != null ? client.getNombreCreditsSoldes() : 0);
+        r.put("part_credits_soldes_pct", client.getPartCreditsSoldesPct());
+        r.put("a_deja_defaut_interne", Boolean.TRUE.equals(client.getADejaDefautInterne()) ? 1 : 0);
+        r.put("taux_remboursement_dernier_credit_pct", client.getTauxRemboursementDernierCreditPct());
+        r.put("jours_retard_max_historique", client.getJoursRetardMaxHistorique());
+        r.put("nombre_incidents_paiement_total", client.getNombreIncidentsPaiementTotal() != null ? client.getNombreIncidentsPaiementTotal() : 0);
+        r.put("nombre_reechelonnements_total", client.getNombreReechelonnementsTotal() != null ? client.getNombreReechelonnementsTotal() : 0);
+        r.put("anciennete_dernier_credit_mois", client.getAncienneteDernierCreditMois());
+        r.put("montant_max_credit_anterieur_fcfa", client.getMontantMaxCreditAnterieurFcfa() != null ? client.getMontantMaxCreditAnterieurFcfa() : 0.0);
 
         // --- Agrégats de transactions ---
         r.put("total_transactions", demande.getTotalTransactions());
