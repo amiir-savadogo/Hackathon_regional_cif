@@ -149,7 +149,16 @@ module.exports = {
         },
       },
       animation: {
+        // `fade-in` n'anime QUE l'opacité : c'est la seule à utiliser sur un
+        // conteneur de page.
         'fade-in': 'fade-in .25s cubic-bezier(0.32,0.72,0,1) both',
+        // ATTENTION : les trois animations ci-dessous contiennent un `transform`
+        // et sont en fill-mode `both`, donc le transform PERSISTE après coup.
+        // Un élément avec un transform devient bloc conteneur de ses descendants
+        // en `position: fixed` : une fenêtre modale placée à l'intérieur se
+        // centrerait au milieu de TOUTE la page (potentiellement très longue)
+        // au lieu de l'écran. Ne les utiliser que sur des blocs qui NE
+        // CONTIENNENT PAS de fenêtre modale / d'élément fixe.
         'fade-up': 'fade-up .35s cubic-bezier(0.32,0.72,0,1) both',
         'scale-in': 'scale-in .2s cubic-bezier(0.32,0.72,0,1) both',
         'slide-in-right': 'slide-in-right .3s cubic-bezier(0.32,0.72,0,1) both',

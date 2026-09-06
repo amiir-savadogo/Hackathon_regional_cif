@@ -10,7 +10,7 @@ import { SCORE_RISQUE_VERT_MAX, SCORE_RISQUE_ROUGE_MIN } from '../../models/scor
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="space-y-6 sm:space-y-7 animate-fade-up">
+    <div class="space-y-6 sm:space-y-7 animate-fade-in">
 
       <!-- ================= BANDEAU D'ACCUEIL ================= -->
       <section class="panel-dark px-6 py-7 sm:px-9 sm:py-9">

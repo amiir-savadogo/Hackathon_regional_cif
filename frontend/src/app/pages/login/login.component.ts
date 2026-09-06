@@ -128,7 +128,7 @@ import { AuthService } from '../../services/auth.service';
       align-items: center;
       justify-content: center;
       overflow: hidden;
-      padding: 2.5rem 1.25rem 4rem;
+      padding: 1.5rem 1.25rem 3rem;
       background: #0e161b;
       color: #1a232a;
     }
@@ -185,7 +185,7 @@ import { AuthService } from '../../services/auth.service';
       position: relative;
       display: flex;
       flex-direction: column;
-      padding: 2.75rem 2.5rem;
+      padding: 2.25rem 2.25rem;
       color: #fff;
       background: linear-gradient(155deg, #0e403f 0%, #0d4e4b 48%, #147c76 100%);
       overflow: hidden;
@@ -231,7 +231,7 @@ import { AuthService } from '../../services/auth.service';
       text-transform: uppercase;
     }
 
-    .brand-copy { position: relative; margin-top: auto; padding-top: 3rem; }
+    .brand-copy { position: relative; margin-top: auto; padding-top: 2rem; }
     .eyebrow, .mobile-eyebrow {
       display: inline-block;
       color: #84cfc3;
@@ -259,7 +259,7 @@ import { AuthService } from '../../services/auth.service';
 
     .brand-points {
       position: relative;
-      margin: 1.75rem 0 0;
+      margin: 1.25rem 0 0;
       padding: 0;
       list-style: none;
       display: flex;
@@ -300,7 +300,7 @@ import { AuthService } from '../../services/auth.service';
       display: flex;
       align-items: center;
       gap: .5rem;
-      margin-top: 2rem;
+      margin-top: 1.25rem;
       color: rgba(217, 242, 237, .6);
       font-size: .6875rem;
     }
@@ -317,10 +317,10 @@ import { AuthService } from '../../services/auth.service';
       display: flex;
       flex-direction: column;
       justify-content: center;
-      padding: 2.75rem clamp(1.75rem, 4.5vw, 3.25rem);
+      padding: 2.25rem clamp(1.75rem, 4.5vw, 3rem);
       background: #fff;
     }
-    .form-heading { margin-bottom: 1.75rem; }
+    .form-heading { margin-bottom: 1.5rem; }
     .form-heading h1 {
       margin: .5rem 0 .4375rem;
       font-family: 'Plus Jakarta Sans', Inter, system-ui, sans-serif;
@@ -516,6 +516,26 @@ import { AuthService } from '../../services/auth.service';
     @media (prefers-reduced-motion: reduce) {
       .login-shell { animation: none; }
       .spinner { animation-duration: 1.5s; }
+    }
+
+    /* ---------------- Écrans peu hauts (portables 768px, vidéoprojecteur) ----
+       Objectif : la page de connexion ne doit PAS demander de défilement.
+       On compacte le panneau de marque au lieu de laisser la page s'allonger. */
+    @media (min-width: 62.01rem) and (max-height: 46rem) {
+      .login-page { padding: 1rem 1.25rem 2rem; }
+      .brand-panel, .form-panel { padding-top: 1.75rem; padding-bottom: 1.75rem; }
+      .brand-copy { padding-top: 1.25rem; }
+      .brand-copy h2 { font-size: 1.625rem; margin: .625rem 0 .5rem; }
+      .brand-copy p { font-size: .8125rem; line-height: 1.55; }
+      .brand-points { margin-top: 1rem; gap: .4375rem; }
+      .trust-row { margin-top: 1rem; }
+      .form-heading { margin-bottom: 1.125rem; }
+      .login-footer { display: none; }
+    }
+    /* Écrans vraiment courts : on retire les arguments décoratifs */
+    @media (max-height: 38rem) {
+      .brand-points { display: none; }
+      .brand-copy p { display: none; }
     }
 
     /* ---------------- Adaptation mobile / tablette ---------------- */

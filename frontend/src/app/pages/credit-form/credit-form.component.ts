@@ -19,7 +19,7 @@ interface Volet { n: number; titre: string; sous: string; }
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="mx-auto max-w-6xl space-y-5 sm:space-y-6 pb-16 animate-fade-up">
+    <div class="mx-auto max-w-6xl space-y-5 sm:space-y-6 pb-16 animate-fade-in">
 
       <!-- Retour vers la liste des dossiers -->
       <div class="flex justify-end">

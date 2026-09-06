@@ -16,7 +16,7 @@ interface CreditDossierItem {
   standalone: true,
   imports: [CommonModule, FormsModule, RouterLink],
   template: `
-    <div class="space-y-5 sm:space-y-6 animate-fade-up">
+    <div class="space-y-5 sm:space-y-6 animate-fade-in">
 
       <!-- ================= EN-TÊTE DE PAGE ================= -->
       <header class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">

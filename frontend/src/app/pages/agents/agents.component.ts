@@ -9,7 +9,7 @@ import { AgentUser, AgentRole, AgenceCIF } from '../../models/user.model';
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="space-y-5 sm:space-y-6 animate-fade-up">
+    <div class="space-y-5 sm:space-y-6 animate-fade-in">
       <!-- En-tête avec bouton d'ajout -->
       <header class="flex flex-col gap-4 lg:flex-row lg:items-center lg:justify-between">
         <div class="min-w-0">

@@ -13,7 +13,7 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
   standalone: true,
   imports: [CommonModule, FormsModule],
   template: `
-    <div class="space-y-5 sm:space-y-6 animate-fade-up">
+    <div class="space-y-5 sm:space-y-6 animate-fade-in">
 
       <!-- La navigation (Paramètres > section) se fait par le fil d'Ariane de
            la barre supérieure de l'application : pas de seconde barre ici. -->
@@ -1466,9 +1466,15 @@ export type ParamSection = 'HUB' | 'CATEGORIES' | 'OBJETS_CREDIT' | 'GARANTIES' 
   styles: [`
     :host { display: block; }
 
+    /* IMPORTANT : cette animation ne doit PAS contenir de `transform`.
+       Un `transform` persistant (fill-mode forwards/both) transforme l'élément
+       en bloc conteneur pour ses descendants en `position: fixed` : les fenêtres
+       modales se centreraient alors au milieu de TOUTE la page (très longue
+       quand il y a beaucoup de données) au lieu de l'écran, obligeant à faire
+       défiler pour les atteindre. On anime donc uniquement l'opacité. */
     @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(4px); }
-      to { opacity: 1; transform: translateY(0); }
+      from { opacity: 0; }
+      to { opacity: 1; }
     }
     .animate-fade-in { animation: fadeIn .25s cubic-bezier(.32,.72,0,1) forwards; }
     @media (prefers-reduced-motion: reduce) { .animate-fade-in { animation: none; } }

@@ -18,7 +18,7 @@ import { couleurScore } from '../../models/scoring-zones';
   standalone: true,
   imports: [CommonModule, RouterLink],
   template: `
-    <div class="mx-auto max-w-5xl space-y-5 pb-16 animate-fade-up">
+    <div class="mx-auto max-w-5xl space-y-5 pb-16 animate-fade-in">
 
       <!-- Chargement -->
       <div *ngIf="loading" class="card card-pad space-y-4" aria-busy="true" aria-live="polite">
